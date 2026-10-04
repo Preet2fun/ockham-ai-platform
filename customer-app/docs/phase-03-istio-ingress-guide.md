@@ -1,6 +1,6 @@
 # Customer App — Phase 3: Istio Ingress + JWT Authn Deployment Guide
 
-Closes GitHub issue [#49](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/49).
+Closes GitHub issue [#49](https://github.com/Preet2fun/ockham-ai-platform/issues/49).
 Design: `docs/superpowers/specs/2026-09-10-customer-app-istio-ingress-jwt-authn-design.md`.
 
 ## Overview

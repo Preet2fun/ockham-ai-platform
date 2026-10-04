@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-REPO="preet2fun/itsm-cloudnative-demo-app"
+REPO="preet2fun/ockham-ai-platform"
 PROJECT_TITLE="Synap Roadmap"
 
 echo "Creating GitHub Project: $PROJECT_TITLE"

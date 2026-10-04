@@ -23,7 +23,7 @@ Everything the dev team needs, in one archive.
 | `Hearth Dashboard.dc.html` | Landing dashboard + Copilot prototype (supersedes the dashboard in `Hearth.dc.html`). Needs `_ds/` beside it |
 | `Hearth.dc.html` | The reviewable prototype used for design review. Composes the bound design system's own components; needs `_ds/` beside it to render |
 | `_ds/design-system-f13b1973-4aad-41f0-b2b7-d87df36276fc/` | The Aurora design system — token CSS files and the component bundle |
-| `github.md` | Association with `Preet2fun/itsm-cloudnative-demo-app` (the sibling ITSM platform, Synap) and a screen → source map |
+| `github.md` | Association with `Preet2fun/ockham-ai-platform` (the sibling ITSM platform, Synap) and a screen → source map |
 
 The two prototypes are the same screens twice over, on purpose: `Hearth.dc.html` is the
 design-review artifact and mounts the real design-system components; `reference/` is the

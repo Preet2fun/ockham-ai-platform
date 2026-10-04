@@ -32,7 +32,7 @@ what's actually left.
 ---
 
 ## Phase 1 — Deploy the existing backend to the live cluster
-**GitHub: [#34](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/34), [#27](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/27)**
+**GitHub: [#34](https://github.com/Preet2fun/ockham-ai-platform/issues/34), [#27](https://github.com/Preet2fun/ockham-ai-platform/issues/27)**
 
 - [x] Write `customer-app/docs/deployment-guide.md` (prereqs, ordered steps, expected output, verification, rollback, troubleshooting, acceptance checklist — per root CLAUDE.md §9). Speced in the 2026-08-20 completion design but never written until now — verified against actual code/Helm values, not the old plan's proposal.
 - [x] Pre-deploy resource-budget check (Step 0) — 3 nodes confirmed (1 control-plane + 2 workers, ~4vCPU/~3.85Gi each, matches CLAUDE.md §4). Workers at ~18-20% memory request / ~51% memory limit committed today. Request-level headroom is comfortable; limit-level (worst-case HPA-maxed burst, ~3.25Gi) is tight but not blocking. **Metrics-server is NOT installed** (`kubectl top nodes` fails) — HPA can't actually scale yet, decision deferred to right before Step 5/helm install.
@@ -52,7 +52,7 @@ what's actually left.
 ---
 
 ## Phase 2 — Multi-tenant isolation smoke test
-**GitHub: [#35](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/35)**
+**GitHub: [#35](https://github.com/Preet2fun/ockham-ai-platform/issues/35)**
 
 - [x] Documented test script — `customer-app/scripts/tenant-isolation-smoke-test.sh` (read-only; list-scoping + direct-id 404 + empty-query checks across all 4 services, with a `customer_b` positive control). Written up in `customer-app/docs/tenant-isolation-evidence.md`.
 - [x] Run against live `customer-app-dev` 2026-09-10 — **22/22 passed**, output captured in `customer-app/docs/tenant-isolation-evidence.md`.
@@ -62,7 +62,7 @@ what's actually left.
 ---
 
 ## Phase 3 — Istio ingress + JWT authn wiring
-**GitHub: [#49](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/49)**
+**GitHub: [#49](https://github.com/Preet2fun/ockham-ai-platform/issues/49)**
 
 - [x] `RequestAuthentication` pointing at user-service's JWKS endpoint (shared identity issuer) — live in `customer-app-dev`, 2026-09-11. **Had to be switched from `jwksUri` to a static inline `jwks` on 2026-09-17** — istiod can't fetch a `jwksUri` behind `STRICT` mTLS (see `docs/tenant-isolation-evidence.md`'s "Phase 3 re-run" section for the full root-cause writeup). This also fixed the same bug on platform-app's own `itsm-jwt-auth`.
 - [x] `Gateway` + `VirtualService` for customer-app routes (dev + qa) — bound to the existing shared `itsm-dev/itsm-gateway` (no new Gateway needed); dev applied and verified live, qa is manifests-only parity (no `customer-app-qa` namespace yet).
@@ -73,7 +73,7 @@ what's actually left.
 ---
 
 ## Phase 4 — OPA Rego RBAC policy for customer-app
-**GitHub: [#50](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/50)**
+**GitHub: [#50](https://github.com/Preet2fun/ockham-ai-platform/issues/50)**
 
 - [x] Rego rules: role + HTTP method + path, mirroring platform-app's `infra/k8s/opa/` pattern — **no new allow rules needed**: the existing unscoped `allow if { role == "admin" }` already covered customer-app's admin users. Extracted the policy into a standalone, testable `platform-app/infra/k8s/opa/authz.rego` (no such file existed on `main`), kept byte-for-byte in sync with `policy-configmap.yaml`. Two real bugs found + fixed live along the way (both affecting platform-app's own already-deployed policy too, not just customer-app): (1) OPA's `ext_authz` check runs *before* `jwt_authn` in Istio's filter chain, so the old `x-user-role` header read was always empty — fixed by reading the role from the JWT directly; (2) an automated security review correctly flagged the first fix's unverified JWT decode as HIGH severity — upgraded to `io.jwt.decode_verify` with the same pinned public key used in Phase 3's JWKS fix. Full writeup: `docs/superpowers/specs/2026-09-17-customer-app-opa-rbac-design.md`.
 - [x] Policy test file — `platform-app/infra/k8s/opa/authz_test.rego`, 27 tests (platform-app regression + customer-app + JWT-verification-specific cases including a tampered-signature rejection test), all passing.
@@ -84,7 +84,7 @@ what's actually left.
 ---
 
 ## Phase 5 — UI design draft (Claude Design)
-**GitHub: [#45](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/45)**
+**GitHub: [#45](https://github.com/Preet2fun/ockham-ai-platform/issues/45)**
 
 Per root CLAUDE.md §10: customer-app is a clean greenfield frontend — stack,
 routing, and state approach get decided as part of this task.
@@ -121,7 +121,7 @@ stays open until that lands too).**
 ---
 
 ## Phase 6 — Build the first screen
-**GitHub: [#45](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/45) (same issue as Phase 5 — draft + build is one task)**
+**GitHub: [#45](https://github.com/Preet2fun/ockham-ai-platform/issues/45) (same issue as Phase 5 — draft + build is one task)**
 
 - [x] Scaffold the frontend project — `customer-app/services/frontend/`,
       Vite + React 18 + TypeScript, React Router, TanStack Query, Zustand,
@@ -172,7 +172,7 @@ per project policy on GitHub actions).**
 ---
 
 ## Phase 7 — Observability wiring
-**GitHub: [#40](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/40), [#37](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/37), [#38](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/38), [#39](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/39)**
+**GitHub: [#40](https://github.com/Preet2fun/ockham-ai-platform/issues/40), [#37](https://github.com/Preet2fun/ockham-ai-platform/issues/37), [#38](https://github.com/Preet2fun/ockham-ai-platform/issues/38), [#39](https://github.com/Preet2fun/ockham-ai-platform/issues/39)**
 
 - [x] Platform-app's observability stack deployed live in `itsm-dev` —
       OTel Collector (contrib, `open-telemetry/opentelemetry-collector`
@@ -253,7 +253,7 @@ per project policy on GitHub actions).**
 ---
 
 ## Phase 8 — CI/CD completion
-**GitHub: [#51](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/51)**
+**GitHub: [#51](https://github.com/Preet2fun/ockham-ai-platform/issues/51)**
 
 Scope grew from the TODO's original one-liner once discovery showed neither
 ArgoCD nor a real CI pipeline existed anywhere in the repo yet — full design
@@ -332,7 +332,7 @@ call, per project policy on GitHub actions).**
 ---
 
 ## Phase 9 — Capacity risk resolution
-**GitHub: [#36](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/36)**
+**GitHub: [#36](https://github.com/Preet2fun/ockham-ai-platform/issues/36)**
 
 Bounded task (brainstorming skill, no spec/plan needed — existing Helm
 chart + existing `CLAUDE.md` section being modified).
@@ -397,7 +397,7 @@ root `CLAUDE.md` §12.
 ---
 
 ## Phase 10 — End-to-end demo validation
-**GitHub: [#52](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/52)**
+**GitHub: [#52](https://github.com/Preet2fun/ockham-ai-platform/issues/52)**
 
 The actual point of the whole exercise — closing validation, not an early task.
 Customer-app has no frontend yet (§6), so the happy path runs as direct API

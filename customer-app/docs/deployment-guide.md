@@ -1,7 +1,7 @@
 # Customer App — Deployment Guide (Phase 1: first live deploy to `customer-app-dev`)
 
-Closes GitHub issues [#34](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/34)
-(deploy to the live cluster) and [#27](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/27)
+Closes GitHub issues [#34](https://github.com/Preet2fun/ockham-ai-platform/issues/34)
+(deploy to the live cluster) and [#27](https://github.com/Preet2fun/ockham-ai-platform/issues/27)
 (create `customer_tenants` registry + seed 3 tenant schemas). This is the
 deployment guide the 2026-08-20 completion design (§11) called for but never
 wrote — everything below is verified against the actual code and Helm
@@ -78,7 +78,7 @@ Compare against real headroom in `INFRA-INVENTORY.md` (not the static ~5Gi
 figure in `CLAUDE.md` §4 — that number drifts). If it doesn't fit
 comfortably alongside Platform App, **stop here** — this is exactly the
 capacity risk tracked in
-[#36](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/36)
+[#36](https://github.com/Preet2fun/ockham-ai-platform/issues/36)
 (Phase 9 of the TODO list), and the fix (lower limits, add node RAM, or
 force `maxReplicas: 1` in dev) belongs there, not as an improvised change
 mid-deploy.
@@ -406,7 +406,7 @@ kubectl get pvc -n customer-app-dev
 ### Traces not appearing anywhere
 `values.yaml` points `OTEL_EXPORTER_OTLP_ENDPOINT` at
 `http://otel-collector.itsm-dev:4317` — Platform App's observability stack. If
-[#40](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/40) is
+[#40](https://github.com/Preet2fun/ockham-ai-platform/issues/40) is
 still open, that collector may not actually be running yet. This does not
 block this deploy — OTLP export failures are non-fatal background retries,
 not request-blocking. Tracked as Phase 7 of `customer-app/TODO.md`.

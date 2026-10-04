@@ -142,7 +142,7 @@ metadata:
   namespace: argocd
 spec:
   source:
-    repoURL: https://github.com/<user>/itsm-cloudnative-demo-app
+    repoURL: https://github.com/<user>/ockham-ai-platform
     targetRevision: main
     path: infra/helm/itsm-app
     helm:

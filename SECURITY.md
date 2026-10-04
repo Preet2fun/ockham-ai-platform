@@ -11,7 +11,7 @@
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Please report security vulnerabilities via [GitHub Private Security Advisory](https://github.com/preet2fun/itsm-cloudnative-demo-app/security/advisories/new).
+Please report security vulnerabilities via [GitHub Private Security Advisory](https://github.com/preet2fun/ockham-ai-platform/security/advisories/new).
 
 Include:
 - Description of the vulnerability

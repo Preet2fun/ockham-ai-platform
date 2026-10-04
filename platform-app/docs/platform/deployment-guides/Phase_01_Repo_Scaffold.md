@@ -15,7 +15,7 @@
 
 ```bash
 # If you already cloned:
-$ cd itsm-cloudnative-demo-app
+$ cd ockham-ai-platform
 
 # Verify structure
 $ ls
@@ -30,7 +30,7 @@ MCP servers let Claude Code interact with your local PostgreSQL, Docker, K8s, an
 
 ### 2a — Project-level MCP config
 
-The file `itsm-cloudnative-demo-app/.claude/settings.json` is already in the repo
+The file `ockham-ai-platform/.claude/settings.json` is already in the repo
 (git-ignored so your local paths are not committed).
 
 If it is missing, create it:
@@ -42,7 +42,7 @@ $ cat > .claude/settings.json <<'EOF'
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/absolute/path/to/itsm-cloudnative-demo-app"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/absolute/path/to/ockham-ai-platform"]
     },
     "postgres": {
       "command": "npx",
@@ -64,7 +64,7 @@ $ cat > .claude/settings.json <<'EOF'
 EOF
 ```
 
-Replace `/absolute/path/to/itsm-cloudnative-demo-app` and `<machine-ip>` with real values.
+Replace `/absolute/path/to/ockham-ai-platform` and `<machine-ip>` with real values.
 
 ### 2b — Verify MCP servers load
 

@@ -17,7 +17,7 @@ browse-and-order consumer flow anywhere in this bundle.
 
 ## Sibling product
 
-Hearth sits alongside **Synap**, the ITSM platform in `Preet2fun/itsm-cloudnative-demo-app`.
+Hearth sits alongside **Synap**, the ITSM platform in `Preet2fun/ockham-ai-platform`.
 Same design system, same multi-tenant backend conventions, different audience and domain.
 
 ## Screen inventory

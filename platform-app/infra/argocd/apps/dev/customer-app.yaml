@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Preet2fun/itsm-cloudnative-demo-app.git
+    repoURL: https://github.com/Preet2fun/ockham-ai-platform.git
     targetRevision: main
     path: customer-app/infra/helm/customer-app
     helm:

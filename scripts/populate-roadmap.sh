@@ -14,7 +14,7 @@
 set -euo pipefail
 
 OWNER="preet2fun"
-REPO="preet2fun/itsm-cloudnative-demo-app"
+REPO="preet2fun/ockham-ai-platform"
 PROJECT_TITLE="Synap Roadmap"
 
 # ── Helpers ──────────────────────────────────────────────────────────────────

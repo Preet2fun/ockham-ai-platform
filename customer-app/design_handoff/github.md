@@ -1,4 +1,4 @@
-repo: Preet2fun/itsm-cloudnative-demo-app
+repo: Preet2fun/ockham-ai-platform
 branch: main
 
 ## Last sync

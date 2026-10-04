@@ -1,6 +1,6 @@
 # Customer App — Multi-Tenant Isolation Evidence (Phase 2)
 
-Closes GitHub issue [#35](https://github.com/Preet2fun/itsm-cloudnative-demo-app/issues/35).
+Closes GitHub issue [#35](https://github.com/Preet2fun/ockham-ai-platform/issues/35).
 
 ## What this proves
 

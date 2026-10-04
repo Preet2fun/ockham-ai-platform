@@ -373,7 +373,7 @@ Run on the **K8s master node** (or any machine with Docker + push access):
 
 ```bash
 # Pull the latest code
-cd ~/itsm-cloudnative-demo-app
+cd ~/ockham-ai-platform
 git pull origin main
 
 # Build the frontend image
