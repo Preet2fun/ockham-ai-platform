@@ -79,12 +79,14 @@ spec:
               port: http
             initialDelaySeconds: {{ .Values.userService.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.userService.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.userService.readinessProbe.timeoutSeconds }}
           livenessProbe:
             httpGet:
               path: {{ .Values.userService.livenessProbe.path }}
               port: http
             initialDelaySeconds: {{ .Values.userService.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.userService.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.userService.livenessProbe.timeoutSeconds }}
           resources:
             requests:
               cpu: {{ .Values.userService.resources.requests.cpu }}

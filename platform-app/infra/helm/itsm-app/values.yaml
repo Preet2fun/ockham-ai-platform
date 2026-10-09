@@ -45,15 +45,24 @@ userService:
     maxReplicas: 2
     targetCPUUtilizationPercentage: 70
 
+  # timeoutSeconds is 5 (not the 1s default) — confirmed live 2026-10-09 the
+  # default is too tight on kubernetes-master (the cluster's most contended
+  # node), causing spurious "context deadline exceeded" probe failures and a
+  # restart loop (510+ restarts) while the container itself was idle/healthy
+  # (1m CPU / 7Mi mem, both well under limits). Same fix pattern already used
+  # for argocd-repo-server (infra/argocd/install/values.yaml) and
+  # delivery/payment-service (customer-app/infra/helm/customer-app/values.yaml).
   readinessProbe:
     path: /api/v1/health
     initialDelaySeconds: 5
     periodSeconds: 10
+    timeoutSeconds: 5
 
   livenessProbe:
     path: /api/v1/health
     initialDelaySeconds: 15
     periodSeconds: 20
+    timeoutSeconds: 5
 
 # ── Redis ──────────────────────────────────────────────────────────────────────
 redis:
