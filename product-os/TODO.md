@@ -16,13 +16,16 @@ Each item: where it came from, why it's parked, what would unblock it.
 1. **Stage 06's handoff to `ai-product-strategy/` has no real landing spot.**
    `ai-discovery/stages/06-decision-and-brief.md` says: *"if the underlying
    signal keeps recurring across ideas, flag it for
-   `../../ai-product-strategy/`."* But `ai-product-strategy/` is scaffold-only
-   today — nothing exists there to actually flag it into.
-   **Why parked:** user's call — `ai-product-strategy/` needs real alignment
-   with the Ockham product direction first, not a placeholder built ahead of
-   that work.
-   **Unblocks when:** the user is ready to work on `ai-product-strategy/`
-   for real.
+   `../../ai-product-strategy/`."* **Update (2026-10-10):** the folder's
+   operating methodology (6 philosophies) is now written, no longer
+   scaffold-only — but none of its 7 named artifacts exist yet, so there's
+   still nothing concrete (e.g. a `bets-and-non-goals.md`) to actually flag
+   a recurring signal into.
+   **Why parked:** user's call — the remaining artifacts need real
+   alignment with Ockham product direction first, not a placeholder built
+   ahead of that work.
+   **Unblocks when:** the user is ready to draft one of the 7 named
+   artifacts for real.
 
 2. **`ai-gtm/pricing-and-packaging.md` is thin.**
    Affects `data-analysis/impact-estimation.md`'s **Value per Action** term

@@ -551,6 +551,27 @@ they're not mentioned elsewhere.
   (ArgoCD does not manage its own install via GitOps). **Confirmed live:**
   new pod running 0 restarts post-rollout, no further probe-timeout
   events.
+- **`user-service` instability — root-caused and fixed 2026-10-09.** Same
+  class of bug as the `argocd-repo-server` entry above, found while trying
+  to verify the live MFA login flow for issue #54 (Dashboard + Copilot
+  screen): `userService.readinessProbe`/`livenessProbe` had no
+  `timeoutSeconds` set, so Kubernetes defaulted to 1s. Pod was on
+  `kubernetes-master` (the cluster's most contended node) and crash-looping
+  — 510+ restarts, cycling every 1-5 min, exit code 0 (graceful SIGTERM from
+  a failed probe, not OOM). Confirmed via events: `context deadline
+  exceeded` on both probes while the container itself was idle (1m CPU /
+  7Mi mem, both far under limits) — the app was never actually unhealthy.
+  **This is the third service hitting this exact chart-default-timeout bug**
+  (after argocd-repo-server and delivery/payment-service) — worth checking
+  any *other* service's probes for a missing `timeoutSeconds` before it
+  surfaces again. Fixed in `platform-app/infra/helm/itsm-app/values.yaml`
+  (`userService.readinessProbe.timeoutSeconds` / `livenessProbe.timeoutSeconds`
+  added, 1→5) plus the corresponding template fields in
+  `templates/user-service/deployment.yaml` (previously didn't reference
+  `timeoutSeconds` at all). Applied via `helm upgrade --install itsm-app`
+  on `kubernetes-master`. **Confirmed live:** new pod (new ReplicaSet),
+  2 restarts in the first 88 min (vs. one every 1-5 min before), zero
+  `Unhealthy`/`BackOff` events since rollout.
 - **Telemetry depth gap** — see §5's "New known gap" (no structured
   business-event logs or custom metrics on order/delivery/payment-service;
   trace-only correlation for those 3 services).

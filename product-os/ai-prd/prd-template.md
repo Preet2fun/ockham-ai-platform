@@ -230,7 +230,11 @@ At inference / extraction; at chat; at the UI / human-in-the-loop.
 
 ### E. Evaluation strategy
 Ground-truth sources; offline eval plan (metric / method / target / cadence);
-online monitoring; failure criteria; the eval dataset location.
+online monitoring; failure criteria; the eval dataset location. Plus one
+worked success-case example and one worked failure/edge-case example (a
+concrete input → expected-output pair each) — specific enough that
+engineering can turn either straight into the offline eval suite's first
+fixture without re-deriving intent.
 
 ### F. Production readiness — HHH
 | Pillar | Strength | Risk | Mitigation |

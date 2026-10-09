@@ -38,9 +38,9 @@ IDEA
   │ Pursue + Ready
   ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ DESIGN              ai-design/  ⛔  (scaffold only)          │
-│ HLD/LLD, feature spec, mocks — today this gap is bridged by  │
-│ superpowers:brainstorming acting as the technical-design step│
+│ DESIGN              ai-design/  🟡  (principles written)     │
+│ 7 UX/trust principle docs ground this; HLD/LLD, feature spec,│
+│ mocks still bridged by superpowers:brainstorming + Claude Des│
 └─────────────────────────────────────────────────────────────┘
   │
   ▼
@@ -67,7 +67,7 @@ IDEA
 └─────────────────────────────────────────────────────────────┘
   │ learnings feed back
   ▼
-knowledge-hub/ (⛔ pending) · ai-product-strategy/ (⛔ pending) · context-hub/ (✅)
+knowledge-hub/ (⛔ pending) · ai-product-strategy/ (🟡 partial) · context-hub/ (✅)
 ```
 
 Two supporting stores sit **outside** this pipeline and feed every stage of
@@ -359,9 +359,11 @@ blocked on that, it's just not-yet-materialized.
 3. On Park/Kill: write `decision-log.md` — reason, evidence, revisit trigger
    (Park only), strategy note.
 4. Either way: if this same underlying signal keeps recurring across
-   separate ideas, flag it for `ai-product-strategy/` — today that folder is
-   scaffold-only, so this flag currently has no real landing spot (tracked in
-   `product-os/TODO.md`, item 1 — parked, not forgotten).
+   separate ideas, flag it for `ai-product-strategy/` — today that folder
+   only has its operating methodology written, none of its 7 named
+   artifacts (e.g. `bets-and-non-goals.md`) yet, so this flag still has no
+   real landing spot to receive it (tracked in `product-os/TODO.md`, item 1
+   — parked, not forgotten).
 5. **Gate:** the decision is explicit with a one-paragraph rationale. Pursue
    means the Discovery Brief is complete enough that the PRD Agent can start
    with no back-questions.
@@ -539,8 +541,10 @@ through the loop.
 - Stage 01's output, including any carried candidate-solutions table.
 - The Discovery Brief itself, if this came from `ai-discovery/`.
 - `context-hub/icp.md`, `context-hub/positioning.md`.
-- `ai-product-strategy/` — ⛔ scaffold today, so this input is a no-op until
-  that folder is real.
+- `ai-product-strategy/` — 🟡 operating methodology now written, but still
+  0 of 7 expected artifacts (`product-vision.md`, `bets-and-non-goals.md`,
+  etc.) — the actual PRD-consumable content. This input stays a no-op until
+  those exist, not until the folder has anything in it at all.
 - `ai-feedback/` **cohort-compare** — where feedback data exists (today:
   `ai-feedback/sample-feedback.csv`, dummy) — scopes the shared vs
   differential vs unique persona split.
@@ -791,11 +795,13 @@ through the loop.
 **Input**
 - Stage 02 (chosen framing), stage 03 (where it lives/adjacent systems),
   stage 06 (what's shown).
-- `ai-design/` principles — ⛔ scaffold only today, no principles actually
-  written yet.
-- Root `CLAUDE.md` §10 — the real bridge in the meantime: UI is drafted
-  directly in Claude Design, without waiting on `ai-design/` (this note is
-  new; added directly to this stage's own file as part of this restructure).
+- `ai-design/` principles — 🟡 all 7 artifacts now written
+  (`design-principles.md`, `proof-chain-ui.md`, `approval-flows.md`,
+  `autonomy-controls.md`, `incident-workspace.md`, `security-triage-view.md`,
+  `chat-surface.md`); use them directly when drafting this stage's screens.
+- Root `CLAUDE.md` §10 — the actual mockup still gets drafted in Claude
+  Design, not generated from `ai-design/` directly; the principles above are
+  what that drafting should be checked against, not a replacement for it.
 
 **Working flow**
 1. Define surfaces: where the feature lives (module, nav entry, embedded vs
@@ -958,34 +964,47 @@ through the loop.
   or waived (with reason), and a one-line final status.
 - Storage: `product-os/ai-prd/prds/<slug>/stages/12-final-checklist.md`.
 - Feeds: nothing further inside `ai-prd/` — this is the loop's exit.
-  Downstream: `ai-design/` (⛔ scaffold — bridged today by Claude Design
-  directly, same as stage 08) and then engineering
-  (`superpowers:brainstorming` → `writing-plans` → `executing-plans`, per
-  §6 of this playbook), reusing the same `<slug>` per the traceability rule
-  stated there.
+  Downstream: `ai-design/` (🟡 principles written — same as stage 08, the
+  actual mockup is still drafted directly in Claude Design, checked against
+  those principles) and then engineering (`superpowers:brainstorming` →
+  `writing-plans` → `executing-plans`, per §6 of this playbook), reusing the
+  same `<slug>` per the traceability rule stated there.
 
 ---
 
-## 5. Design — `ai-design/` (⛔ Pending — scaffold only)
+## 5. Design — `ai-design/` (🟡 Partial — principles written, no HLD/LLD mechanism yet)
 
 **What it's for:** how agent work gets shown to humans so they trust it and
-can override it — the actual UX layer of "AI-native." Its own README lists the
-expected artifacts, none written yet:
+can override it — the actual UX layer of "AI-native." Its own README names 7
+expected artifacts; all 7 are now written as principle docs:
 
-- `design-principles.md` — explainable autonomy
-- `proof-chain-ui.md` — the evidence-linked investigation timeline
-- `approval-flows.md` — remediation as one approval with a visible diff
-- `autonomy-controls.md` — the per-capability autonomy dial (observe → suggest
-  → act-with-approval → act)
-- `incident-workspace.md`, `security-triage-view.md`, `chat-surface.md`
+- `design-principles.md` — explainable autonomy, failure-state-first design
+- `proof-chain-ui.md` — the evidence-linked investigation timeline, ranked
+  hypotheses not a single guess
+- `approval-flows.md` — remediation as one approval with a visible diff;
+  grounded in a verified working example (Hearth's Dashboard Copilot)
+- `autonomy-controls.md` — the per-capability autonomy dial (observe →
+  suggest → act-with-approval → act), with a concrete promotion rule
+  (override rate < 20%, tune per capability once real data exists)
+- `incident-workspace.md`, `security-triage-view.md` — the two concrete
+  screens, each grounded in a real context-hub tie (the eBPF thesis for the
+  security view)
+- `chat-surface.md` — progressive/streaming responses and same-thread
+  conversational refinement are now settled; what "notebook" means
+  concretely and the full creation scope are still genuinely undecided,
+  not an oversight
+
+**What's still missing:** the actual HLD/LLD-generation mechanism — these
+are principles, not a process that turns a PRD into a drafted screen on its
+own.
 
 **Today's bridge (per the alignment doc, `docs/superpowers/specs/2026-09-25-
 ockham-vision-repo-alignment-design.md` §4):** a validated PRD's §9
-(Experience & Prototype) plus its AI-native addendum feed directly into
+(Experience & Prototype) plus its AI-native addendum still feed directly into
 `superpowers:brainstorming` acting as the technical-design step — Claude
-Design mockups get drafted there (root `CLAUDE.md` §10), not through a
-formal `ai-design/` artifact set. This folder gets built out organically as
-real features need its specific artifacts, not as blocking upfront work.
+Design mockups get drafted there (root `CLAUDE.md` §10). The 7 principle
+docs above are what that drafting should now be checked against; they don't
+replace the bridge, they ground it.
 
 ---
 
@@ -1032,7 +1051,7 @@ checked gate, not a slogan:
 | **B — Grounding strategy** | The single source of truth; what the model may/may not see; attribution on every output; "not found" is a valid answer |
 | **C — Prompt strategy** | Per task: technique, output format, rationale; the prompt-improvement loop |
 | **D — Hallucination guardrails** | At inference/extraction, at chat, at the human-in-the-loop step |
-| **E — Evaluation strategy** | Ground-truth sources; offline eval plan (metric·method·target·cadence); online monitoring; eval dataset location |
+| **E — Evaluation strategy** | Ground-truth sources; offline eval plan (metric·method·target·cadence); online monitoring; eval dataset location; plus one worked success-case and one worked failure/edge-case example (concrete input → expected output) — required, Tier 3–4 Blocking if missing |
 | **F — Production readiness (HHH)** | Helpful/Honest/Harmless, with launch criteria per Alpha/Beta/GA |
 | **G — Agent capabilities & autonomy** | Per component: autonomy level (observe → suggest → act-with-approval → act) + human-in-the-loop trigger |
 | **H — Model requirements & selection** | Model/provider, context window, cost, latency target, and the fallback if pricing/availability changes |
@@ -1272,21 +1291,25 @@ not live data — nothing is in production yet to generate real numbers from.
 
 ---
 
-## 10. The two "not yet built" scaffolds, and where they actually connect
+## 10. Two scaffolds now mid-build, and where they actually connect
 
-**`ai-product-strategy/` (⛔ Pending)** — the reasoning layer between company
-context and execution: what to build, in what order, what not to build.
-Expected artifacts: `product-vision.md`, `roadmap-sequencing.md`,
-`bets-and-non-goals.md`, `moat-thesis.md`, `category-strategy.md`,
-`competitive-strategy.md`, `build-vs-buy.md`. **Worth noting directly:** our
-own `docs/superpowers/specs/2026-09-25-ockham-vision-repo-alignment-design.md`
-already covers, in embryonic form, exactly what `roadmap-sequencing.md` (the
-near-term-observability → security-pivot-trigger sequencing) and
-`bets-and-non-goals.md` (the explicit non-goals) are meant to hold. When this
-folder gets populated for real, that doc is the natural starting draft — not
-something to silently copy over, a decision for you when it's time.
+**`ai-product-strategy/` (🟡 Partial)** — the reasoning layer between company
+context and execution: what to build, in what order, what not to build. Its
+operating methodology (5 principles, an anti-pattern checklist, a hypothesis
+discipline tying into `data-analysis/experiment-analysis.md`) is now written.
+Still 0 of 7 expected artifacts drafted: `product-vision.md`,
+`roadmap-sequencing.md`, `bets-and-non-goals.md`, `moat-thesis.md`,
+`category-strategy.md`, `competitive-strategy.md`, `build-vs-buy.md`.
+**Worth noting directly:** our own `docs/superpowers/specs/2026-09-25-
+ockham-vision-repo-alignment-design.md` already covers, in embryonic form,
+exactly what `roadmap-sequencing.md` (the near-term-observability →
+security-pivot-trigger sequencing) and `bets-and-non-goals.md` (the explicit
+non-goals) are meant to hold. When those get drafted for real, that doc is
+the natural starting point — not something to silently copy over, a decision
+for you when it's time.
 
-**`ai-design/` (⛔ Pending)** — covered in §5.
+**`ai-design/` (🟡 Partial)** — all 7 expected artifacts written; the
+HLD/LLD-generation mechanism is the piece still missing. Covered in §5.
 
 **`data-analysis/` (🟡 Partial, 3 of 9 artifacts)** — built:
 `impact-estimation.md` (pre-build sizing: `Impact = Users Affected × Current
@@ -1341,8 +1364,8 @@ one.
 | `ai-discovery/` | ✅ Completed | Agent + 6 stages + scorecard, all built |
 | `ai-prd/` | ✅ Completed | 2 agents + 12 stages + template + rubric + citations, all built |
 | `ai-feedback/` | ✅ Completed | Agent + 6 lenses built (dormant until real feedback data exists — pre-launch) |
-| `ai-design/` | ⛔ Pending | Scaffold only — 7 expected artifacts named, none written |
-| `ai-product-strategy/` | ⛔ Pending | Scaffold only — 7 expected artifacts named, none written; alignment doc partially pre-seeds it |
+| `ai-design/` | 🟡 Partial | All 7 expected artifacts written as principles; HLD/LLD-generation mechanism still missing |
+| `ai-product-strategy/` | 🟡 Partial | Operating methodology written; 0 of 7 expected artifacts drafted; alignment doc partially pre-seeds them |
 | `data-analysis/` | 🟡 Partial | 3 of 9 artifacts built (impact-estimation, experiment-analysis, calibration-log) |
 | `ai-gtm/` | ✅ Completed | Structure + Ockham's own ICP/signals/personas/battlecards populated; execution automation intentionally unpopulated pre-launch |
 | `ai-pmf-strategy.md` | ✅ Completed | The framework everything else operationalizes |

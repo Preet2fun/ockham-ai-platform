@@ -38,7 +38,10 @@ template's AI-native addendum (A–G)**.
     chat, at the UI / human-in-the-loop.
 11. **Evaluation strategy** (addendum E) — ground-truth sources; offline eval
     plan (metric · method · target · cadence); online monitoring; the eval
-    dataset location. Stage 07 verifies any data claims this makes.
+    dataset location. Plus one worked success-case and one worked
+    failure/edge-case example (concrete input → expected output each),
+    specific enough to seed the offline eval suite's first fixture without
+    re-deriving intent. Stage 07 verifies any data claims this makes.
 12. **Production readiness — HHH** (addendum F) — Helpful / Honest / Harmless:
     strength · risk · mitigation; launch criteria per stage (Alpha / Beta / GA);
     Responsible AI (accountability, transparency, fairness, reliability & safety).

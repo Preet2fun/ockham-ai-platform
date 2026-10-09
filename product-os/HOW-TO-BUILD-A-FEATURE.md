@@ -36,7 +36,7 @@ in `ai-pdlc-playbook.md` §6.
 | 1 | Discovery | `/discovery-agent` | Yes — stages 02 and 06, always; 01/03/05 when the real world hasn't supplied what's needed |
 | 2 | PRD | `/write-prd` | Yes — stages 01, 02, 06, 10, 11, always; 05 and 10 when real data is missing |
 | — | PRD review | *(runs inside `/write-prd` stage 11 automatically)* — or standalone: `/review-prd` | Verdict always returned to you; it never edits the PRD itself |
-| 3 | Design | — no command yet (`ai-design/` is pending) — bridged by `superpowers:brainstorming` | Standard brainstorming approval gate |
+| 3 | Design | — no command yet (`ai-design/`'s principles are written, but no agent) — bridged by `superpowers:brainstorming` | Standard brainstorming approval gate |
 | 4 | Planning → Dev → QA → Deploy | `superpowers:writing-plans` → `superpowers:executing-plans` (engineering repo, not product-os) | Standard plan-approval + review gates |
 | 5 | Release / GTM | `/gtm-account-research`, `/gtm-account-scoring`, `/gtm-signal-to-sequence` as needed | Research + scoring run clean; signal-to-sequence drafts only — never sends |
 | — | Scale gate | Score [`ai-launch-strategy.md`](ai-launch-strategy.md) before GTM spend | Always a human call — it's a canvas, not an agent |
@@ -121,11 +121,14 @@ comes back to you.)*
 
 ### 3. Design — the acknowledged gap
 
-No slash command exists yet — `ai-design/` is scaffold-only, by your own
-choice this session. Today's bridge (per `ai-pdlc-playbook.md` §5): the PRD's
-§9 (Experience & Prototype) plus its AI-native addendum feed directly into
-`superpowers:brainstorming` acting as the technical-design step, with Claude
-Design mockups drafted there per root `CLAUDE.md` §10.
+No slash command or agent exists yet — `ai-design/` now has all 7 expected
+principle docs written (design-principles, proof-chain-ui, approval-flows,
+autonomy-controls, incident-workspace, security-triage-view, chat-surface),
+but still no HLD/LLD-generation mechanism. Today's bridge (per
+`ai-pdlc-playbook.md` §5): the PRD's §9 (Experience & Prototype) plus its
+AI-native addendum feed directly into `superpowers:brainstorming` acting as
+the technical-design step, with Claude Design mockups drafted there per root
+`CLAUDE.md` §10 — now grounded by the 7 principle docs rather than nothing.
 
 ### 4. Planning → Development → QA → Deployment — the engineering repo
 

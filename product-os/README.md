@@ -57,14 +57,18 @@ product-os/
 ├── ai-prd/               PRD Agent + PRD Reviewer Agent — BUILT
 ├── ai-feedback/          Customer Feedback Intelligence (MCP or CSV) — BUILT
 ├── ai-gtm/                  Go-to-market — GTM-repository pattern (+ sample data) — BUILT
-├── ai-product-strategy/  standalone scaffold ┐ each folds into a lifecycle/
-├── ai-design/            standalone scaffold ┘ phase once that is built
+├── ai-product-strategy/  standalone, partially built — operating methodology
+│                         (6 philosophies) written; 0 of 7 named artifacts yet
+├── ai-design/            standalone, partially built — all 7 expected principle
+│                         docs written; HLD/LLD-generation mechanism still missing
 ├── data-analysis/        standalone, partially built — impact-estimation.md +
 │                         experiment-analysis.md + calibration-log.md; rest scaffold
 └── operations/           cross-references ai-feedback/ + data-analysis/, plus
                           4 built artifacts (reliability monitoring, failure
                           triage, feedback routing, incident runbook) — BUILT
 ```
+
+Both `ai-product-strategy/` and `ai-design/` fold into a `lifecycle/` phase once that's built, same as the other standalone folders below.
 
 Root docs: [`ai-pmf-strategy.md`](ai-pmf-strategy.md) ·
 [`ai-launch-strategy.md`](ai-launch-strategy.md) — cross-cutting frameworks;

@@ -62,9 +62,13 @@ finding must quote the PRD line or name the missing thing.
 - Guardrail metrics present.
 - Credible validation: offline **and** online eval plan (metric / target /
   cadence); failure criteria stated.
+- At least one worked success-case and one worked failure/edge-case example
+  (concrete input → expected output), not just the eval plan in the
+  abstract — specific enough to seed the eval suite's first fixture.
 - AI-specific metrics where relevant: accuracy, hallucination / groundedness
   rate, calibration, cost per run, correction rate.
-- **Tier 3–4 with no failure criteria or no eval plan → Blocking.**
+- **Tier 3–4 with no failure criteria, no eval plan, or no worked example →
+  Blocking.**
 
 ### 5. Adjacent Impact
 *Effect on adjacent systems, hidden dependencies, and partner concerns.*
