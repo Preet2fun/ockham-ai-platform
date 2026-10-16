@@ -50,7 +50,8 @@ evidence, and force the honest version. The human decides.
 | Input | Source |
 |---|---|
 | Feature brief **or Discovery Brief** | the user (a line, a paragraph, an uploaded doc), or `product-os/ai-discovery/` — a validated problem + open assumptions + suggested tier |
-| Company context | `product-os/context-hub/` |
+| **Product** — `ockham` (default) or `hearth` | the Discovery Brief's header, or the user. Resolve every `context-hub/` read per `product-os/context-hub/README.md` "Products in the portfolio"; "Speak Ockham" above means speak the run's product |
+| Company context | `product-os/context-hub/` (product-resolved) |
 | Shipped features + dependencies | `product-os/knowledge-hub/` |
 | Product strategy | `product-os/ai-product-strategy/` |
 | Customer feedback | `product-os/ai-feedback/` — an MCP feedback tool or a CSV, run through its lenses (VoC for stage 05, evidence for stage 07) |

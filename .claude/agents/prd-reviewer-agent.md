@@ -63,7 +63,9 @@ them first:
   (Prior Learnings) — check the PRD didn't quietly drop or contradict it.
 - **The questions senior reviewers will ask** — pre-empt them.
 - **Consistency anchors** — `product-os/context-hub/` (positioning, ICP,
-  competitors, metric rules, moat) and the PRD's own stage artifacts
+  competitors, metric rules, moat), resolved for the PRD's stated product
+  per `product-os/context-hub/README.md` "Products in the portfolio" — a PRD
+  with no product in its header is a finding — and the PRD's own stage artifacts
   (`stages/01…10`, `context/`), plus any linked specs / prior PRDs.
 
 Record every referenced artifact you could **not** find — a claim resting on a

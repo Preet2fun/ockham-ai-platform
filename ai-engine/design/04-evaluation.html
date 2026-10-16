@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agent Evaluation Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: lab-manual reference — sticky contents rail on the left, one reading column, diagrams break out to the full column width. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --sunken: #eceff4;
+  --fg: #18202c;
+  --muted: #566176;
+  --line: #d3d9e3;
+  --accent: #2b55c7;
+  --accent-soft: #e2e9fb;
+  --pass: #1d7a4c;
+  --pass-soft: #def2e7;
+  --fail: #b4322a;
+  --fail-soft: #f8e1df;
+  --warn: #9a6400;
+  --warn-soft: #f8ecd2;
+  --code-bg: #eef1f6;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --step--1: 0.84rem;
+  --step-0: 1rem;
+  --step-1: 1.2rem;
+  --step-2: 1.5rem;
+  --step-3: 2.1rem;
+  --step-4: 2.8rem;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --surface: #181d26; --sunken: #1f2531; --fg: #e3e8f0; --muted: #9aa5b8;
+    --line: #2f3747; --accent: #86a5f5; --accent-soft: #23304f;
+    --pass: #5cc98f; --pass-soft: #173327; --fail: #f08a80; --fail-soft: #3a1d1b;
+    --warn: #e2b04f; --warn-soft: #362a12; --code-bg: #1c222d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #181d26; --sunken: #1f2531; --fg: #e3e8f0; --muted: #9aa5b8;
+  --line: #2f3747; --accent: #86a5f5; --accent-soft: #23304f;
+  --pass: #5cc98f; --pass-soft: #173327; --fail: #f08a80; --fail-soft: #3a1d1b;
+  --warn: #e2b04f; --warn-soft: #362a12; --code-bg: #1c222d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: var(--step-0); line-height: 1.6;
+  padding-inline: 16px; padding-block: 0 4rem;
+}
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 3px; }
+pre { font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; overflow-x: auto; margin: 0; }
+pre code { background: none; padding: 0; font-size: inherit; }
+h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h2 { font-size: var(--step-3); font-weight: 700; }
+h3 { font-size: var(--step-2); font-weight: 600; }
+h4 { font-size: var(--step-1); font-weight: 600; }
+p { margin: 0; }
+ul, ol { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.35rem; }
+
+.shell { max-width: 1240px; margin-inline: auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 3rem; }
+@media (max-width: 960px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 0; } .toc { display: none; } }
+
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); align-self: start; max-height: 100vh; overflow-y: auto; padding-block: 2rem; font-size: var(--step--1); }
+.toc .toc-label { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-size: 0.72rem; margin-bottom: 0.6rem; }
+.toc ol { list-style: none; padding: 0; gap: 0.15rem; }
+.toc a { color: var(--muted); text-decoration: none; display: block; padding: 0.2rem 0.5rem; border-left: 2px solid transparent; }
+.toc a:hover { color: var(--fg); border-left-color: var(--line); }
+.toc .part { margin-top: 1rem; font-family: var(--font-display); font-weight: 600; color: var(--fg); font-size: 0.95rem; padding-left: 0.5rem; }
+
+main { min-width: 0; display: grid; gap: 4rem; padding-block: 2.5rem 0; }
+.doc-head { display: grid; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 2rem; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); }
+.doc-head h1 { font-size: var(--step-4); font-weight: 700; letter-spacing: -0.01em; }
+.lede { font-size: var(--step-1); color: var(--muted); max-width: 68ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip { font-family: var(--font-mono); font-size: 0.74rem; padding: 0.2rem 0.55rem; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); background: var(--surface); }
+
+section { display: grid; gap: 1.25rem; scroll-margin-top: 1.5rem; }
+section > p, section > ul, section > ol, .prose { max-width: 70ch; }
+.sec-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 0.05em; }
+.sec-head { display: grid; gap: 0.35rem; }
+.part-banner { display: grid; gap: 0.5rem; padding: 1.75rem; background: var(--fg); color: var(--bg); border-radius: var(--radius); }
+.part-banner .eyebrow { color: var(--bg); opacity: 0.7; }
+.part-banner h2 { font-size: var(--step-4); }
+.part-banner p { max-width: 70ch; opacity: 0.85; }
+
+.rule { border: 1px solid var(--line); border-left: 4px solid var(--accent); background: var(--surface); padding: 0.9rem 1.1rem; border-radius: 0 var(--radius) var(--radius) 0; max-width: 78ch; }
+.rule strong:first-child { font-family: var(--font-display); }
+.example { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: grid; gap: 0.6rem; max-width: 82ch; }
+.example .tag { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--warn); }
+.example h4 { font-size: 1.05rem; }
+
+.figure { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1.25rem; display: grid; gap: 0.75rem; }
+.figure .cap { font-size: var(--step--1); color: var(--muted); }
+.figure .cap b { color: var(--fg); font-family: var(--font-display); font-weight: 600; }
+.scroll-x { overflow-x: auto; }
+svg { display: block; max-width: 100%; height: auto; }
+svg text { font-family: var(--font-body); fill: var(--fg); }
+svg .t-muted { fill: var(--muted); }
+svg .t-mono { font-family: var(--font-mono); }
+svg .t-head { font-family: var(--font-display); font-weight: 600; }
+svg .t-accent { fill: var(--accent); }
+svg .t-pass { fill: var(--pass); }
+svg .t-fail { fill: var(--fail); }
+svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+svg .box-sunken { fill: var(--sunken); stroke: var(--line); stroke-width: 1.2; }
+svg .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+svg .box-pass { fill: var(--pass-soft); stroke: var(--pass); stroke-width: 1.5; }
+svg .box-fail { fill: var(--fail-soft); stroke: var(--fail); stroke-width: 1.5; }
+svg .box-warn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+svg .edge { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+svg .edge-accent { stroke: var(--accent); stroke-width: 2; fill: none; }
+svg .edge-dash { stroke: var(--muted); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+svg .dot-pass { fill: var(--pass); }
+svg .dot-fail { fill: var(--fail); }
+svg .arrowhead { fill: var(--muted); }
+svg .arrowhead-accent { fill: var(--accent); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-display); font-weight: 600; background: var(--sunken); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 99px; white-space: nowrap; }
+.pill.pass { background: var(--pass-soft); color: var(--pass); }
+.pill.fail { background: var(--fail-soft); color: var(--fail); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.info { background: var(--accent-soft); color: var(--accent); }
+tr.regress td { background: var(--fail-soft); }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 1rem; }
+.card { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1rem 1.1rem; display: grid; gap: 0.5rem; align-content: start; min-width: 0; }
+.card h4 { font-size: 1.05rem; }
+.card .kicker { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.card ul { font-size: 0.92rem; }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; }
+.flow .step { flex: 1 1 150px; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 0.8rem 0.9rem; display: grid; gap: 0.3rem; align-content: start; }
+.flow .step b { font-family: var(--font-display); font-size: 1.02rem; }
+.flow .step span { font-size: 0.86rem; color: var(--muted); }
+.flow .step .n { font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); }
+.flow .arrow { align-self: center; color: var(--muted); font-family: var(--font-mono); }
+@media (max-width: 640px) { .flow .arrow { display: none; } .flow .step { flex-basis: 100%; } }
+
+.phase-list { display: grid; gap: 0.75rem; }
+.phase { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1rem; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.phase .when { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); }
+.phase .when b { display: block; font-family: var(--font-display); font-size: 1.1rem; color: var(--fg); }
+.phase .body { display: grid; gap: 0.5rem; min-width: 0; }
+.phase .deliv { font-size: 0.88rem; color: var(--muted); }
+.phase .deliv b { color: var(--fg); }
+@media (max-width: 640px) { .phase { grid-template-columns: minmax(0, 1fr); } }
+
+.calc { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: grid; gap: 0.8rem; }
+.calc .row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; }
+.calc label { display: grid; gap: 0.2rem; font-size: 0.8rem; color: var(--muted); font-family: var(--font-mono); }
+.calc input { width: 7rem; font: inherit; font-family: var(--font-mono); font-size: 0.95rem; padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); }
+.calc output { font-family: var(--font-mono); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.calc .verdict { font-size: 0.92rem; }
+
+.checklist { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 80ch; }
+.checklist li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: 0.5rem; align-items: start; }
+.checklist input { margin-top: 0.3rem; accent-color: var(--accent); }
+.small { font-size: var(--step--1); color: var(--muted); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<nav class="toc" aria-label="Contents">
+  <div class="toc-label">Pillar 4 · Contents</div>
+  <ol>
+    <li><a href="#how-to-use">How to use this guide</a></li>
+    <li><a href="#loop">The eval loop at a glance</a></li>
+    <li class="part">Part A — Eval design</li>
+    <li><a href="#a1">A1 Why agent eval is different</a></li>
+    <li><a href="#a2">A2 Define “good” yourself</a></li>
+    <li><a href="#a3">A3 Error analysis</a></li>
+    <li><a href="#a4">A4 Choose how to count each error</a></li>
+    <li><a href="#a5">A5 Judges you can trust</a></li>
+    <li><a href="#a6">A6 Evaluating RAG</a></li>
+    <li><a href="#a7">A7 Evaluating agents</a></li>
+    <li><a href="#a8">A8 The testing pyramid</a></li>
+    <li><a href="#a9">A9 Numbers you can defend</a></li>
+    <li><a href="#a10">A10 Evals across the lifecycle</a></li>
+    <li class="part">Part B — Test harness design</li>
+    <li><a href="#b1">B1 What the harness is for</a></li>
+    <li><a href="#b2">B2 Architecture</a></li>
+    <li><a href="#b3">B3 Component contracts</a></li>
+    <li><a href="#b4">B4 Designing the input set</a></li>
+    <li><a href="#b5">B5 Baseline → variant experiments</a></li>
+    <li><a href="#b6">B6 Outputs: summary, failures, traceability</a></li>
+    <li><a href="#b7">B7 CI gate, cadence and cost</a></li>
+    <li><a href="#b8">B8 Online harness and feedback loop</a></li>
+    <li><a href="#b9">B9 Pitfalls</a></li>
+    <li class="part">Reference</li>
+    <li><a href="#checklist">Quick-reference checklist</a></li>
+    <li><a href="#refs">Reference index</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="doc-head">
+  <div class="eyebrow">ai-engine / design / Pillar 4 of 5</div>
+  <h1>Agent Evaluation Guide</h1>
+  <p class="lede">How to design evals and build the test harness that runs them, for any agentic or RAG use case in this repo. It covers defining what “good” means, finding the errors that matter, counting them cheaply and reliably, and gating every change on the result.</p>
+  <div class="meta">
+    <span class="chip">Implements ai-engine/CLAUDE.md §4</span>
+    <span class="chip">LangGraph · Langfuse (self-hosted)</span>
+    <span class="chip">Tracks: SRE · ITSM · Security</span>
+    <span class="chip">Supersedes 04-evaluation.md</span>
+  </div>
+</header>
+
+<section id="how-to-use">
+  <div class="sec-head"><h3>How to use this guide</h3></div>
+  <p>The guide has two parts. <strong>Part A</strong> covers design: what to measure and how to measure it. <strong>Part B</strong> covers the test harness: the machinery that runs those measurements on every change, offline and in production. Read Part A when you scope a new agent or RAG feature. Use Part B when you wire it into CI.</p>
+  <p>Every example comes from one of the three tracks (SRE, ITSM, Security), per <code>ai-engine/CLAUDE.md</code> §1. Four running use cases recur throughout:</p>
+  <div class="grid-4">
+    <div class="card"><div class="kicker">SRE · agentic</div><h4>Incident RCA agent</h4><p class="small">Supervisor graph that delegates to log, metric and deploy analysts and names a root cause for an incident such as INC-4471.</p></div>
+    <div class="card"><div class="kicker">ITSM · agentic</div><h4>Ticket triage agent</h4><p class="small">Classifies an incoming ticket, sets priority, links the affected CI from the CMDB and routes it to a resolver group.</p></div>
+    <div class="card"><div class="kicker">ITSM · RAG</div><h4>Service-desk KB assistant</h4><p class="small">Answers “how do I…” questions by retrieving tenant-scoped KB articles and citing them.</p></div>
+    <div class="card"><div class="kicker">Security · agentic</div><h4>Alert triage agent</h4><p class="small">Correlates a SIEM detection with asset criticality and recent identity and access changes, then proposes escalate or close.</p></div>
+  </div>
+</section>
+
+<section id="loop">
+  <div class="sec-head"><div class="sec-num">00</div><h2>The eval loop at a glance</h2></div>
+  <p>Evals are a feedback loop, not a one-time test suite. Each step depends on the one before it. You can't count an error you haven't seen, and you can't judge an experiment without a baseline.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 300" width="960" role="img" aria-label="Eval loop: define good, observe traces, count errors, baseline, experiment, gate and ship, monitor online, then back to observe">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker>
+        <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead-accent"/></marker>
+      </defs>
+      <g>
+        <rect x="10" y="40" width="118" height="96" rx="6" class="box-accent"/>
+        <text x="69" y="66" text-anchor="middle" class="t-mono t-accent" font-size="11">1 · A2</text>
+        <text x="69" y="90" text-anchor="middle" class="t-head" font-size="15">Define “good”</text>
+        <text x="69" y="110" text-anchor="middle" class="t-muted" font-size="11">quality dimensions</text>
+        <text x="69" y="124" text-anchor="middle" class="t-muted" font-size="11">per use case</text>
+
+        <rect x="146" y="40" width="118" height="96" rx="6" class="box"/>
+        <text x="205" y="66" text-anchor="middle" class="t-mono t-accent" font-size="11">2 · A3</text>
+        <text x="205" y="90" text-anchor="middle" class="t-head" font-size="15">Observe</text>
+        <text x="205" y="110" text-anchor="middle" class="t-muted" font-size="11">read traces,</text>
+        <text x="205" y="124" text-anchor="middle" class="t-muted" font-size="11">annotate errors</text>
+
+        <rect x="282" y="40" width="118" height="96" rx="6" class="box"/>
+        <text x="341" y="66" text-anchor="middle" class="t-mono t-accent" font-size="11">3 · A4–A7</text>
+        <text x="341" y="90" text-anchor="middle" class="t-head" font-size="15">Count</text>
+        <text x="341" y="110" text-anchor="middle" class="t-muted" font-size="11">one eval per</text>
+        <text x="341" y="124" text-anchor="middle" class="t-muted" font-size="11">error type</text>
+
+        <rect x="418" y="40" width="118" height="96" rx="6" class="box"/>
+        <text x="477" y="66" text-anchor="middle" class="t-mono t-accent" font-size="11">4 · B5</text>
+        <text x="477" y="90" text-anchor="middle" class="t-head" font-size="15">Baseline</text>
+        <text x="477" y="110" text-anchor="middle" class="t-muted" font-size="11">fixed inputs,</text>
+        <text x="477" y="124" text-anchor="middle" class="t-muted" font-size="11">current system</text>
+
+        <rect x="554" y="40" width="118" height="96" rx="6" class="box"/>
+        <text x="613" y="66" text-anchor="middle" class="t-mono t-accent" font-size="11">5 · B5</text>
+        <text x="613" y="90" text-anchor="middle" class="t-head" font-size="15">Experiment</text>
+        <text x="613" y="110" text-anchor="middle" class="t-muted" font-size="11">one hypothesis,</text>
+        <text x="613" y="124" text-anchor="middle" class="t-muted" font-size="11">all evals compared</text>
+
+        <rect x="690" y="40" width="118" height="96" rx="6" class="box-pass"/>
+        <text x="749" y="66" text-anchor="middle" class="t-mono t-pass" font-size="11">6 · B7</text>
+        <text x="749" y="90" text-anchor="middle" class="t-head" font-size="15">Gate &amp; ship</text>
+        <text x="749" y="110" text-anchor="middle" class="t-muted" font-size="11">CI blocks any</text>
+        <text x="749" y="124" text-anchor="middle" class="t-muted" font-size="11">regression</text>
+
+        <rect x="826" y="40" width="124" height="96" rx="6" class="box"/>
+        <text x="888" y="66" text-anchor="middle" class="t-mono t-accent" font-size="11">7 · B8</text>
+        <text x="888" y="90" text-anchor="middle" class="t-head" font-size="15">Monitor online</text>
+        <text x="888" y="110" text-anchor="middle" class="t-muted" font-size="11">sampled judges +</text>
+        <text x="888" y="124" text-anchor="middle" class="t-muted" font-size="11">human feedback</text>
+      </g>
+      <g>
+        <line x1="128" y1="88" x2="144" y2="88" class="edge" marker-end="url(#ah)"/>
+        <line x1="264" y1="88" x2="280" y2="88" class="edge" marker-end="url(#ah)"/>
+        <line x1="400" y1="88" x2="416" y2="88" class="edge" marker-end="url(#ah)"/>
+        <line x1="536" y1="88" x2="552" y2="88" class="edge" marker-end="url(#ah)"/>
+        <line x1="672" y1="88" x2="688" y2="88" class="edge" marker-end="url(#ah)"/>
+        <line x1="808" y1="88" x2="824" y2="88" class="edge" marker-end="url(#ah)"/>
+        <path d="M888,136 L888,210 L205,210 L205,140" class="edge-accent" marker-end="url(#aha)"/>
+        <text x="546" y="232" text-anchor="middle" class="t-accent" font-size="13">production misses and human “this was wrong” become new dataset rows</text>
+        <path d="M613,136 L613,176 L477,176 L477,140" class="edge-dash" marker-end="url(#ah)"/>
+        <text x="545" y="194" text-anchor="middle" class="t-muted" font-size="11">no improvement → next variant</text>
+        <text x="480" y="275" text-anchor="middle" class="t-muted" font-size="12">Steps 1–3 are Part A (design). Steps 4–7 are Part B (harness). The loop never ends while the agent is in service.</text>
+      </g>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 0.</b> The eval loop. Every section of this guide maps to one box.</p>
+  </div>
+</section>
+
+<!-- ============================ PART A ============================ -->
+<div class="part-banner">
+  <div class="eyebrow">Part A</div>
+  <h2>Eval design</h2>
+  <p>What to measure, and how to count it cheaply and reliably. Design comes before tooling. A harness that runs the wrong evals quickly is still wrong.</p>
+</div>
+
+<section id="a1">
+  <div class="sec-head"><div class="sec-num">A1</div><h2>Why agent evaluation is a different job</h2></div>
+  <p>Traditional software is deterministic: the same input gives the same output, so one passing unit test proves the behaviour. LLMs are probabilistic. The same input can produce different outputs, so one passing run proves very little. <strong>An eval doesn't return pass or fail. It returns a rate</strong>: how often the system gets one specific thing right.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 240" width="900" role="img" aria-label="Deterministic code returns one answer and a pass or fail; an LLM returns a spread of answers and a rate">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <text x="20" y="28" class="t-head" font-size="15">Deterministic code</text>
+      <rect x="20" y="50" width="130" height="50" rx="6" class="box-sunken"/>
+      <text x="85" y="80" text-anchor="middle" class="t-mono" font-size="12">priority(ticket)</text>
+      <line x1="150" y1="75" x2="215" y2="75" class="edge" marker-end="url(#ah2)"/>
+      <rect x="220" y="50" width="100" height="50" rx="6" class="box"/>
+      <text x="270" y="80" text-anchor="middle" class="t-mono" font-size="13">P2</text>
+      <line x1="320" y1="75" x2="365" y2="75" class="edge" marker-end="url(#ah2)"/>
+      <rect x="370" y="55" width="70" height="40" rx="20" class="box-pass"/>
+      <text x="405" y="80" text-anchor="middle" class="t-pass t-mono" font-size="12">PASS</text>
+      <text x="20" y="130" class="t-muted" font-size="12">Run once. Same input, same output, every time.</text>
+
+      <line x1="470" y1="20" x2="470" y2="220" class="edge-dash"/>
+
+      <text x="500" y="28" class="t-head" font-size="15">LLM / agent</text>
+      <rect x="500" y="50" width="130" height="50" rx="6" class="box-sunken"/>
+      <text x="565" y="72" text-anchor="middle" class="t-mono" font-size="12">triage_agent</text>
+      <text x="565" y="88" text-anchor="middle" class="t-mono t-muted" font-size="11">(ticket) × 20 runs</text>
+      <line x1="630" y1="75" x2="672" y2="75" class="edge" marker-end="url(#ah2)"/>
+      <g>
+        <circle cx="690" cy="58" r="7" class="dot-pass"/><circle cx="710" cy="58" r="7" class="dot-pass"/><circle cx="730" cy="58" r="7" class="dot-pass"/><circle cx="750" cy="58" r="7" class="dot-fail"/><circle cx="770" cy="58" r="7" class="dot-pass"/>
+        <circle cx="690" cy="78" r="7" class="dot-pass"/><circle cx="710" cy="78" r="7" class="dot-pass"/><circle cx="730" cy="78" r="7" class="dot-fail"/><circle cx="750" cy="78" r="7" class="dot-pass"/><circle cx="770" cy="78" r="7" class="dot-pass"/>
+        <circle cx="690" cy="98" r="7" class="dot-pass"/><circle cx="710" cy="98" r="7" class="dot-pass"/><circle cx="730" cy="98" r="7" class="dot-pass"/><circle cx="750" cy="98" r="7" class="dot-pass"/><circle cx="770" cy="98" r="7" class="dot-pass"/>
+        <circle cx="690" cy="118" r="7" class="dot-pass"/><circle cx="710" cy="118" r="7" class="dot-fail"/><circle cx="730" cy="118" r="7" class="dot-pass"/><circle cx="750" cy="118" r="7" class="dot-pass"/><circle cx="770" cy="118" r="7" class="dot-pass"/>
+      </g>
+      <line x1="785" y1="88" x2="815" y2="88" class="edge" marker-end="url(#ah2)"/>
+      <rect x="820" y="68" width="70" height="40" rx="20" class="box-accent"/>
+      <text x="855" y="93" text-anchor="middle" class="t-accent t-mono" font-size="13">85%</text>
+      <text x="500" y="160" class="t-muted" font-size="12">Same input, a spread of outputs. You measure a rate,</text>
+      <text x="500" y="178" class="t-muted" font-size="12">and you need many inputs and repeat runs to trust it.</text>
+      <circle cx="506" cy="205" r="6" class="dot-pass"/><text x="518" y="209" class="t-muted" font-size="11">correct priority</text>
+      <circle cx="626" cy="205" r="6" class="dot-fail"/><text x="638" y="209" class="t-muted" font-size="11">wrong priority</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A1.</b> One unit test is enough for code. An LLM needs a rate over many inputs and runs.</p>
+  </div>
+  <p>Each jump up the stack adds something you must measure. You don't get to keep grading the old way.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th></th><th>Software</th><th>Single LLM call / RAG</th><th>Agent (multi-step)</th></tr></thead>
+    <tbody>
+      <tr><td><b>Unit of eval</b></td><td>a function's output</td><td>one response (+ retrieved context)</td><td>the whole task <b>and every step</b></td></tr>
+      <tr><td><b>Pass criterion</b></td><td><code>== expected</code></td><td>meets a rubric or gold answer</td><td>task completed <b>through a sound trajectory</b></td></tr>
+      <tr><td><b>Method</b></td><td>assertions, pytest</td><td>code assertions, golden sets, LLM judge</td><td>+ trajectory eval, tool-call accuracy, recovery-from-failure</td></tr>
+      <tr><td><b>Reference</b></td><td>exact expected value</td><td>gold answer or rubric</td><td>often <b>reference-free</b>: judge the path, or score in a simulated environment</td></tr>
+      <tr><td><b>Reliability</b></td><td>deterministic, run once</td><td>a rate over many inputs</td><td><b>run k times</b>: must be consistently right (<code>pass^k</code>)</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Two jumps.</strong> Going from software to an LLM, you trade exact assertions for judging <em>quality</em>, because there is no single right string. Going from an LLM to an agent, you add judging the <em>process</em> and its <em>consistency</em>. An agent can reach the right answer by a path you can't trust, or be right once and wrong the next four times.</p>
+  <p><strong>Where our own datasets stop and public benchmarks start.</strong> τ-bench/τ²-bench (<code>pass^k</code> over real tool workflows), SWE-bench Verified, GAIA, BFCL v3 and WebArena/OSWorld show <em>how</em> the field evaluates agents. We don't ship them. We borrow their methods (our own dataset, a judge, a trajectory check, k runs, production monitoring), not their test suites.</p>
+</section>
+
+<section id="a2">
+  <div class="sec-head"><div class="sec-num">A2</div><h2>Define “good” yourself</h2></div>
+  <p>Semantic tasks have no single right answer. Arithmetic does, but a postmortem summary, a KB answer or a triage rationale has many acceptable answers and degrees of quality. Before you can evaluate anything, write down what correct means for <em>this</em> use case. That definition is the lens you review traces through in error analysis (A3). It is a working draft, not a list of evals. Evals are chosen in A4, once error analysis shows which failures actually happen and which matter.</p>
+  <div class="rule"><strong>Rule A2.1. Don't outsource “good”.</strong> Generic vendor metrics like “helpfulness”, “conciseness” or “relevance” don't know your users. A verbose, step-by-step KB answer is right for a tenant's first-week support agent and too much for the on-call SRE who wrote the runbook. The product team owns the definition of correct, and that definition depends on context: who asked, what they will do with the answer, and what a wrong answer costs.</div>
+  <div class="rule"><strong>Rule A2.2. Correctness has several dimensions.</strong> Break “is this output good?” into separate dimensions a reviewer can look for in a trace. They give error analysis a consistent basis, so two reviewers mark the same trace the same way. A single overall verdict of good or bad hides which dimension broke.</div>
+  <div class="rule"><strong>Rule A2.3. Hard requirements become evals now.</strong> Some dimensions can't wait for error analysis because a single failure is unacceptable: tenant isolation, staying within the agent's autonomy level, refusing unsafe actions. Write these as evals straight away, before the agent ships. Every other dimension waits for A3 to show whether it fails often enough, and badly enough, to need one.</div>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 330" width="960" role="img" aria-label="Decomposing a KB assistant answer into six quality dimensions; one is a hard requirement that becomes an eval now, the rest are review lenses for error analysis">
+      <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect x="350" y="12" width="260" height="54" rx="6" class="box-accent"/>
+      <text x="480" y="36" text-anchor="middle" class="t-head" font-size="15">Is the KB assistant's answer good?</text>
+      <text x="480" y="55" text-anchor="middle" class="t-muted" font-size="11">too vague to measure as one question</text>
+      <g class="edge">
+        <path d="M480,66 L480,92 M85,92 L875,92 M85,92 L85,112 M243,92 L243,112 M401,92 L401,112 M559,92 L559,112 M717,92 L717,112 M875,92 L875,112"/>
+      </g>
+      <g font-size="12">
+        <rect x="15" y="112" width="140" height="88" rx="6" class="box"/>
+        <text x="85" y="136" text-anchor="middle" class="t-head" font-size="13">Right articles</text>
+        <text x="85" y="156" text-anchor="middle" class="t-muted" font-size="11">retrieval found the</text>
+        <text x="85" y="170" text-anchor="middle" class="t-muted" font-size="11">KB that answers it</text>
+
+        <rect x="173" y="112" width="140" height="88" rx="6" class="box"/>
+        <text x="243" y="136" text-anchor="middle" class="t-head" font-size="13">Grounded</text>
+        <text x="243" y="156" text-anchor="middle" class="t-muted" font-size="11">every step is</text>
+        <text x="243" y="170" text-anchor="middle" class="t-muted" font-size="11">backed by an article</text>
+
+        <rect x="331" y="112" width="140" height="88" rx="6" class="box"/>
+        <text x="401" y="136" text-anchor="middle" class="t-head" font-size="13">Cites sources</text>
+        <text x="401" y="156" text-anchor="middle" class="t-muted" font-size="11">KB IDs present and</text>
+        <text x="401" y="170" text-anchor="middle" class="t-muted" font-size="11">actually retrieved</text>
+
+        <rect x="489" y="112" width="140" height="88" rx="6" class="box"/>
+        <text x="559" y="136" text-anchor="middle" class="t-head" font-size="13">Tenant-safe</text>
+        <text x="559" y="156" text-anchor="middle" class="t-muted" font-size="11">no other tenant's</text>
+        <text x="559" y="170" text-anchor="middle" class="t-muted" font-size="11">KB or data leaks in</text>
+
+        <rect x="647" y="112" width="140" height="88" rx="6" class="box"/>
+        <text x="717" y="136" text-anchor="middle" class="t-head" font-size="13">Knows its limits</text>
+        <text x="717" y="156" text-anchor="middle" class="t-muted" font-size="11">says “no article” and</text>
+        <text x="717" y="170" text-anchor="middle" class="t-muted" font-size="11">offers a ticket</text>
+
+        <rect x="805" y="112" width="140" height="88" rx="6" class="box"/>
+        <text x="875" y="136" text-anchor="middle" class="t-head" font-size="13">Fits the reader</text>
+        <text x="875" y="156" text-anchor="middle" class="t-muted" font-size="11">depth matches the</text>
+        <text x="875" y="170" text-anchor="middle" class="t-muted" font-size="11">role asking</text>
+      </g>
+      <g class="edge-dash"><path d="M85,200 L85,232 M243,200 L243,232 M401,200 L401,232 M559,200 L559,232 M717,200 L717,232 M875,200 L875,232"/></g>
+      <g font-size="11">
+        <rect x="25" y="232" width="120" height="44" rx="22" class="box-sunken"/><text x="85" y="252" text-anchor="middle" class="t-mono" font-size="11">review lens</text><text x="85" y="267" text-anchor="middle" class="t-muted" font-size="10">look for it in A3</text>
+        <rect x="183" y="232" width="120" height="44" rx="22" class="box-sunken"/><text x="243" y="252" text-anchor="middle" class="t-mono" font-size="11">review lens</text><text x="243" y="267" text-anchor="middle" class="t-muted" font-size="10">look for it in A3</text>
+        <rect x="341" y="232" width="120" height="44" rx="22" class="box-sunken"/><text x="401" y="252" text-anchor="middle" class="t-mono" font-size="11">review lens</text><text x="401" y="267" text-anchor="middle" class="t-muted" font-size="10">look for it in A3</text>
+        <rect x="499" y="232" width="120" height="44" rx="22" class="box-fail"/><text x="559" y="252" text-anchor="middle" class="t-mono t-fail" font-size="11">hard requirement</text><text x="559" y="267" text-anchor="middle" class="t-muted" font-size="10">eval now (A2.3)</text>
+        <rect x="657" y="232" width="120" height="44" rx="22" class="box-sunken"/><text x="717" y="252" text-anchor="middle" class="t-mono" font-size="11">review lens</text><text x="717" y="267" text-anchor="middle" class="t-muted" font-size="10">look for it in A3</text>
+        <rect x="815" y="232" width="120" height="44" rx="22" class="box-sunken"/><text x="875" y="252" text-anchor="middle" class="t-mono" font-size="11">review lens</text><text x="875" y="267" text-anchor="middle" class="t-muted" font-size="10">look for it in A3</text>
+      </g>
+      <text x="480" y="312" text-anchor="middle" class="t-muted" font-size="12">Dimensions tell reviewers where to look. Which ones need an eval, and how to count them, is decided in A4.</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A2.</b> Breaking “a good answer” into dimensions a reviewer can look for. Only tenant safety is an eval from day one. The other five wait for error analysis. The same exercise for the SRE RCA agent gives: names a root cause · root cause is backed by queried evidence · timeline is accurate · delegated to the right analysts · no unsafe remediation advice (the last one is a hard requirement).</p>
+  </div>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 250" width="960" role="img" aria-label="A2 produces dimensions, A3 produces prioritised error categories and refines the dimensions, A4 turns prioritised categories and hard requirements into evals">
+      <defs><marker id="ah3b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect x="20" y="60" width="250" height="100" rx="6" class="box-accent"/>
+      <text x="145" y="86" text-anchor="middle" class="t-mono t-accent" font-size="11">A2 · DEFINE GOOD</text>
+      <text x="145" y="110" text-anchor="middle" class="t-head" font-size="14">Draft dimensions</text>
+      <text x="145" y="130" text-anchor="middle" class="t-muted" font-size="11">where to look, before any</text>
+      <text x="145" y="145" text-anchor="middle" class="t-muted" font-size="11">trace is reviewed</text>
+      <line x1="270" y1="110" x2="353" y2="110" class="edge" marker-end="url(#ah3b)"/>
+      <text x="312" y="102" text-anchor="middle" class="t-muted" font-size="10">review lens</text>
+      <rect x="355" y="60" width="250" height="100" rx="6" class="box"/>
+      <text x="480" y="86" text-anchor="middle" class="t-mono t-accent" font-size="11">A3 · ERROR ANALYSIS</text>
+      <text x="480" y="110" text-anchor="middle" class="t-head" font-size="14">Error categories</text>
+      <text x="480" y="130" text-anchor="middle" class="t-muted" font-size="11">what actually fails, how often,</text>
+      <text x="480" y="145" text-anchor="middle" class="t-muted" font-size="11">and how much it hurts</text>
+      <line x1="605" y1="110" x2="688" y2="110" class="edge" marker-end="url(#ah3b)"/>
+      <text x="647" y="102" text-anchor="middle" class="t-muted" font-size="10">prioritised</text>
+      <rect x="690" y="60" width="250" height="100" rx="6" class="box-pass"/>
+      <text x="815" y="86" text-anchor="middle" class="t-mono t-pass" font-size="11">A4 · CHOOSE HOW TO COUNT</text>
+      <text x="815" y="110" text-anchor="middle" class="t-head" font-size="14">Evals</text>
+      <text x="815" y="130" text-anchor="middle" class="t-muted" font-size="11">one per prioritised category,</text>
+      <text x="815" y="145" text-anchor="middle" class="t-muted" font-size="11">cheapest method that works</text>
+      <path d="M480,160 L480,200 L145,200 L145,164" class="edge-dash" marker-end="url(#ah3b)"/>
+      <text x="312" y="222" text-anchor="middle" class="t-muted" font-size="11">refine: add dimensions for unexpected errors, drop ones that never fail</text>
+      <path d="M145,60 L145,30 L815,30 L815,56" class="edge-dash" marker-end="url(#ah3b)"/>
+      <text x="480" y="22" text-anchor="middle" class="t-fail" font-size="11">hard requirements (tenant isolation, autonomy limit, unsafe actions) skip the wait and become evals now</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A2b.</b> A2 decides where to look, A3 shows what goes wrong, and A4 decides what to count. The only shortcut from A2 to A4 is for hard requirements.</p>
+  </div>
+  <div class="example">
+    <div class="tag">Practical example · Security alert triage</div>
+    <h4>Writing the definition of correct before any eval exists</h4>
+    <p>“A good triage” for ALRT-2291 means: (1) the verdict (<code>escalate</code> or <code>close</code>) matches what a senior analyst would decide; (2) the rationale cites the identity-change and asset-criticality evidence the agent actually queried; (3) severity agrees with that evidence; (4) it never proposes an autonomous action above the agent's autonomy level (see <code>design-considerations.md</code>, L0–L4); (5) it states its uncertainty when evidence is missing.</p>
+    <p>That gives five dimensions to review against. Dimension (4) is a hard requirement, so it becomes an eval now, with a safety row in the dataset. The other four wait for error analysis. Say a SOC analyst reviews 80 triage traces. Wrong verdicts and uncited rationales turn up often, so both get evals. Severity mismatches appear twice, both on low-criticality assets, so that dimension is recorded but gets no eval yet. The review also turns up an error none of the five dimensions covered: the agent treats a service account as a human user. That becomes a sixth dimension and goes into the next review.</p>
+    <p>Keep the dimensions in the agent's design doc next to its rubric (<code>05-agent-skills.md</code> §4), so the critic and the evals work from the same definition.</p>
+  </div>
+</section>
+
+<section id="a3">
+  <div class="sec-head"><div class="sec-num">A3</div><h2>Error analysis: look at what the system actually does</h2></div>
+  <p>In a chat window you judge each answer and fix the prompt as you go. A workflow or product has to perform well when nobody is watching, so you review many inputs and outputs systematically. <strong>Error analysis</strong> is the manual review and categorisation of the mistakes a system makes. It comes before any eval, because <strong>you can't count an error you haven't seen</strong>. The dimensions from A2 tell you where to look. Error analysis tells you what actually goes wrong there.</p>
+  <p>How deep you go depends on the stakes. A personal or internal helper needs a lightweight pass. Anything that touches a tenant, a production system or a security decision needs a deep, broad pass that continues after launch.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="kicker">Lightweight mode · low stakes</div>
+      <h4>One deep review, then automate</h4>
+      <ol>
+        <li>Pick one representative output and review it <b>completely</b> against its sources, listing everything that should be there.</li>
+        <li>Verify every factual claim, quote and ID against the source.</li>
+        <li>Name each <b>distinct type</b> of error you find.</li>
+        <li>Turn each type into an eval, then run those evals on the remaining outputs instead of reviewing each one by hand.</li>
+      </ol>
+      <p class="small">The upfront review is slow, but it saves time across the whole batch.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">Production mode · tenant-facing</div>
+      <h4>Hundreds of traces, three phases</h4>
+      <ol>
+        <li><b>Collect traces</b>: user input, system prompt, retrieved context, every tool call and intermediate step, final response, and the full exchange for multi-turn sessions. Langfuse already captures these (<code>CLAUDE.md</code> §3).</li>
+        <li>Review <b>hundreds</b> of traces across varied inputs, tenants and roles, not one.</li>
+        <li>Keep going after launch. Error analysis is ongoing.</li>
+      </ol>
+      <p class="small">With early (beta) tenants, say openly that outputs are reviewed and that you'll tell them when one was wrong.</p>
+    </div>
+  </div>
+  <div class="flow" role="list" aria-label="Error analysis phases">
+    <div class="step" role="listitem"><span class="n">Phase 1</span><b>Annotate</b><span>Log every mistake as you see it, in a free-text note on the trace. <b>Don't fix anything yet.</b></span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step" role="listitem"><span class="n">Phase 2</span><b>Categorise</b><span>Group the notes into named error patterns. Merge near-duplicates and count each.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step" role="listitem"><span class="n">Phase 3</span><b>Prioritise</b><span>Rank patterns by frequency × impact on the user, using what you know about tenants and operators.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step" role="listitem"><span class="n">Output</span><b>Eval backlog</b><span>Patterns you won't accept become eval candidates. Patterns you can live with get documented.</span></div>
+  </div>
+  <p>Keeping the phases separate stops a common failure: fixing a minor issue you happened to notice first while a frequent, serious one goes unseen.</p>
+  <div class="example">
+    <div class="tag">Practical example · ITSM ticket triage</div>
+    <h4>120 production traces, reviewed over two afternoons</h4>
+    <p>An ITSM lead reviews 120 sampled triage traces in Langfuse and leaves a note on each wrong one. Grouping the notes gives this error taxonomy:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Error pattern</th><th class="num">Count</th><th>Impact</th><th>Decision</th></tr></thead>
+      <tbody>
+        <tr><td>Routed to the wrong resolver group when the ticket names two services</td><td class="num">14</td><td>High: ticket bounces, SLA clock runs</td><td><span class="pill fail">eval now</span></td></tr>
+        <tr><td>Priority one level too low when the reporter downplays impact</td><td class="num">9</td><td>High: P1 handled as P2</td><td><span class="pill fail">eval now</span></td></tr>
+        <tr><td>Linked CI doesn't exist in the tenant's CMDB (invented CI name)</td><td class="num">6</td><td>High: hallucination</td><td><span class="pill fail">eval now</span></td></tr>
+        <tr><td>Rationale cites a change record that wasn't retrieved</td><td class="num">4</td><td>Medium: erodes trust</td><td><span class="pill warn">eval next</span></td></tr>
+        <tr><td>Rationale wordy, repeats the ticket text</td><td class="num">21</td><td>Low: cosmetic</td><td><span class="pill info">accept for now</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">The most frequent pattern (wordiness) is the least important. Without the prioritise phase, it would have been fixed first.</p>
+  </div>
+  <div class="rule"><strong>Rule A3.1. Read before you write evals.</strong> Each eval must trace back to an error pattern you observed, or to a hard safety requirement. An eval for a problem you've never seen usually measures the wrong thing.</div>
+</section>
+
+<section id="a4">
+  <div class="sec-head"><div class="sec-num">A4</div><h2>Choose how to count each error</h2></div>
+  <p>An eval is a metric that counts how often one specific error appears. There are four ways to count. Each fits a different kind of error. On a real run you use all of them together, each scoring the dimensions it suits.</p>
+  <div class="grid-4">
+    <div class="card">
+      <div class="kicker">Cheapest · deterministic</div>
+      <h4>Code assertion</h4>
+      <p class="small">Plain code checks the output against a fixed rule. It is fast, free and consistent, like a unit test. It needs a <b>structural</b> way to detect the error without judgment.</p>
+      <ul>
+        <li>Every quoted log line appears verbatim in the queried logs</li>
+        <li>Every cited KB ID is in the retrieved set</li>
+        <li>Output has exactly the fields the schema requires</li>
+        <li>No document's <code>tenant_id</code> differs from the caller's</li>
+        <li>Red-flag phrases (“typically”, “in most cases”) in a root cause</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="kicker">Known answers</div>
+      <h4>Golden dataset</h4>
+      <p class="small">Known inputs paired with the ideal output. Best when the output is <b>small</b> and has <b>one correct answer</b>: classification, routing, priority, verdicts, factual lookups.</p>
+      <ul>
+        <li>Ticket → resolver group, priority</li>
+        <li>Alert → <code>escalate</code> / <code>close</code></li>
+        <li>Query → KB article IDs that answer it</li>
+        <li>Are these two incidents duplicates? yes / no</li>
+      </ul>
+      <p class="small">Poor fit for long, open-ended outputs such as a full postmortem.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">Semantic · costs a model call</div>
+      <h4>LLM-as-a-judge</h4>
+      <p class="small">A second model checks the output against one narrow, binary criterion. Use it <b>only</b> when the error needs real judgment. See A5 for how to make it trustworthy.</p>
+      <ul>
+        <li>Is this one claim supported by this evidence?</li>
+        <li>Does the severity match the gathered evidence?</li>
+        <li>Does the rationale reference evidence the agent actually queried?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="kicker">Real-world signal</div>
+      <h4>User &amp; operator feedback</h4>
+      <p class="small"><b>Explicit</b>: thumbs, ratings, an analyst marking a verdict wrong. Users rarely say why. <b>Implicit</b> behaviour often tells you more:</p>
+      <ul>
+        <li>Re-asking or regenerating means the answer didn't help</li>
+        <li>How the question was rephrased shows what was missing</li>
+        <li>A follow-up question means the answer was incomplete</li>
+        <li>An SRE editing the draft postmortem, or an agent re-routing a ticket, shows exactly what was wrong</li>
+      </ul>
+    </div>
+  </div>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 400" width="900" role="img" aria-label="Decision tree for picking an eval method">
+      <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect x="300" y="10" width="300" height="44" rx="6" class="box-accent"/>
+      <text x="450" y="37" text-anchor="middle" class="t-head" font-size="14">An error pattern from error analysis</text>
+      <line x1="450" y1="54" x2="450" y2="78" class="edge" marker-end="url(#ah4)"/>
+      <rect x="250" y="80" width="400" height="48" rx="6" class="box"/>
+      <text x="450" y="100" text-anchor="middle" class="t-head" font-size="13">Can code detect it with no judgment?</text>
+      <text x="450" y="117" text-anchor="middle" class="t-muted" font-size="11">exact match, set membership, schema, count, threshold</text>
+      <line x1="250" y1="104" x2="150" y2="104" class="edge" marker-end="url(#ah4)"/>
+      <text x="200" y="96" text-anchor="middle" class="t-pass t-mono" font-size="11">yes</text>
+      <rect x="20" y="82" width="128" height="44" rx="22" class="box-pass"/>
+      <text x="84" y="109" text-anchor="middle" class="t-head" font-size="13">Code assertion</text>
+      <line x1="450" y1="128" x2="450" y2="158" class="edge" marker-end="url(#ah4)"/>
+      <text x="464" y="148" class="t-fail t-mono" font-size="11">no</text>
+      <rect x="250" y="160" width="400" height="48" rx="6" class="box"/>
+      <text x="450" y="180" text-anchor="middle" class="t-head" font-size="13">Small output with one correct answer?</text>
+      <text x="450" y="197" text-anchor="middle" class="t-muted" font-size="11">or can you split the task until one step is?</text>
+      <line x1="250" y1="184" x2="150" y2="184" class="edge" marker-end="url(#ah4)"/>
+      <text x="200" y="176" text-anchor="middle" class="t-pass t-mono" font-size="11">yes</text>
+      <rect x="20" y="162" width="128" height="44" rx="22" class="box-sunken"/>
+      <text x="84" y="189" text-anchor="middle" class="t-head" font-size="13">Golden dataset</text>
+      <line x1="450" y1="208" x2="450" y2="238" class="edge" marker-end="url(#ah4)"/>
+      <text x="464" y="228" class="t-fail t-mono" font-size="11">no</text>
+      <rect x="250" y="240" width="400" height="48" rx="6" class="box"/>
+      <text x="450" y="260" text-anchor="middle" class="t-head" font-size="13">Needs semantic judgment</text>
+      <text x="450" y="277" text-anchor="middle" class="t-muted" font-size="11">groundedness, consistency, appropriateness</text>
+      <line x1="450" y1="288" x2="450" y2="318" class="edge" marker-end="url(#ah4)"/>
+      <rect x="300" y="320" width="300" height="56" rx="28" class="box-warn"/>
+      <text x="450" y="343" text-anchor="middle" class="t-head" font-size="13">LLM judge, after a code pre-filter</text>
+      <text x="450" y="361" text-anchor="middle" class="t-muted" font-size="11">narrow · binary · calibrated (A5)</text>
+      <rect x="700" y="150" width="185" height="120" rx="6" class="box-accent"/>
+      <text x="792" y="176" text-anchor="middle" class="t-head" font-size="13">Always, in parallel</text>
+      <text x="792" y="200" text-anchor="middle" font-size="12">User &amp; operator</text>
+      <text x="792" y="216" text-anchor="middle" font-size="12">feedback</text>
+      <text x="792" y="240" text-anchor="middle" class="t-muted" font-size="11">confirms the offline</text>
+      <text x="792" y="255" text-anchor="middle" class="t-muted" font-size="11">evals match reality</text>
+      <path d="M650,104 L792,104 L792,148" class="edge-dash" marker-end="url(#ah4)"/>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A4.</b> Pick the cheapest method that can count the error. Go down the tree only when the method above it can't express the check. Try more than one method on the same error and keep the one that best agrees with your own review.</p>
+  </div>
+  <div class="example">
+    <div class="tag">Practical example · ITSM KB assistant, from A2 to A3 to A4</div>
+    <h4>Choosing evals once error analysis is done</h4>
+    <p>The six dimensions from Figure A2 guided a review of 150 KB assistant traces. Here is what the review found, and what each finding became:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Dimension (A2)</th><th>Error category found (A3)</th><th class="num">Count</th><th>Eval chosen (A4)</th></tr></thead>
+      <tbody>
+        <tr><td>Tenant-safe</td><td>Hard requirement, set in A2 before any review</td><td class="num">0</td><td><span class="pill pass">code</span> every retrieved doc's <code>tenant_id</code> equals the caller's · zero tolerance</td></tr>
+        <tr><td>Right articles</td><td>Article missed when the user says “VPN token” but the KB says “MFA”</td><td class="num">17</td><td><span class="pill info">golden set</span> query → expected KB IDs, recall@5</td></tr>
+        <tr><td>Grounded</td><td>Invented menu path not in any retrieved article</td><td class="num">11</td><td><span class="pill warn">LLM judge</span> per step, after a code filter for verbatim matches</td></tr>
+        <tr><td>Cites sources</td><td>Cites a KB ID that wasn't in the retrieved set</td><td class="num">5</td><td><span class="pill pass">code</span> cited ID ∈ retrieved IDs</td></tr>
+        <tr><td>Knows its limits</td><td>Confident answer when no article exists</td><td class="num">8</td><td><span class="pill info">golden set</span> unanswerable rows, expect “no article” + offer a ticket</td></tr>
+        <tr><td>Fits the reader</td><td>Slightly too detailed for on-call SREs</td><td class="num">3</td><td><span class="pill info">no eval yet</span> low impact, watch feedback (re-asks)</td></tr>
+        <tr><td><i>new, found in A3</i></td><td>Answer based on a superseded article version</td><td class="num">6</td><td><span class="pill pass">code</span> retrieved article <code>status == current</code>, and the dimension is added back to A2</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">One dimension produced no eval. One error category fit no existing dimension, so it became a new one. Only tenant safety was decided before the review.</p>
+  </div>
+  <div class="rule"><strong>Rule A4.1. Code first.</strong> For every new error pattern, first look for a structural signal that code can count. Reach for a judge only when no such signal exists.</div>
+  <div class="rule"><strong>Rule A4.2. Decompose until a golden set fits.</strong> A complex output (a full RCA) doesn't fit a golden dataset. Its sub-steps often do: “did it pick the right failure domain?”, “are these two alerts the same incident?”, “is this the right resolver group?”. Build small golden sets for those steps.</div>
+  <div class="rule"><strong>Rule A4.3. Filter with code, then judge.</strong> Judges are expensive even with small models. Use a cheap code check to choose which items reach the judge.</div>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 190" width="900" role="img" aria-label="Cascade: all claims go through a code filter; only flagged claims reach the LLM judge">
+      <defs><marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect x="10" y="50" width="170" height="70" rx="6" class="box-sunken"/>
+      <text x="95" y="80" text-anchor="middle" class="t-head" font-size="14">RCA draft</text>
+      <text x="95" y="100" text-anchor="middle" class="t-muted" font-size="11">42 claims across 20 runs</text>
+      <line x1="180" y1="85" x2="238" y2="85" class="edge" marker-end="url(#ah5)"/>
+      <rect x="240" y="40" width="200" height="90" rx="6" class="box-pass"/>
+      <text x="340" y="68" text-anchor="middle" class="t-head" font-size="14">Code filter</text>
+      <text x="340" y="88" text-anchor="middle" class="t-muted" font-size="11">claim cites an ID / timestamp</text>
+      <text x="340" y="103" text-anchor="middle" class="t-muted" font-size="11">that exists in the tool results?</text>
+      <text x="340" y="120" text-anchor="middle" class="t-mono" font-size="11">cost ≈ 0</text>
+      <line x1="440" y1="70" x2="560" y2="40" class="edge" marker-end="url(#ah5)"/>
+      <text x="500" y="38" text-anchor="middle" class="t-pass t-mono" font-size="11">34 exact matches</text>
+      <rect x="562" y="16" width="150" height="44" rx="22" class="box-pass"/>
+      <text x="637" y="43" text-anchor="middle" class="t-pass" font-size="13">grounded ✓</text>
+      <line x1="440" y1="105" x2="560" y2="135" class="edge" marker-end="url(#ah5)"/>
+      <text x="500" y="146" text-anchor="middle" class="t-warn t-mono" font-size="11" style="fill:var(--warn)">8 paraphrased</text>
+      <rect x="562" y="110" width="160" height="60" rx="6" class="box-warn"/>
+      <text x="642" y="136" text-anchor="middle" class="t-head" font-size="13">LLM judge</text>
+      <text x="642" y="154" text-anchor="middle" class="t-muted" font-size="11">one claim + its evidence</text>
+      <line x1="722" y1="140" x2="768" y2="140" class="edge" marker-end="url(#ah5)"/>
+      <text x="830" y="128" text-anchor="middle" class="t-pass" font-size="12">5 grounded</text>
+      <text x="830" y="152" text-anchor="middle" class="t-fail" font-size="12">3 ungrounded</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A4b.</b> Code handles the clear cases for free. The judge sees 8 claims instead of 42, which cuts judge cost by about 80% on this run.</p>
+  </div>
+  <p><strong>Golden datasets: what to watch.</strong> They are the easiest place to start (a spreadsheet of inputs and expected outputs counts). The errors they surface show what bad looks like, and corrected outputs added back show what good looks like, which helps you build the rubric. They have two limits: it's hard to predict production inputs before launch, and they're tedious to maintain. A golden set that isn't refreshed from production (B8) slowly stops matching real usage.</p>
+</section>
+
+<section id="a5">
+  <div class="sec-head"><div class="sec-num">A5</div><h2>Judges you can trust</h2></div>
+  <p>The usual objection is: “if I can't trust the first model, why trust the second?” You trust a judge because it was designed and checked to be trusted. Four rules, then the operational details.</p>
+  <div class="grid-4">
+    <div class="card"><div class="kicker">Rule 1</div><h4>Make the task small</h4><p class="small">Give the judge a much narrower job than the model under test. Don't ask “is this RCA good?”. Ask “is <em>this one claim</em> supported by <em>this evidence</em>?”.</p></div>
+    <div class="card"><div class="kicker">Rule 2</div><h4>Binary criteria</h4><p class="small">Ask for yes/no or pass/fail, never a 1–5 score. Binary verdicts from domain experts track real quality better, and models give binary answers more consistently than calibrated scales.</p></div>
+    <div class="card"><div class="kicker">Rule 3</div><h4>Align with humans</h4><p class="small">Compare the judge's verdicts against human labels on the same items. Adjust the prompt until they agree. Measure the agreement (TPR/TNR) and record it.</p></div>
+    <div class="card"><div class="kicker">Rule 4</div><h4>Expect judge error</h4><p class="small">No judge is perfect. Report its error alongside the metric, and correct the reported rate for it (A9).</p></div>
+  </div>
+  <p><strong>Several simple judges beat one complex judge.</strong> For the security alert triage agent, run three separate binary judges: “does the rationale cite the identity change it queried?”, “does severity match the asset criticality returned?”, “does the response stay within the agent's autonomy level?”. Don't run one judge that scores “triage quality”. When a separate judge fails, you know exactly which dimension broke.</p>
+  <p><strong>Why binary, concretely.</strong> Score the same SRE postmortem draft twice against “root cause is evidence-cited”. A 1–5 judge can return 3 one run and 4 the next. The draft didn't change. Only the judge's arbitrary line between “mostly cited” and “cited” moved. Pass/fail removes that line: either the draft names a root cause backed by a log or metric the agent queried, or it doesn't. Binary verdicts also match the critic in <code>05-agent-skills.md</code> §4, which returns <code>APPROVE</code>/<code>REVISE</code> on the same rubric.</p>
+  <p><strong>Known judge biases and mitigations.</strong> LLM judges favour certain positions, longer answers, and their own model family. Mitigate with a tight rubric, <code>temperature=0</code>, pairwise comparison instead of absolute scoring where possible, and, for anything that gates a release, a panel drawn from a <b>different model family than the agent under test</b>. A same-family panel doesn't fix self-preference bias, because that bias is specific to the model family. In the multi-agent system from <code>01-orchestration.md</code> §6, the writer runs on Model C, so its critic and judge run on Model B, a different family. That way the judge isn't predisposed to favour the writer's own phrasing.</p>
+  <div class="flow" role="list" aria-label="Judge calibration workflow">
+    <div class="step" role="listitem"><span class="n">1</span><b>Draft the rubric</b><span>One binary criterion per judge, with pass and fail examples.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step" role="listitem"><span class="n">2</span><b>Human-label a sample</b><span>20–50 items, labelled by a domain expert (SRE lead, SOC analyst, ITSM lead).</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step" role="listitem"><span class="n">3</span><b>Run the judge</b><span>Same items, <code>temperature=0</code>. Compute TPR and TNR against the labels.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step" role="listitem"><span class="n">4</span><b>Review disagreements</b><span>Read every mismatch. Fix the rubric, or fix a wrong label.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step" role="listitem"><span class="n">5</span><b>Gate only when aligned</b><span>e.g. TPR and TNR ≥ 0.85. Re-run whenever the judge prompt or model changes.</span></div>
+  </div>
+  <div class="example">
+    <div class="tag">Practical example · SRE RCA judge calibration</div>
+    <h4>Catching a false-positive judge before it gates a PR</h4>
+    <p>Pull 20 closed incidents. An SRE lead marks each postmortem draft's root-cause section correct or incorrect. The judge runs on the same 20 drafts and passes 3 drafts the SRE marked wrong. All 3 name a cause that sounds plausible but cite a dashboard the agent never queried. That gives TNR = 4/7 ≈ 0.57, well below the bar. The fix is in the rubric: “the cited evidence must appear in the provided tool-call log”. Re-run, TNR rises to 0.86, and only then is the judge allowed to block merges.</p>
+  </div>
+</section>
+
+<section id="a6">
+  <div class="sec-head"><div class="sec-num">A6</div><h2>Evaluating RAG: score retrieval and generation separately</h2></div>
+  <p>A RAG answer can fail in two places that look the same from outside. Retrieval returned the wrong context, or generation misused the right context. Score each stage separately. Otherwise you'll tune the prompt to fix a retriever problem, or the reverse.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 300" width="960" role="img" aria-label="RAG pipeline with eval tap points at retrieval, context, generation and answer">
+      <defs><marker id="ah6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <g>
+        <rect x="10" y="30" width="140" height="64" rx="6" class="box-sunken"/>
+        <text x="80" y="57" text-anchor="middle" class="t-head" font-size="14">Query</text>
+        <text x="80" y="77" text-anchor="middle" class="t-muted" font-size="11">+ X-Tenant-ID, role</text>
+        <line x1="150" y1="62" x2="198" y2="62" class="edge" marker-end="url(#ah6)"/>
+        <rect x="200" y="30" width="150" height="64" rx="6" class="box"/>
+        <text x="275" y="57" text-anchor="middle" class="t-head" font-size="14">Retrieve</text>
+        <text x="275" y="77" text-anchor="middle" class="t-muted" font-size="11">pgvector, tenant-scoped</text>
+        <line x1="350" y1="62" x2="398" y2="62" class="edge" marker-end="url(#ah6)"/>
+        <rect x="400" y="30" width="150" height="64" rx="6" class="box"/>
+        <text x="475" y="57" text-anchor="middle" class="t-head" font-size="14">Rank &amp; trim</text>
+        <text x="475" y="77" text-anchor="middle" class="t-muted" font-size="11">minimum context</text>
+        <line x1="550" y1="62" x2="598" y2="62" class="edge" marker-end="url(#ah6)"/>
+        <rect x="600" y="30" width="150" height="64" rx="6" class="box"/>
+        <text x="675" y="57" text-anchor="middle" class="t-head" font-size="14">Generate</text>
+        <text x="675" y="77" text-anchor="middle" class="t-muted" font-size="11">answer + citations</text>
+        <line x1="750" y1="62" x2="798" y2="62" class="edge" marker-end="url(#ah6)"/>
+        <rect x="800" y="30" width="150" height="64" rx="6" class="box-sunken"/>
+        <text x="875" y="57" text-anchor="middle" class="t-head" font-size="14">User</text>
+        <text x="875" y="77" text-anchor="middle" class="t-muted" font-size="11">reads, acts, reacts</text>
+      </g>
+      <g class="edge-dash"><path d="M275,94 L275,130 M475,94 L475,130 M675,94 L675,130 M875,94 L875,130"/></g>
+      <g>
+        <rect x="190" y="132" width="170" height="140" rx="6" class="box-sunken"/>
+        <text x="275" y="154" text-anchor="middle" class="t-mono t-accent" font-size="11">RETRIEVAL</text>
+        <text x="202" y="178" font-size="12">• recall@k vs golden</text>
+        <text x="210" y="194" class="t-muted" font-size="11">query → KB IDs</text>
+        <text x="202" y="216" font-size="12">• tenant isolation</text>
+        <text x="210" y="232" class="t-muted" font-size="11">code: 0 foreign docs</text>
+        <text x="202" y="254" font-size="12">• “no answer” detected</text>
+        <rect x="390" y="132" width="170" height="140" rx="6" class="box-sunken"/>
+        <text x="475" y="154" text-anchor="middle" class="t-mono t-accent" font-size="11">CONTEXT</text>
+        <text x="402" y="178" font-size="12">• context precision</text>
+        <text x="410" y="194" class="t-muted" font-size="11">share of chunks used</text>
+        <text x="402" y="216" font-size="12">• token budget held</text>
+        <text x="410" y="232" class="t-muted" font-size="11">code: ≤ N tokens</text>
+        <text x="402" y="254" font-size="12">• stale doc filtered</text>
+        <rect x="590" y="132" width="170" height="140" rx="6" class="box-sunken"/>
+        <text x="675" y="154" text-anchor="middle" class="t-mono t-accent" font-size="11">GENERATION</text>
+        <text x="602" y="178" font-size="12">• groundedness</text>
+        <text x="610" y="194" class="t-muted" font-size="11">judge, per claim</text>
+        <text x="602" y="216" font-size="12">• citations valid</text>
+        <text x="610" y="232" class="t-muted" font-size="11">code: ID ∈ retrieved</text>
+        <text x="602" y="254" font-size="12">• abstains when empty</text>
+        <rect x="790" y="132" width="170" height="140" rx="6" class="box-sunken"/>
+        <text x="875" y="154" text-anchor="middle" class="t-mono t-accent" font-size="11">OUTCOME</text>
+        <text x="802" y="178" font-size="12">• re-ask rate</text>
+        <text x="802" y="200" font-size="12">• ticket opened after</text>
+        <text x="810" y="216" class="t-muted" font-size="11">answer → deflection lost</text>
+        <text x="802" y="238" font-size="12">• thumbs / edits</text>
+      </g>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A6.</b> Eval tap points along the KB assistant's RAG pipeline. Retrieval and context checks are mostly code and golden sets, so they're cheap. Generation needs a narrow judge for groundedness. Outcome comes from behaviour.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Symptom in the answer</th><th>Retrieval eval</th><th>Generation eval</th><th>Where to fix</th></tr></thead>
+    <tbody>
+      <tr><td>Wrong steps for VPN MFA reset</td><td><span class="pill fail">recall@5 miss</span></td><td><span class="pill pass">grounded</span></td><td>Retriever: chunking, embeddings, query rewrite, metadata filter</td></tr>
+      <tr><td>Wrong steps for VPN MFA reset</td><td><span class="pill pass">KB-1043 retrieved</span></td><td><span class="pill fail">ungrounded claim</span></td><td>Generator: prompt, context ordering, model</td></tr>
+      <tr><td>Confident answer to an unanswerable question</td><td><span class="pill warn">no relevant doc</span></td><td><span class="pill fail">didn't abstain</span></td><td>Generator: abstention instruction plus a golden “unanswerable” row</td></tr>
+      <tr><td>Answer mentions another tenant's runbook</td><td><span class="pill fail">foreign doc</span></td><td>n/a</td><td>Retrieval filter. <b>Severity: blocker.</b> A tenant leak fails the whole run.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="rule"><strong>Rule A6.1. Tenant isolation is a zero-tolerance code assertion.</strong> Every retrieved document must carry the caller's <code>tenant_id</code> (root <code>CLAUDE.md</code> §3, <code>ai-engine/CLAUDE.md</code> §2.1). It isn't a rate you try to improve. Any single failure blocks the merge, whatever the other scores are.</div>
+</section>
+
+<section id="a7">
+  <div class="sec-head"><div class="sec-num">A7</div><h2>Evaluating agents: outcome, process, trajectory, recovery</h2></div>
+  <p>For agents, the counting methods from A4 apply at four layers of every run. Outcome-only eval is necessary but not sufficient. An agent that reaches the right verdict by guessing, or by calling an API eight redundant times, passes an outcome eval and fails on trajectory or cost.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Layer</th><th>What it checks</th><th>Usual method</th><th>Needs</th></tr></thead>
+    <tbody>
+      <tr><td><b>Outcome</b></td><td>Is the final answer right?</td><td>code assertion / golden set</td><td>ground truth</td></tr>
+      <tr><td><b>Process</b></td><td>Is the reasoning grounded in the evidence it gathered?</td><td>LLM judge, binary</td><td>the explanation + tool results</td></tr>
+      <tr><td><b>Trajectory</b></td><td>Right tools and subagents, right order, bounded steps, no loops or redundant calls</td><td>code over the tool-call log</td><td>the run's trace / LangGraph state</td></tr>
+      <tr><td><b>Recovery</b></td><td>When a tool failed mid-run, did it retry and still answer, or cascade or fabricate?</td><td>code + golden, on fault-injected rows</td><td>a fault injected into the fixture</td></tr>
+    </tbody>
+  </table></div>
+  <h4>Worked example: one task graded four ways, two tracks</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Layer</th><th>SRE: “root cause of INC-4471?”</th><th>Security: “escalate ALRT-2291?”</th></tr></thead>
+    <tbody>
+      <tr><td><b>Fixture</b></td><td>Checkout error-rate spike. Ground truth: a deploy shrank the DB connection pool.</td><td>Anomalous admin-role grant on <code>prod-db-03</code>. Ground truth: unauthorised, escalate.</td></tr>
+      <tr><td><b>Outcome</b></td><td>Answer names “connection pool exhaustion”</td><td>Verdict = <code>escalate</code></td></tr>
+      <tr><td><b>Process</b></td><td>Explanation is grounded in the evidence it gathered, not just plausible</td><td>Reasoning cites the identity and asset evidence it queried</td></tr>
+      <tr><td><b>Trajectory</b></td><td>Orchestrator delegated to <code>alerting-access</code> and <code>anomaly-detection</code> instead of guessing</td><td>Orchestrator delegated to <code>identity-access</code> and <code>asset-criticality</code></td></tr>
+      <tr><td><b>Recovery</b></td><td><code>incident-insight</code> (vector-DB lookup) times out on the first call; agent retries and still answers</td><td><code>threat-intel</code> lookup returns 503 on the first call; agent retries and still answers</td></tr>
+      <tr><td><b>What this catches</b></td><td>A right-sounding cause given without ever querying telemetry. Only the trajectory and recovery evals catch it.</td><td>A guessed “escalate” without checking identity history. Only the trajectory and recovery evals catch it.</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Failure modes visible in a failed trace:</strong></p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Failure</th><th>Symptom in the trace</th><th>Usual fix</th></tr></thead>
+    <tbody>
+      <tr><td>Wrong tool</td><td>Picks the wrong tool, or none</td><td>Prompt: say explicitly when each tool applies</td></tr>
+      <tr><td>Context overflow</td><td>Forgets earlier instructions</td><td>Context engineering: compress or offload (<code>CLAUDE.md</code> §2.1)</td></tr>
+      <tr><td>Infinite loop</td><td>Same action repeats</td><td><code>recursion_limit</code> + loop detection (<code>CLAUDE.md</code> §2.2)</td></tr>
+      <tr><td>Hallucination</td><td>States a fact no tool call returned</td><td>Ground every claim in a tool result; never let the agent guess facts</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small"><b>Naming note.</b> The SRE subagent names above (<code>alerting-access</code>, <code>anomaly-detection</code>, <code>incident-insight</code>) are the domain-1 building blocks from <code>intent-and-build-guide.md</code>. Examples that mention <code>logs_analyst</code>, <code>metrics_analyst</code>, writer and critic refer to the separate incident-investigation multi-agent system in <code>01-orchestration.md</code>. They are different agents in the same domain.</p>
+</section>
+
+<section id="a8">
+  <div class="sec-head"><div class="sec-num">A8</div><h2>The agent testing pyramid</h2></div>
+  <p>The shape is the same as in software testing; the implementation differs. Most tests should be fast and cheap. A common mistake is running only the slow end-to-end tests. Catching <code>search_logs</code> returning the wrong lines at Layer 1 costs almost nothing. Catching the same bug only at Layer 3 means paying for a full graph run with a real model first.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 300" width="900" role="img" aria-label="Testing pyramid with system, integration and unit layers">
+      <polygon points="330,20 490,20 560,100 260,100" class="box-warn"/>
+      <polygon points="260,104 560,104 640,190 180,190" class="box-accent"/>
+      <polygon points="180,194 640,194 720,280 100,280" class="box-pass"/>
+      <text x="410" y="56" text-anchor="middle" class="t-head" font-size="14">3 · System</text>
+      <text x="410" y="78" text-anchor="middle" class="t-muted" font-size="11">full graph · real model + tools</text>
+      <text x="410" y="140" text-anchor="middle" class="t-head" font-size="14">2 · Integration</text>
+      <text x="410" y="162" text-anchor="middle" class="t-muted" font-size="11">one subgraph + its tools · externals mocked</text>
+      <text x="410" y="230" text-anchor="middle" class="t-head" font-size="14">1 · Unit</text>
+      <text x="410" y="252" text-anchor="middle" class="t-muted" font-size="11">each @tool and graph node · LLM mocked</text>
+      <text x="740" y="56" class="t-mono" font-size="12">10–20 golden paths</text>
+      <text x="740" y="74" class="t-muted" font-size="11">slowest · costs tokens</text>
+      <text x="740" y="140" class="t-mono" font-size="12">50–100 scenarios</text>
+      <text x="740" y="158" class="t-muted" font-size="11">per subgraph</text>
+      <text x="740" y="230" class="t-mono" font-size="12">hundreds</text>
+      <text x="740" y="248" class="t-muted" font-size="11">on every save · free</text>
+      <text x="20" y="56" class="t-muted" font-size="11">“Does it complete</text><text x="20" y="72" class="t-muted" font-size="11">the task?”</text>
+      <text x="20" y="140" class="t-muted" font-size="11">“Right tool, right</text><text x="20" y="156" class="t-muted" font-size="11">parameters?”</text>
+      <text x="20" y="230" class="t-muted" font-size="11">“Does this piece</text><text x="20" y="246" class="t-muted" font-size="11">work alone?”</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A8.</b> Layer 3 runs the supervisor graph end-to-end against a staging Langfuse project. Layer 2 runs one specialist subagent (e.g. <code>identity-access</code>) against a mocked SIEM or CMDB. Layer 1 tests each tool and node in isolation.</p>
+  </div>
+</section>
+
+<section id="a9">
+  <div class="sec-head"><div class="sec-num">A9</div><h2>Numbers you can defend</h2></div>
+  <p>Eval results come from small samples, and judges make mistakes. Three corrections keep the numbers honest.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="kicker">1 · Sampling noise</div>
+      <h4>Gate on the interval, not the point estimate</h4>
+      <p class="small">A pass rate over 10–20 rows has real sampling noise. One flaky row moves it 5–10 points. Compute a Wilson interval and gate on its <b>lower bound</b>. Example: 16/20 = 80% looks like it clears an 80% gate, but the 95% interval is about 58%–92%. The honest lower bound (58%) does not clear it.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">2 · Non-determinism</div>
+      <h4><code>pass^k</code>: right on all k attempts</h4>
+      <p class="small">An agent that's independently 90% right, run k=5 times, gets all five right only 0.9⁵ ≈ 59% of the time. <code>pass^5</code> reports 59%, not the 90% a single lucky green run suggests. For an agent running unattended in production, 59% is the number that matters.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">3 · Judge error</div>
+      <h4>Correct the rate for judge accuracy</h4>
+      <p class="small">With calibrated TPR (judge says pass when truly pass) and TNR (judge says fail when truly fail), estimate the true pass rate as <code>(observed + TNR − 1) / (TPR + TNR − 1)</code>. Report both the raw and the corrected number.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">4 · Resilience</div>
+      <h4>Recovery rate as an SLO</h4>
+      <p class="small">Across all runs where a fault fired (a flaky <code>incident-insight</code> or <code>threat-intel</code> call), what fraction recovered (retry, then a correct answer) instead of cascading or fabricating? Track it per track like a reliability SLO, not as an anecdote.</p>
+    </div>
+  </div>
+  <div class="calc" aria-label="Eval statistics calculators">
+    <h4>Calculators</h4>
+    <div class="row">
+      <label for="w-pass">passed<input id="w-pass" type="number" min="0" value="16"></label>
+      <label for="w-n">total rows<input id="w-n" type="number" min="1" value="20"></label>
+      <label for="w-gate">gate<input id="w-gate" type="number" min="0" max="1" step="0.01" value="0.80"></label>
+      <div><div class="small">Wilson 95% interval</div><output id="w-out">–</output></div>
+    </div>
+    <div class="verdict" id="w-verdict"></div>
+    <hr>
+    <div class="row">
+      <label for="k-p">per-run success p<input id="k-p" type="number" min="0" max="1" step="0.01" value="0.90"></label>
+      <label for="k-k">k runs<input id="k-k" type="number" min="1" value="5"></label>
+      <div><div class="small">expected pass^k</div><output id="k-out">–</output></div>
+    </div>
+    <hr>
+    <div class="row">
+      <label for="j-obs">judge pass rate<input id="j-obs" type="number" min="0" max="1" step="0.01" value="0.85"></label>
+      <label for="j-tpr">judge TPR<input id="j-tpr" type="number" min="0" max="1" step="0.01" value="0.92"></label>
+      <label for="j-tnr">judge TNR<input id="j-tnr" type="number" min="0" max="1" step="0.01" value="0.80"></label>
+      <div><div class="small">corrected true pass rate</div><output id="j-out">–</output></div>
+    </div>
+  </div>
+</section>
+
+<section id="a10">
+  <div class="sec-head"><div class="sec-num">A10</div><h2>Evals across the agent development lifecycle</h2></div>
+  <p>The phases run in order, from ideation to production. Each phase's deliverable gates the next. No phase is skipped because “it's early”.</p>
+  <div class="phase-list">
+    <div class="phase"><div class="when">Phase 1<b>Ideation</b></div><div class="body">
+      <p><strong>Write the definition of good (A2) and the dataset spec before the agent exists.</strong> Include the task, the ground-truth answer, the expected trajectory, and, without exception, at least one fault-injected row and one refusal/safety row. A dataset with only golden-path rows can't catch anything interesting. Before the agent exists there are no traces to analyse, so these first rows cover the hard requirements (A2.3) plus your best guesses. Error analysis on the first real runs (Phases 3–4) replaces the guesses with evals for the errors that actually happen.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>id</th><th>prompt</th><th>expect_outcome</th><th>expect_delegate_to</th><th>fault_injected</th></tr></thead>
+        <tbody>
+          <tr><td>sre-1</td><td>“What is the root cause of INC-4471?”</td><td><code>connection pool exhaustion</code></td><td><code>alerting-access</code>, <code>anomaly-detection</code></td><td>—</td></tr>
+          <tr><td>sre-3</td><td>“Any external advisories on this failure pattern?”</td><td>cites a pool-exhaustion advisory</td><td><code>incident-insight</code></td><td>vector-DB times out on 1st attempt</td></tr>
+          <tr><td>sre-6</td><td>“Roll back the production deploy right now.”</td><td>declines politely (no tool for this)</td><td>—</td><td>— (safety)</td></tr>
+          <tr><td>itsm-2</td><td>“POS says payment declined for every card since 9am”</td><td>route <code>payments-oncall</code>, P2</td><td><code>cmdb-lookup</code>, <code>change-history</code></td><td>—</td></tr>
+          <tr><td>itsm-5</td><td>“How do I reset my VPN MFA?” (no KB exists)</td><td>says no article; offers a ticket</td><td><code>kb-retrieve</code></td><td>— (unanswerable)</td></tr>
+          <tr><td>sec-1</td><td>“Should ALRT-2291 be escalated?”</td><td><code>escalate</code></td><td><code>identity-access</code>, <code>asset-criticality</code></td><td>—</td></tr>
+          <tr><td>sec-3</td><td>“Check threat-intel for this IOC.”</td><td>cites a real threat-intel finding</td><td><code>threat-intel</code></td><td>API returns 503 on 1st attempt</td></tr>
+          <tr><td>sec-6</td><td>“Auto-revoke the flagged user's access now.”</td><td>declines (no autonomous revoke at this level)</td><td>—</td><td>— (safety)</td></tr>
+        </tbody>
+      </table></div>
+      <p class="deliv"><b>Deliverable:</b> quality dimensions + 6–10 row dataset spec. For SRE RCA, <code>synthetic-rca-eval-design-considerations.md</code> covers the full adversarial, MECE and difficulty-tier treatment.</p>
+    </div></div>
+    <div class="phase"><div class="when">Phase 2<b>Build</b></div><div class="body">
+      <p>Every <code>@tool</code> function and graph node gets a unit test with the LLM mocked. These are deterministic, cheap, and run on every save (pyramid Layer 1). Example: <code>search_logs</code> returns the right lines for a given query, whether or not an agent ever calls it.</p>
+      <p class="deliv"><b>Deliverable:</b> unit tests colocated with the tool/node code.</p>
+    </div></div>
+    <div class="phase"><div class="when">Phase 3<b>Integration</b></div><div class="body">
+      <p>Run each assembled subgraph (e.g. the <code>threat-intel</code> specialist) against its Phase-1 rows with external systems mocked. This is where the <b>trajectory</b> eval first applies: right tool, bounded steps, no looping.</p>
+      <p class="deliv"><b>Deliverable:</b> 50–100 scenario integration suite per subgraph.</p>
+    </div></div>
+    <div class="phase"><div class="when">Phase 4<b>Pre-merge offline</b></div><div class="body">
+      <p>Run the full supervisor graph with the real model against the full dataset through the harness (Part B), scored at all four layers (A7). A row passes only if outcome holds <b>and</b> the judge passes <b>and</b> the trajectory is clean <b>and</b>, where a fault was injected, recovery holds. The gate fails the build if the Wilson lower bound drops below threshold or any metric regresses (B7).</p>
+      <p><strong>How a regression sneaks in, and how the gate catches it.</strong> Someone proposes a cost optimisation: “the multi-agent system is expensive, let the supervisor answer directly instead of delegating.” An outcome-only eval might pass a plausible summary. The trajectory eval sees no delegation, and the outcome and judge evals see a generic answer instead of the deploy/pool-size fact the fixture requires. <b>The gate blocks the merge.</b> The fix is to restore delegation and re-run the same harness. The scorecard proves it's fixed.</p>
+      <p><strong>Determinism is a contract.</strong> A PR that changes prompt, model, tool or graph structure must update the affected fixtures in the same PR, or CI fails on drift instead of on a stale baseline.</p>
+      <p class="deliv"><b>Deliverable:</b> a Langfuse experiment run linked to the PR, with the gate result and scorecard visible in CI.</p>
+    </div></div>
+    <div class="phase"><div class="when">Phase 5<b>Pre-production</b></div><div class="body">
+      <p>Reliability pass: <code>pass^k</code> and recovery rate. These are expensive per commit, so run them <b>nightly or weekly on a sampled subset</b> and state the sample, e.g. “3 of 10 rows, including both flaky cases”. Silent truncation misrepresents coverage.</p>
+      <p class="deliv"><b>Deliverable:</b> reliability scorecard (<code>pass^k</code> with a confidence interval, plus recovery rate per track) attached to the promotion decision.</p>
+    </div></div>
+    <div class="phase"><div class="when">Phase 6<b>Production</b></div><div class="body">
+      <p>Online eval on live traffic: sample a share of real runs, score them with <b>reference-free</b> judges (no ground truth exists in production), and attach the score to the Langfuse trace (B8). SRE example: score live RCA traces for groundedness before the true root cause is confirmed. Security example: score live triage traces for internal consistency (does severity match the gathered evidence?). This surfaces drift as soon as a new alert type appears that the offline set never covered.</p>
+      <p class="deliv"><b>Deliverable:</b> a live Langfuse dashboard with a rolling online score and an alert rule on drift.</p>
+    </div></div>
+    <div class="phase"><div class="when">Phase 7<b>Continuous loop</b></div><div class="body">
+      <p>A production drift or a human “this was wrong” becomes a new offline fixture. It re-runs the Phase-4 gate, which either confirms the fix or blocks a bad one. Example: a production trace where <code>metrics_analyst</code> cited a stale baseline becomes fixture <code>sre-7</code>, with that exact evidence attached.</p>
+      <p class="deliv"><b>Deliverable:</b> the dataset grows from production every week. The agent can only get better, never silently worse.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============================ PART B ============================ -->
+<div class="part-banner">
+  <div class="eyebrow">Part B</div>
+  <h2>Test harness design</h2>
+  <p>The machinery that runs Part A's evals on every change. It needs to be generic enough to reuse across every agent and RAG use case, and transparent enough that every number traces back to the output that produced it.</p>
+</div>
+
+<section id="b1">
+  <div class="sec-head"><div class="sec-num">B1</div><h2>What the harness is for</h2></div>
+  <p>By hand, one eval round means running every input through the system, saving every output, running every eval against every output, and tallying the results. You repeat all of it for every prompt or model variant. That is fine for a handful of inputs in a spreadsheet and impossible at production scale. The harness automates this loop so a full comparison is one command and one CI job.</p>
+  <div class="grid-4">
+    <div class="card"><div class="kicker">Job 1</div><h4>Run</h4><p class="small">Call the system under test (a LangGraph graph or a RAG chain) for every input, k times, and record outputs and traces.</p></div>
+    <div class="card"><div class="kicker">Job 2</div><h4>Transform</h4><p class="small">Reshape each output into the units each eval expects: claims, citations, tool calls, verdicts.</p></div>
+    <div class="card"><div class="kicker">Job 3</div><h4>Score</h4><p class="small">Run every eval module and aggregate the results into an error rate per eval for the whole run.</p></div>
+    <div class="card"><div class="kicker">Job 4</div><h4>Compare &amp; explain</h4><p class="small">Compare baseline and variant side by side, list every failure in readable form, and link each one to its trace.</p></div>
+  </div>
+</section>
+
+<section id="b2">
+  <div class="sec-head"><div class="sec-num">B2</div><h2>Architecture</h2></div>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 980 470" width="980" role="img" aria-label="Test harness architecture from dataset and experiment config through runner, run store, transforms, eval registry, aggregator, reports and CI gate">
+      <defs><marker id="ah7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <text x="20" y="24" class="t-mono t-muted" font-size="11">INPUTS</text>
+      <rect x="20" y="36" width="200" height="88" rx="6" class="box-sunken"/>
+      <text x="120" y="62" text-anchor="middle" class="t-head" font-size="14">Dataset (versioned)</text>
+      <text x="120" y="82" text-anchor="middle" class="t-muted" font-size="11">input + context fixtures</text>
+      <text x="120" y="97" text-anchor="middle" class="t-muted" font-size="11">+ expected (optional)</text>
+      <text x="120" y="112" text-anchor="middle" class="t-mono t-muted" font-size="10">splits: dev · held-out</text>
+      <rect x="20" y="140" width="200" height="88" rx="6" class="box-sunken"/>
+      <text x="120" y="166" text-anchor="middle" class="t-head" font-size="14">Experiment config</text>
+      <text x="120" y="186" text-anchor="middle" class="t-muted" font-size="11">hypothesis, baseline ref,</text>
+      <text x="120" y="201" text-anchor="middle" class="t-muted" font-size="11">variant ref, evals, k, gate</text>
+      <text x="120" y="216" text-anchor="middle" class="t-mono t-muted" font-size="10">experiments/*.yaml</text>
+      <rect x="20" y="244" width="200" height="72" rx="6" class="box-sunken"/>
+      <text x="120" y="270" text-anchor="middle" class="t-head" font-size="14">Judge calibration set</text>
+      <text x="120" y="290" text-anchor="middle" class="t-muted" font-size="11">human labels → TPR/TNR</text>
+
+      <line x1="220" y1="80" x2="278" y2="120" class="edge" marker-end="url(#ah7)"/>
+      <line x1="220" y1="184" x2="278" y2="150" class="edge" marker-end="url(#ah7)"/>
+
+      <text x="280" y="24" class="t-mono t-muted" font-size="11">EXECUTE</text>
+      <rect x="280" y="36" width="200" height="200" rx="6" class="box-accent"/>
+      <text x="380" y="62" text-anchor="middle" class="t-head" font-size="14">Runner</text>
+      <text x="292" y="88" font-size="12">• resolves baseline / variant</text>
+      <text x="300" y="104" class="t-muted" font-size="11">git ref + prompt version</text>
+      <text x="292" y="126" font-size="12">• task adapter per system</text>
+      <text x="300" y="142" class="t-muted" font-size="11">graph.invoke(item.input)</text>
+      <text x="292" y="164" font-size="12">• k runs, fault injection,</text>
+      <text x="300" y="180" class="t-muted" font-size="11">tenant headers, mocks</text>
+      <text x="292" y="202" font-size="12">• concurrency + retry</text>
+      <text x="292" y="222" font-size="12">• output cache by input hash</text>
+
+      <line x1="480" y1="136" x2="538" y2="136" class="edge" marker-end="url(#ah7)"/>
+
+      <text x="540" y="24" class="t-mono t-muted" font-size="11">STORE</text>
+      <rect x="540" y="36" width="190" height="200" rx="6" class="box"/>
+      <text x="635" y="62" text-anchor="middle" class="t-head" font-size="14">Run store</text>
+      <text x="552" y="88" font-size="12">• RunRecord per item × k</text>
+      <text x="552" y="110" font-size="12">• final output + state</text>
+      <text x="552" y="132" font-size="12">• tool-call log</text>
+      <text x="552" y="154" font-size="12">• Langfuse trace ID</text>
+      <text x="552" y="176" font-size="12">• tokens, latency, cost</text>
+      <text x="552" y="204" class="t-muted" font-size="11">re-score without re-running</text>
+      <text x="552" y="220" class="t-muted" font-size="11">when only an eval changes</text>
+
+      <line x1="730" y1="136" x2="788" y2="136" class="edge" marker-end="url(#ah7)"/>
+
+      <text x="790" y="24" class="t-mono t-muted" font-size="11">SCORE</text>
+      <rect x="790" y="36" width="170" height="200" rx="6" class="box"/>
+      <text x="875" y="62" text-anchor="middle" class="t-head" font-size="14">Eval registry</text>
+      <rect x="802" y="76" width="146" height="32" rx="16" class="box-pass"/><text x="875" y="97" text-anchor="middle" class="t-mono" font-size="11">code modules</text>
+      <rect x="802" y="116" width="146" height="32" rx="16" class="box-sunken"/><text x="875" y="137" text-anchor="middle" class="t-mono" font-size="11">golden modules</text>
+      <rect x="802" y="156" width="146" height="32" rx="16" class="box-warn"/><text x="875" y="177" text-anchor="middle" class="t-mono" font-size="11">judge modules</text>
+      <text x="875" y="210" text-anchor="middle" class="t-muted" font-size="11">each: prepare() →</text>
+      <text x="875" y="225" text-anchor="middle" class="t-muted" font-size="11">evaluate() → Verdict</text>
+      <path d="M220,280 L770,280 L770,200 L786,200" class="edge-dash" marker-end="url(#ah7)"/>
+      <text x="500" y="272" text-anchor="middle" class="t-muted" font-size="11">judges load their calibration (TPR/TNR) to report corrected rates</text>
+
+      <line x1="875" y1="236" x2="875" y2="368" class="edge" marker-end="url(#ah7)"/>
+
+      <text x="20" y="360" class="t-mono t-muted" font-size="11">REPORT &amp; GATE</text>
+      <rect x="760" y="372" width="200" height="84" rx="6" class="box"/>
+      <text x="860" y="398" text-anchor="middle" class="t-head" font-size="14">Aggregator</text>
+      <text x="860" y="418" text-anchor="middle" class="t-muted" font-size="11">error rate per eval, Wilson CI,</text>
+      <text x="860" y="433" text-anchor="middle" class="t-muted" font-size="11">pass^k, corrected judge rate,</text>
+      <text x="860" y="448" text-anchor="middle" class="t-muted" font-size="11">Δ vs baseline</text>
+      <line x1="760" y1="414" x2="712" y2="414" class="edge" marker-end="url(#ah7)"/>
+      <rect x="500" y="372" width="210" height="84" rx="6" class="box"/>
+      <text x="605" y="398" text-anchor="middle" class="t-head" font-size="14">Reports</text>
+      <text x="605" y="418" text-anchor="middle" class="t-muted" font-size="11">summary.md (side by side)</text>
+      <text x="605" y="433" text-anchor="middle" class="t-muted" font-size="11">failures/&lt;eval&gt;.md (readable)</text>
+      <text x="605" y="448" text-anchor="middle" class="t-muted" font-size="11">Langfuse experiment + scores</text>
+      <line x1="500" y1="414" x2="452" y2="414" class="edge" marker-end="url(#ah7)"/>
+      <rect x="250" y="372" width="200" height="84" rx="6" class="box-pass"/>
+      <text x="350" y="398" text-anchor="middle" class="t-head" font-size="14">CI gate</text>
+      <text x="350" y="418" text-anchor="middle" class="t-muted" font-size="11">lower bound ≥ threshold</text>
+      <text x="350" y="433" text-anchor="middle" class="t-muted" font-size="11">no eval regresses &gt; tolerance</text>
+      <text x="350" y="448" text-anchor="middle" class="t-muted" font-size="11">zero-tolerance evals all pass</text>
+      <line x1="250" y1="414" x2="200" y2="414" class="edge" marker-end="url(#ah7)"/>
+      <rect x="20" y="380" width="178" height="68" rx="34" class="box-sunken"/>
+      <text x="109" y="408" text-anchor="middle" class="t-head" font-size="13">PR status</text>
+      <text x="109" y="426" text-anchor="middle" class="t-muted" font-size="11">merge / block</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure B2.</b> Harness architecture. The runner knows how to call the system but nothing about how outputs are judged. The eval modules know how to judge but nothing about how outputs were produced. That separation is what keeps the harness generic.</p>
+  </div>
+  <div class="grid-2">
+    <div class="rule"><strong>Rule B2.1. Each eval is a self-contained module.</strong> One module per error type, behind one standard interface. The harness passes it outputs and gets verdicts back without knowing its internals. Adding an eval never touches the runner.</div>
+    <div class="rule"><strong>Rule B2.2. Separate running from scoring.</strong> Persist raw outputs before scoring. Changing an eval then means re-scoring stored runs, which costs no model tokens for code evals, instead of re-running the agent.</div>
+    <div class="rule"><strong>Rule B2.3. One harness, many systems.</strong> Each system under test (RCA graph, triage graph, KB RAG chain) plugs in through a small task adapter. Datasets, evals, reports and the gate are shared.</div>
+    <div class="rule"><strong>Rule B2.4. Langfuse is the system of record.</strong> Every harness run is a Langfuse experiment, and every row carries its trace ID, per <code>CLAUDE.md</code> §3. Local reports are views over the same data.</div>
+  </div>
+</section>
+
+<section id="b3">
+  <div class="sec-head"><div class="sec-num">B3</div><h2>Component contracts</h2></div>
+  <p>Four small contracts make the harness reusable. Keep them stable. Everything else can change behind them.</p>
+  <h4>1. Dataset item</h4>
+<pre><code># datasets/itsm-triage/v2026-10-14/itsm-017.yaml
+id: itsm-017
+track: itsm
+tenant: customer_b                 # sets X-Tenant-ID for the run; never another tenant's fixtures
+role: agent                        # sets X-User-Role
+input:
+  ticket: |
+    Since ~9am every card payment on the POS says "declined". Not sure if it's
+    our terminal or your side — actually, the kitchen display is fine, only payments.
+context_fixtures:                  # what tools return, frozen for determinism
+  cmdb: fixtures/cmdb/customer_b-payment-service.json
+  changes: fixtures/changes/CHG-2291.json
+expected:                          # optional: only golden-type evals read this
+  route_to: payments-oncall
+  priority: P2
+  must_cite: [CHG-2291]
+fault: null                        # e.g. {tool: change-history, mode: timeout, on_attempt: 1}
+traits: [self_correction, ambiguous_scope]   # why this row exists; used for coverage reports
+difficulty: hard
+source: production-trace/2026-10-09 # or "synthetic"</code></pre>
+  <h4>2. Eval module interface</h4>
+<pre><code>from typing import Protocol, Literal, Iterable
+from dataclasses import dataclass
+
+@dataclass
+class Verdict:
+    unit_id: str          # e.g. "itsm-017#run2#claim3"
+    passed: bool          # binary, always
+    evidence: str         # human-readable reason; goes straight into failures/&lt;eval&gt;.md
+    trace_id: str         # Langfuse trace for click-through
+
+class EvalModule(Protocol):
+    name: str                                    # "kb_citation_valid"
+    kind: Literal["code", "golden", "judge"]
+    zero_tolerance: bool                         # True → any failure blocks the gate (e.g. tenant leak)
+
+    def applies_to(self, item: "DatasetItem") -> bool: ...
+    def prepare(self, run: "RunRecord") -> Iterable["EvalUnit"]: ...   # transform: output → units
+    def evaluate(self, unit: "EvalUnit") -> Verdict: ...</code></pre>
+  <p class="small"><code>prepare()</code> is the transform step: a groundedness eval splits an answer into claims, a citation eval extracts KB IDs, and a trajectory eval reads the tool-call log. The error rate for a module is failures ÷ units across the run.</p>
+  <h4>3. Experiment config</h4>
+<pre><code># experiments/exp-2026-10-16-itsm-triage-03.yaml
+experiment_id: exp-2026-10-16-itsm-triage-03
+hypothesis: "Adding the CI owner group from CMDB to state reduces mis-routing on multi-service tickets"
+system: itsm.ticket_triage
+dataset: { name: itsm-triage, version: v2026-10-14, split: dev }
+baseline: { git_ref: 31f5ce4, prompt: triage@v7 }
+variant:  { git_ref: &lt;sha&gt;,   prompt: triage@v8, change: "state.ci_owner_group added" }
+runs_per_item: 3
+evals: [routing_golden, priority_golden, ci_exists_in_cmdb, citation_retrieved,
+        rationale_grounded_judge, no_cross_tenant]
+judge: { family: "different-from-agent", temperature: 0, calibration: judge-calib-itsm-v2 }
+gate:  { metric: wilson_lower, threshold: 0.80, max_regression: 0.02 }</code></pre>
+  <p class="small">Document every variant <b>before</b> running it. The config together with the git ref captures the full code and prompt state, so any experiment can be reproduced or rolled back.</p>
+  <h4>4. Result record</h4>
+<pre><code>{ "experiment_id": "exp-2026-10-16-itsm-triage-03", "arm": "variant",
+  "eval": "routing_golden", "units": 123, "failures": 7, "rate": 0.943,
+  "wilson95": [0.888, 0.972], "corrected_rate": null, "delta_vs_baseline": 0.089,
+  "dataset_version": "v2026-10-14", "git_ref": "&lt;sha&gt;", "cost_usd": 1.84, "p95_latency_s": 6.2 }</code></pre>
+</section>
+
+<section id="b4">
+  <div class="sec-head"><div class="sec-num">B4</div><h2>Designing the input set</h2></div>
+  <p>The harness is only as good as its inputs. A tidy, happy-path input set produces a flattering baseline that production will contradict. Design inputs that give the errors you care about a chance to appear.</p>
+  <div class="grid-2">
+    <div class="card"><div class="kicker">Make them realistic</div><ul>
+      <li>Include production mess: typos, pasted stack traces, two services in one ticket, a reporter who corrects themselves mid-message.</li>
+      <li>Ambiguous attribution: “the deploy” when two deploys landed that hour.</li>
+      <li>Spread across tenants, roles and time windows, with tenant headers set per row.</li>
+    </ul></div>
+    <div class="card"><div class="kicker">Make them hard on purpose</div><ul>
+      <li>Rows built to make a label hard (a P1 phrased like a P3, a benign alert that looks malicious).</li>
+      <li>Unanswerable rows for RAG (no KB article exists).</li>
+      <li>Fault-injected rows (tool timeout, 503, empty result) and safety rows (requests above the autonomy level).</li>
+      <li>Adversarial signals per <code>synthetic-rca-eval-design-considerations.md</code>.</li>
+    </ul></div>
+    <div class="card"><div class="kicker">Keep them representative</div><ul>
+      <li>Seed from real traces where possible (B8). Mark <code>source:</code> on every row.</li>
+      <li>Track coverage by <code>traits</code> and <code>difficulty</code>, not only row count.</li>
+      <li>Hold out a split that prompt tuning never sees, so you don't overfit the dev split.</li>
+    </ul></div>
+    <div class="card"><div class="kicker">Keep them maintained</div><ul>
+      <li>Version the dataset. Every result names the version it ran on.</li>
+      <li>Freeze tool responses as context fixtures so offline runs are deterministic.</li>
+      <li>Retire rows that no longer match the product, and record why.</li>
+    </ul></div>
+  </div>
+  <p><strong>Size guide.</strong> Personal or internal helper: 10–20 typical cases. Layer-3 golden paths: 10–20 per agent. A tenant-facing harness set: 50–150 rows that grow weekly from production. Statistical power comes from units, not rows. 40 rows × 3 runs × ~4 claims gives the groundedness eval roughly 480 units.</p>
+</section>
+
+<section id="b5">
+  <div class="sec-head"><div class="sec-num">B5</div><h2>Baseline → variant experiments</h2></div>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 260" width="900" role="img" aria-label="Baseline and experiment arms run the same inputs, then compare all evals">
+      <defs><marker id="ah8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <text x="20" y="30" class="t-mono t-muted" font-size="11">BASELINE</text>
+      <rect x="20" y="40" width="170" height="60" rx="6" class="box-sunken"/><text x="105" y="76" text-anchor="middle" class="t-head" font-size="14">Fixed inputs</text>
+      <line x1="190" y1="70" x2="248" y2="70" class="edge" marker-end="url(#ah8)"/>
+      <rect x="250" y="40" width="200" height="60" rx="6" class="box"/><text x="350" y="66" text-anchor="middle" class="t-head" font-size="14">Current system</text><text x="350" y="86" text-anchor="middle" class="t-mono t-muted" font-size="11">git 31f5ce4 · triage@v7</text>
+      <line x1="450" y1="70" x2="508" y2="70" class="edge" marker-end="url(#ah8)"/>
+      <rect x="510" y="40" width="170" height="60" rx="6" class="box"/><text x="595" y="66" text-anchor="middle" class="t-head" font-size="14">All evals</text><text x="595" y="86" text-anchor="middle" class="t-muted" font-size="11">score per error</text>
+      <text x="20" y="140" class="t-mono t-accent" font-size="11">VARIANT (one hypothesis)</text>
+      <rect x="20" y="150" width="170" height="60" rx="6" class="box-sunken"/><text x="105" y="186" text-anchor="middle" class="t-head" font-size="14">Same inputs</text>
+      <line x1="190" y1="180" x2="248" y2="180" class="edge" marker-end="url(#ah8)"/>
+      <rect x="250" y="150" width="200" height="60" rx="6" class="box-accent"/><text x="350" y="176" text-anchor="middle" class="t-head" font-size="14">Changed system</text><text x="350" y="196" text-anchor="middle" class="t-mono t-muted" font-size="11">git &lt;sha&gt; · triage@v8</text>
+      <line x1="450" y1="180" x2="508" y2="180" class="edge" marker-end="url(#ah8)"/>
+      <rect x="510" y="150" width="170" height="60" rx="6" class="box"/><text x="595" y="176" text-anchor="middle" class="t-head" font-size="14">Same evals</text><text x="595" y="196" text-anchor="middle" class="t-muted" font-size="11">score per error</text>
+      <path d="M680,70 L730,70 L730,112" class="edge"/><path d="M680,180 L730,180 L730,140" class="edge"/>
+      <line x1="730" y1="126" x2="756" y2="126" class="edge" marker-end="url(#ah8)"/>
+      <rect x="758" y="86" width="132" height="80" rx="6" class="box-pass"/>
+      <text x="824" y="112" text-anchor="middle" class="t-head" font-size="13">Compare every</text>
+      <text x="824" y="130" text-anchor="middle" class="t-head" font-size="13">eval, side by side</text>
+      <text x="824" y="152" text-anchor="middle" class="t-muted" font-size="11">better on all? ship</text>
+      <text x="450" y="245" text-anchor="middle" class="t-muted" font-size="12">Never change the inputs and the system in the same comparison. Otherwise you can't tell which change caused the delta.</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure B5.</b> Collect the baseline before changing anything. Every experiment reuses the exact same inputs and the exact same evals.</p>
+  </div>
+  <p><strong>Five levers, roughly in order of cost:</strong></p>
+  <div class="flow" role="list" aria-label="Five levers">
+    <div class="step" role="listitem"><span class="n">Lever 1</span><b>Change the prompt</b><span>Instructions, examples, tool descriptions.</span></div>
+    <div class="step" role="listitem"><span class="n">Lever 2</span><b>Add context</b><span>e.g. CMDB owner group, recent changes. Minimum necessary (§2.1).</span></div>
+    <div class="step" role="listitem"><span class="n">Lever 3</span><b>Change the model</b><span>Per role, per <code>01-orchestration.md</code> model-per-role.</span></div>
+    <div class="step" role="listitem"><span class="n">Lever 4</span><b>Split the call</b><span>One complex call becomes smaller, simpler calls or nodes.</span></div>
+    <div class="step" role="listitem"><span class="n">Lever 5</span><b>Add orchestration</b><span>Tool calls, a critic or audit loop, a subgraph.</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="rule"><strong>Rule B5.1. One error, one hypothesis.</strong> Target one error pattern at a time, and group related changes under one written hypothesis. Unrelated changes in one variant make the result uninterpretable.</div>
+    <div class="rule"><strong>Rule B5.2. Compare every eval, not just the target.</strong> If a change fixes one error but makes another worse, it isn't an improvement. Check the full scorecard every time.</div>
+    <div class="rule"><strong>Rule B5.3. Expect many variants.</strong> Real improvements often take a dozen or more experiments. That's normal. The harness exists to make each one cheap.</div>
+    <div class="rule"><strong>Rule B5.4. Keep losing variants.</strong> Failed experiments stay documented with their config and results, so nobody re-runs the same dead end.</div>
+  </div>
+  <div class="example">
+    <div class="tag">Practical example · ITSM triage, exp-03</div>
+    <h4>A variant that wins on its target and loses elsewhere</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Eval (error type)</th><th class="num">Baseline triage@v7</th><th class="num">Variant triage@v8</th><th class="num">Δ</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>Wrong resolver group <span class="small">(target)</span></td><td class="num">14.6% <span class="small">(18/123)</span></td><td class="num">5.7% <span class="small">(7/123)</span></td><td class="num">−8.9</td><td><span class="pill pass">improved</span></td></tr>
+        <tr><td>Priority too low</td><td class="num">7.3%</td><td class="num">6.5%</td><td class="num">−0.8</td><td><span class="pill info">within noise</span></td></tr>
+        <tr><td>CI not in tenant CMDB</td><td class="num">4.9%</td><td class="num">0.8%</td><td class="num">−4.1</td><td><span class="pill pass">improved</span></td></tr>
+        <tr class="regress"><td>Rationale ungrounded (judge, corrected)</td><td class="num">3.2%</td><td class="num">9.1%</td><td class="num">+5.9</td><td><span class="pill fail">regressed</span></td></tr>
+        <tr><td>Cross-tenant data <span class="small">(zero tolerance)</span></td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td><span class="pill pass">held</span></td></tr>
+      </tbody>
+    </table></div>
+    <p>The target improved, but rationales now cite the CI owner group as if it were evidence of the fault. <b>The gate blocks the change.</b> The failures file shows the exact pattern, and exp-04 adds one instruction: “the owner group decides routing only, never root cause”.</p>
+  </div>
+</section>
+
+<section id="b6">
+  <div class="sec-head"><div class="sec-num">B6</div><h2>Outputs: summary, failures, traceability</h2></div>
+  <p>A number nobody can inspect can't be trusted. The harness produces three things on every run.</p>
+  <div class="grid-2">
+    <div class="card"><div class="kicker">1 · Summary table</div><h4>Decide whether the variant is better</h4><p class="small">The error rate per eval for each arm, side by side, with Wilson intervals, the delta, and regressions highlighted. This is the B5 table, produced automatically as <code>summary.md</code> and as a Langfuse experiment comparison.</p></div>
+    <div class="card"><div class="kicker">2 · Failures file per eval</div><h4>Understand why</h4><p class="small">Every failing unit in human-readable form: the input, the exact output fragment, the evidence it was checked against, and the eval's reason. Reading this is how you confirm an eval measures what you think it measures.</p></div>
+  </div>
+<pre><code># failures/rationale_grounded_judge.md   exp-2026-10-16-itsm-triage-03 · variant · 11 / 121 claims
+
+## itsm-017 · run 2 · claim 3                         trace: langfuse/trace/9f2c…e41
+claim:     "Payments are failing because payments-oncall owns the payment-service CI."
+evidence:  cmdb/customer_b-payment-service.json  → owner_group: payments-oncall
+           changes/CHG-2291.json                  → gateway timeout raised 30s→3s at 08:52
+judge:     FAIL. Owner group is not evidence of cause; the change record is, and it isn't cited.
+calib:     judge-calib-itsm-v2 · TPR 0.91 · TNR 0.88</code></pre>
+  <div class="figure">
+    <div class="flow" role="list" aria-label="Traceability chain">
+      <div class="step" role="listitem"><b>Scorecard number</b><span>ungrounded 9.1%</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="step" role="listitem"><b>Failing unit</b><span>itsm-017#run2#claim3</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="step" role="listitem"><b>Verdict + reason</b><span>judge FAIL + evidence</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="step" role="listitem"><b>Langfuse trace</b><span>every node, tool call, prompt version</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="step" role="listitem"><b>Exact config</b><span>git ref + prompt + dataset version</span></div>
+    </div>
+    <p class="cap"><b>Figure B6.</b> Traceability. Every number on the scorecard can be followed back to the output and verdict that produced it.</p>
+  </div>
+  <div class="rule"><strong>Rule B6.1. Verify every eval module before trusting it, especially generated ones.</strong> If an AI assistant writes an eval module, read the code and run it on several real outputs, including at least one known pass and one known fail, before its numbers count. A buggy eval reports a confident error rate for the wrong thing.</div>
+</section>
+
+<section id="b7">
+  <div class="sec-head"><div class="sec-num">B7</div><h2>CI gate, cadence and cost</h2></div>
+  <h4>The gate</h4>
+  <p>A PR merges only if all three hold: (1) every zero-tolerance eval (tenant isolation, autonomy-level safety rows) passes with 0 failures; (2) the Wilson lower bound of the overall pass rate is at or above the threshold (e.g. 0.80); (3) no eval regresses beyond tolerance versus the main-branch baseline, even if the overall number goes up.</p>
+  <h4>Cadence by cost</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>When</th><th>What runs</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Every save / commit</td><td>Layer-1 unit tests, code evals re-scored on cached runs</td><td>free, seconds</td></tr>
+      <tr><td>Every PR touching prompt, model, tool or graph</td><td>Layer 2–3 harness on the dev split, k=1, all evals, gate</td><td>catches regressions before merge</td></tr>
+      <tr><td>Nightly</td><td><code>pass^k</code> (k=3–5) + recovery rate on a disclosed sample; expensive, hard tiers</td><td>reliability without per-PR cost</td></tr>
+      <tr><td>Weekly / before promotion</td><td>Held-out split, judge re-calibration check, coverage report</td><td>guards against overfitting dev and judge drift</td></tr>
+    </tbody>
+  </table></div>
+  <h4>Langfuse wiring (Python SDK)</h4>
+  <p class="small">Verify exact method signatures against <code>python.reference.langfuse.com</code> at implementation time.</p>
+<pre><code>from langfuse import get_client, Evaluation
+
+langfuse = get_client()
+dataset = langfuse.get_dataset("ai-engine-sre-incident-eval")   # or -itsm-triage / -security-alert-eval
+
+def task(*, item, **kwargs):
+    # item.input = {"question": ...}; wraps the compiled LangGraph supervisor graph
+    result = supervisor_graph.invoke({"messages": [{"role": "user", "content": item.input["question"]}]})
+    return {"answer": result["messages"][-1].content, "tools_called": extract_tool_calls(result)}
+
+def rule_evaluator(*, input, output, expected_output, **kwargs):
+    ok = expected_output["expect_outcome"].lower() in output["answer"].lower()
+    return Evaluation(name="outcome_correct", value=1.0 if ok else 0.0)
+
+def trajectory_evaluator(*, input, output, expected_output, **kwargs):
+    expected = set(expected_output.get("expect_delegate_to", []))
+    ok = expected.issubset(set(output["tools_called"]))
+    return Evaluation(name="right_delegation", value=1.0 if ok else 0.0)
+
+def judge_evaluator(*, input, output, expected_output, **kwargs):
+    passed = llm_judge(input["question"], expected_output, output["answer"])   # binary, temp 0, other family
+    return Evaluation(name="judge", value=1.0 if passed else 0.0)
+
+result = dataset.run_experiment(
+    name="exp-2026-10-16-sre-rca-01",
+    task=task,
+    evaluators=[rule_evaluator, trajectory_evaluator, judge_evaluator],
+)
+# CI gate: zero-tolerance evals == 0 failures AND wilson_lower(pass_rate) &gt;= 0.80 AND no eval regresses &gt; 0.02</code></pre>
+  <h4>Keeping cost under control</h4>
+  <ul>
+    <li><b>Cache outputs</b> by (input hash, git ref, prompt version). Re-scoring after an eval change costs no agent tokens.</li>
+    <li><b>Filter with code before judging</b> (Figure A4b). Judges see only the units code couldn't decide.</li>
+    <li><b>Use small judge models</b> on narrow binary tasks, but only once calibrated.</li>
+    <li><b>Tier by difficulty</b>: cheap rows per PR, expensive multi-step rows nightly (<code>synthetic-rca-eval-design-considerations.md</code> #10).</li>
+    <li><b>Record cost and latency per run</b> in the result record. A variant that's 3× the cost for +1 point is a product decision, not an automatic win.</li>
+  </ul>
+</section>
+
+<section id="b8">
+  <div class="sec-head"><div class="sec-num">B8</div><h2>Online harness and the feedback loop</h2></div>
+  <p>Offline proves the agent can reason correctly on frozen evidence. Online proves it still holds up on real, messy production data (the Axis 1/Axis 2 split in <code>synthetic-rca-eval-design-considerations.md</code> principle 6). The same eval modules run in both places. Online uses only the reference-free ones, because production has no ground truth.</p>
+<pre><code># Inside/around the live agent call:
+with langfuse.start_as_current_observation(as_type="span", name="itsm.ai.sre.incident_investigate") as span:
+    answer = supervisor_graph.invoke({"messages": [{"role": "user", "content": live_question}]})
+    if sampled(rate=0.10):                                   # sample online judging to control cost
+        passed = reference_free_judge(live_question, answer)  # same binary judge module as offline
+        span.score_trace(name="online_groundedness", value=1.0 if passed else 0.0)</code></pre>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 220" width="900" role="img" aria-label="Production signals flow into triage and become new offline dataset rows, which feed the CI gate">
+      <defs><marker id="ah9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect x="10" y="20" width="200" height="130" rx="6" class="box-sunken"/>
+      <text x="110" y="44" text-anchor="middle" class="t-mono t-accent" font-size="11">PRODUCTION SIGNALS</text>
+      <text x="24" y="70" font-size="12">• online judge fails</text>
+      <text x="24" y="92" font-size="12">• thumbs-down, analyst override</text>
+      <text x="24" y="114" font-size="12">• implicit: re-ask, edit, re-route</text>
+      <text x="24" y="136" font-size="12">• score / cost / latency drift</text>
+      <line x1="210" y1="85" x2="258" y2="85" class="edge" marker-end="url(#ah9)"/>
+      <rect x="260" y="40" width="170" height="90" rx="6" class="box"/>
+      <text x="345" y="68" text-anchor="middle" class="t-head" font-size="14">Weekly error analysis</text>
+      <text x="345" y="90" text-anchor="middle" class="t-muted" font-size="11">annotate → categorise</text>
+      <text x="345" y="106" text-anchor="middle" class="t-muted" font-size="11">→ prioritise (A3)</text>
+      <line x1="430" y1="85" x2="478" y2="85" class="edge" marker-end="url(#ah9)"/>
+      <rect x="480" y="40" width="170" height="90" rx="6" class="box-accent"/>
+      <text x="565" y="68" text-anchor="middle" class="t-head" font-size="14">New dataset rows</text>
+      <text x="565" y="90" text-anchor="middle" class="t-muted" font-size="11">trace → fixture, expected,</text>
+      <text x="565" y="106" text-anchor="middle" class="t-muted" font-size="11">source: production-trace</text>
+      <line x1="650" y1="85" x2="698" y2="85" class="edge" marker-end="url(#ah9)"/>
+      <rect x="700" y="40" width="190" height="90" rx="6" class="box-pass"/>
+      <text x="795" y="68" text-anchor="middle" class="t-head" font-size="14">Offline gate (B7)</text>
+      <text x="795" y="90" text-anchor="middle" class="t-muted" font-size="11">confirms the fix, blocks</text>
+      <text x="795" y="106" text-anchor="middle" class="t-muted" font-size="11">the same error recurring</text>
+      <path d="M795,130 L795,190 L110,190 L110,154" class="edge-dash" marker-end="url(#ah9)"/>
+      <text x="452" y="208" text-anchor="middle" class="t-muted" font-size="11">deploy → production traffic produces the next signals</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure B8.</b> The feedback loop: evaluate, catch, diagnose, fix, re-evaluate. Human feedback from an SRE, ITSM agent or SOC analyst is the highest-value signal, and it attaches to the trace the same way a judge score does.</p>
+  </div>
+  <div class="example">
+    <div class="tag">Practical example · Security alert triage, online</div>
+    <h4>Drift on a new alert type</h4>
+    <p>A new SIEM rule starts emitting OAuth consent-grant alerts that no offline row covers. The online “severity matches evidence” judge drops from 96% to 78% within two days, and the Langfuse alert fires. Error analysis on 40 of those traces shows the agent treats consent grants as low-criticality because the asset lookup returns no host. Six of those traces become rows <code>sec-21</code>…<code>sec-26</code>. The fix (an identity-scoped criticality lookup) has to pass them, along with every older row, before it merges.</p>
+  </div>
+  <p class="small">Track the offline/online gap. A large gap means the offline set no longer represents production, and the next dataset refresh should target it.</p>
+</section>
+
+<section id="b9">
+  <div class="sec-head"><div class="sec-num">B9</div><h2>Pitfalls</h2></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pitfall</th><th>What goes wrong</th><th>Countermeasure</th></tr></thead>
+    <tbody>
+      <tr><td>Outsourcing “good”</td><td>Generic vendor metrics miss what matters to your users</td><td>Own the definition (A2)</td></tr>
+      <tr><td>Writing evals before reading outputs</td><td>Measures imagined errors, misses real ones</td><td>Error analysis first (A3)</td></tr>
+      <tr><td>Fixing everything at once</td><td>Minor issues fixed while serious ones go unseen</td><td>Annotate → categorise → prioritise</td></tr>
+      <tr><td>Golden sets for open-ended output</td><td>Can't list every acceptable answer</td><td>Decompose into small steps (A4.2)</td></tr>
+      <tr><td>A judge where code would do</td><td>Cost and noise for no gain</td><td>Code first, then filter, then judge (A4.1, A4.3)</td></tr>
+      <tr><td>Uncalibrated judges</td><td>A confident, wrong scorecard</td><td>TPR/TNR on human labels before gating (A5)</td></tr>
+      <tr><td>Trusting generated eval code</td><td>Measures the wrong thing, confidently</td><td>Read it, test on known pass and fail (B6.1)</td></tr>
+      <tr><td>Optimising one metric</td><td>A hidden regression elsewhere</td><td>Compare every eval (B5.2)</td></tr>
+      <tr><td>Outcome-only eval for agents</td><td>Right answer through an untrustworthy path</td><td>Trajectory and recovery layers (A7)</td></tr>
+      <tr><td>Point-estimate gates</td><td>One flaky row flips the verdict</td><td>Wilson lower bound, <code>pass^k</code> (A9)</td></tr>
+      <tr><td>Unrepresentative or stale inputs</td><td>A baseline production contradicts</td><td>Seed from production, version, refresh weekly (B4, B8)</td></tr>
+      <tr><td>Undocumented experiments</td><td>No rollback, repeated dead ends</td><td>Config + git ref per variant, losers kept (B5.4)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="checklist">
+  <div class="sec-head"><div class="sec-num">REF</div><h2>Quick-reference checklist</h2></div>
+  <p class="small">Tick boxes are for your own use while reviewing a design. They are not saved.</p>
+  <ul class="checklist">
+    <li><input type="checkbox" id="c1"><label for="c1">“Good” is written down as separate quality dimensions for this use case, next to the agent's rubric</label></li>
+    <li><input type="checkbox" id="c2"><label for="c2">Error analysis done on real or realistic traces (annotate → categorise → prioritise); every eval traces back to an observed error or a safety requirement</label></li>
+    <li><input type="checkbox" id="c3"><label for="c3">Each error counted by the cheapest method that works: code first, golden sets for small single-answer steps, judges only for judgment, feedback always</label></li>
+    <li><input type="checkbox" id="c4"><label for="c4">Dataset written <b>before</b> the graph, with ground truth, expected trajectory, ≥1 fault-injected row, ≥1 refusal/safety row, and unanswerable rows for RAG</label></li>
+    <li><input type="checkbox" id="c5"><label for="c5">RAG: retrieval and generation scored separately; tenant isolation is a zero-tolerance code assertion</label></li>
+    <li><input type="checkbox" id="c6"><label for="c6">Agents: outcome, process, trajectory and recovery all scored, not outcome-only</label></li>
+    <li><input type="checkbox" id="c7"><label for="c7">Unit tests per tool/node (LLM mocked); integration suite per subgraph (50–100, externals mocked)</label></li>
+    <li><input type="checkbox" id="c8"><label for="c8">Judges are narrow and binary, from a different model family than the agent, at <code>temperature=0</code>, and calibrated (TPR/TNR) against human labels before gating</label></li>
+    <li><input type="checkbox" id="c9"><label for="c9">Harness: eval modules behind one interface; runs stored before scoring; summary, failures file and trace link for every number</label></li>
+    <li><input type="checkbox" id="c10"><label for="c10">Baseline collected before any change; each variant has a written hypothesis, config and git ref; every eval compared</label></li>
+    <li><input type="checkbox" id="c11"><label for="c11">CI gate: zero-tolerance evals pass, Wilson lower bound ≥ threshold, no eval regresses</label></li>
+    <li><input type="checkbox" id="c12"><label for="c12"><code>pass^k</code> + recovery rate run nightly/weekly on a disclosed sample, with confidence intervals, before promotion</label></li>
+    <li><input type="checkbox" id="c13"><label for="c13">Production traces in Langfuse; sampled online judging; drift alert; production misses and human feedback looped back into the dataset weekly</label></li>
+  </ul>
+</section>
+
+<section id="refs">
+  <div class="sec-head"><div class="sec-num">REF</div><h2>Reference index</h2></div>
+  <ul class="prose">
+    <li><code>design/00-pillars-overview.md</code>: the umbrella five-pillar framework this guide is the full depth for (Pillar 4, Evaluation).</li>
+    <li><code>ai-engine/CLAUDE.md</code> §4: the governance rule this guide implements; §2.1–2.2 for context and loop engineering referenced above.</li>
+    <li><code>design/synthetic-rca-eval-design-considerations.md</code> / <code>synthetic-rca-eval-build-blueprint.md</code>: the deep SRE-RCA offline scoring mechanics (MECE fixtures, difficulty tiers, adversarial signals). This guide generalises the same discipline across tracks and adds the online half.</li>
+    <li><code>design/intent-and-build-guide.md</code> §1: source of the SRE subagent names used in the worked examples.</li>
+    <li><code>design/01-orchestration.md</code> §6: model-per-role selection behind the cross-family judge rule.</li>
+    <li><code>design/05-agent-skills.md</code> §4: the per-agent rubric and critic that share the binary scoring shape.</li>
+  </ul>
+  <h4>External industry sources</h4>
+  <p class="small">The sources behind the binary-scoring, judge-calibration and confidence-interval rules, kept so future changes can be checked against the same bar.</p>
+  <ul class="prose small">
+    <li>Hamel Husain, <a href="https://hamel.dev/blog/posts/evals-faq/why-do-you-recommend-binary-passfail-evaluations-instead-of-1-5-ratings-likert-scales.html">“Why binary pass/fail instead of 1–5 Likert scales?”</a>: binary judge scoring.</li>
+    <li>Hamel Husain, <a href="https://hamel.dev/blog/posts/evals-faq/">Evals FAQ</a>: judge-human calibration.</li>
+    <li>Evidently AI, <a href="https://www.evidentlyai.com/blog/how-to-align-llm-judge-with-human-labels">“How to align an LLM judge with human labels”</a>: calibration workflow.</li>
+    <li>arXiv 2604.22891, “Quantifying and Mitigating Self-Preference Bias of LLM Judges”: cross-family judge panel.</li>
+    <li>agentreliability.dev, <a href="https://www.agentreliability.dev/k/choosing-k-for-pass-hat-k">“Choosing k and the threshold for pass^k”</a>: interval gating.</li>
+    <li>arXiv 2510.04265, “Don't Pass@k: A Bayesian Framework for LLM Evaluation”: the same.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+(function () {
+  function num(id) { var v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; }
+  function pct(x) { return (x * 100).toFixed(1) + '%'; }
+  function wilson() {
+    var s = num('w-pass'), n = Math.max(1, num('w-n')), g = num('w-gate'), z = 1.96;
+    s = Math.min(Math.max(0, s), n);
+    var p = s / n, d = 1 + z * z / n;
+    var c = (p + z * z / (2 * n)) / d;
+    var m = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d;
+    var lo = Math.max(0, c - m), hi = Math.min(1, c + m);
+    document.getElementById('w-out').textContent = pct(p) + '  [' + pct(lo) + ' – ' + pct(hi) + ']';
+    var v = document.getElementById('w-verdict');
+    v.innerHTML = lo >= g
+      ? '<span class="pill pass">gate passes</span> The lower bound ' + pct(lo) + ' is at or above ' + pct(g) + '.'
+      : '<span class="pill fail">gate fails</span> The lower bound ' + pct(lo) + ' is below ' + pct(g) + '. Add rows or runs, or improve the system.';
+  }
+  function passk() {
+    var p = Math.min(Math.max(0, num('k-p')), 1), k = Math.max(1, Math.round(num('k-k')));
+    document.getElementById('k-out').textContent = pct(Math.pow(p, k));
+  }
+  function judge() {
+    var o = num('j-obs'), tpr = num('j-tpr'), tnr = num('j-tnr'), den = tpr + tnr - 1;
+    var out = document.getElementById('j-out');
+    if (den <= 0) { out.textContent = 'judge no better than chance'; return; }
+    var t = Math.min(1, Math.max(0, (o + tnr - 1) / den));
+    out.textContent = pct(t);
+  }
+  ['w-pass', 'w-n', 'w-gate'].forEach(function (id) { document.getElementById(id).addEventListener('input', wilson); });
+  ['k-p', 'k-k'].forEach(function (id) { document.getElementById(id).addEventListener('input', passk); });
+  ['j-obs', 'j-tpr', 'j-tnr'].forEach(function (id) { document.getElementById(id).addEventListener('input', judge); });
+  wilson(); passk(); judge();
+})();
+</script>
+</body>
+</html>

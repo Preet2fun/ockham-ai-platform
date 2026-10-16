@@ -46,6 +46,11 @@ check.
 
 ## Part C — Ockham fit  *(gates + note)*
 
+> For a non-default product (e.g. Hearth), read every source below from that
+> product's context per `../context-hub/README.md` "Products in the
+> portfolio": ICP/positioning from `context-hub/<product>/`, moat and horizon
+> from `context-hub/<product>/product-brief.md`.
+
 | Check | Source | Pass looks like |
 |---|---|---|
 | **ICP** | `../context-hub/icp.md` | the pain sits with the target buyer (IT Director / CIO; one team owns uptime + security; no SOC) — not a disqualified segment (staffed SOC, on-prem majority, Azure/GCP-first, 5,000+ employees) |

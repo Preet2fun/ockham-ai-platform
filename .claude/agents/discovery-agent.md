@@ -50,7 +50,8 @@ PRD is spent.
 | Input | Source |
 |---|---|
 | The raw idea / signal + provenance | the user, a support trend, a sales loss, a competitor move, a strategy prompt |
-| ICP, positioning, competitors, metric rules, agentic use cases, moat | `product-os/context-hub/` |
+| **Product** — `ockham` (default) or `hearth` | the user; ask if ambiguous. Resolve every `context-hub/` read per `product-os/context-hub/README.md` "Products in the portfolio" — "Ockham fit" below means fit for the run's product |
+| ICP, positioning, competitors, metric rules, agentic use cases, moat | `product-os/context-hub/` (product-resolved) |
 | Current strategy horizon | `product-os/ai-product-strategy/` |
 | What already ships (and what was killed before) | `product-os/knowledge-hub/` |
 | Signals — interviews, tickets, usage, churn, sales notes | whatever the user connects; run through `product-os/ai-feedback/` (MCP tool or CSV) when available — `signal-scan` + `pattern-classification` |

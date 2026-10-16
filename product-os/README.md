@@ -12,6 +12,11 @@ are built on (opportunity → 4D build → scale-when-green → compound);
 [`ai-launch-strategy.md`](ai-launch-strategy.md) is its Phase 3 as a working
 gate — the AI Launch Strategy Canvas and the scale-or-hold call.
 
+> **Portfolio:** Ockham (the platform, default) and Hearth (`customer-app`'s
+> restaurant back-office product, also Ockham's reference workload). Each run
+> names its product — see [`context-hub/README.md`](context-hub/README.md)
+> "Products in the portfolio" for the resolution rule.
+
 > Not the engineering roadmap. Delivery status lives in the GitHub Project
 > (root `CLAUDE.md` §11).
 
@@ -51,7 +56,7 @@ stores. Only part of this lives under `product-os/`:
 
 ```
 product-os/
-├── context-hub/          company context — SEEDED (6 docs)
+├── context-hub/          company context — SEEDED (6 docs); hearth/ = Hearth product context
 ├── knowledge-hub/        shipped features + how they work — empty, purpose defined
 ├── ai-discovery/         Discovery Agent (idea → Pursue/Park/Kill) — BUILT
 ├── ai-prd/               PRD Agent + PRD Reviewer Agent — BUILT
@@ -128,3 +133,5 @@ Added one at a time, as each is started.
 3. **`context-hub/` is upstream of everything.** A downstream doc that contradicts
    it is wrong, or the hub gets updated deliberately — not silently.
 4. Every folder has a `README.md` stating what belongs there and its current state.
+5. **Every run names its product** (Ockham by default, or Hearth) and reads
+   that product's context — never judge one product against the other's ICP.

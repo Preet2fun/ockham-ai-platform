@@ -45,7 +45,8 @@ and the six lens files in `product-os/ai-feedback/lenses/`.
 |---|---|
 | A question, or a lens name | the user |
 | Feedback data | an MCP feedback / ticketing tool, **or** an uploaded CSV, **or** pasted text — see `product-os/ai-feedback/data-sources.md` |
-| Segments, tiers, competitor set, metric rules | `product-os/context-hub/` |
+| **Product** — `ockham` (default) or `hearth` | the user or the calling agent. Resolve `context-hub/` reads per `product-os/context-hub/README.md` "Products in the portfolio"; "Speak Ockham" above means speak the run's product |
+| Segments, tiers, competitor set, metric rules | `product-os/context-hub/` (product-resolved) |
 | Shipped features to map themes onto | `product-os/knowledge-hub/` |
 | (roadmap / launch lenses) the roadmap or the launch name + date | the user |
 

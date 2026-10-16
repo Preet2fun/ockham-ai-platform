@@ -12,6 +12,24 @@ It is **not** where shipped-feature documentation lives — that is the
 > Was `product-os/company-context/`; renamed to `product-os/context-hub/` on
 > 2026-09-04.
 
+## Products in the portfolio
+
+Product OS serves more than one product. Each product has its own ICP,
+positioning and competitors; company-level context is shared.
+
+| Product | What it is | Context lives in |
+|---|---|---|
+| **Ockham** *(default)* | Unified observability and security operations platform | the files at this folder's root (table below) |
+| **Hearth** | Multi-tenant back-office console for multi-location restaurant groups — and the reference workload whose application and AI telemetry Ockham observes | [`hearth/`](hearth/) — `product-brief.md`, `icp.md`, `positioning.md`, `competitive-landscape.md` |
+
+**Resolution rule.** Every Product OS run (Discovery, PRD, PRD review,
+feedback lens) names its **product** — `ockham` if unstated, or `hearth`. A
+reference anywhere in Product OS to `context-hub/<file>` resolves to
+`context-hub/<product>/<file>` for a non-default product when that file
+exists there; otherwise the root file applies. For Hearth, moat and horizon
+come from `hearth/product-brief.md` (`../ai-product-strategy/` covers Ockham
+only today). Every discovery brief and PRD states its product in its header.
+
 ## Contents
 
 | File | What it holds | State |
