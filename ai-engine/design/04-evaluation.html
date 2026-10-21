@@ -124,6 +124,11 @@ svg .box-warn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; 
 svg .edge { stroke: var(--muted); stroke-width: 1.6; fill: none; }
 svg .edge-accent { stroke: var(--accent); stroke-width: 2; fill: none; }
 svg .edge-dash { stroke: var(--muted); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+svg .edge-fail { stroke: var(--fail); stroke-width: 2; fill: none; }
+svg .edge-pass { stroke: var(--pass); stroke-width: 2; fill: none; }
+svg .hole { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+svg .dot-accent { fill: var(--accent); }
+svg .t-warn { fill: var(--warn); }
 svg .dot-pass { fill: var(--pass); }
 svg .dot-fail { fill: var(--fail); }
 svg .arrowhead { fill: var(--muted); }
@@ -187,6 +192,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
   <div class="toc-label">Pillar 4 · Contents</div>
   <ol>
     <li><a href="#how-to-use">How to use this guide</a></li>
+    <li><a href="#terms">Vocabulary</a></li>
     <li><a href="#loop">The eval loop at a glance</a></li>
     <li class="part">Part A — Eval design</li>
     <li><a href="#a1">A1 Why agent eval is different</a></li>
@@ -208,7 +214,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
     <li><a href="#b6">B6 Outputs: summary, failures, traceability</a></li>
     <li><a href="#b7">B7 CI gate, cadence and cost</a></li>
     <li><a href="#b8">B8 Online harness and feedback loop</a></li>
-    <li><a href="#b9">B9 Pitfalls</a></li>
+    <li><a href="#b9">B9 Capability vs regression suites</a></li>
+    <li><a href="#b10">B10 Pitfalls</a></li>
     <li class="part">Reference</li>
     <li><a href="#checklist">Quick-reference checklist</a></li>
     <li><a href="#refs">Reference index</a></li>
@@ -239,6 +246,70 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
     <div class="card"><div class="kicker">ITSM · RAG</div><h4>Service-desk KB assistant</h4><p class="small">Answers “how do I…” questions by retrieving tenant-scoped KB articles and citing them.</p></div>
     <div class="card"><div class="kicker">Security · agentic</div><h4>Alert triage agent</h4><p class="small">Correlates a SIEM detection with asset criticality and recent identity and access changes, then proposes escalate or close.</p></div>
   </div>
+</section>
+
+<section id="terms">
+  <div class="sec-head"><div class="sec-num">00 · TERMS</div><h2>Vocabulary</h2></div>
+  <p>These terms mean the same thing everywhere in this guide and in the harness code. Agreeing on them up front stops people from talking past each other, for example “the run passed” when one trial of five passed.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 220" width="960" role="img" aria-label="A suite contains tasks; each task runs as k trials; each trial produces a transcript and an outcome; graders score them; scores aggregate">
+      <defs><marker id="v1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect x="10" y="66" width="130" height="80" rx="6" class="box-accent"/>
+      <text x="75" y="96" text-anchor="middle" class="t-head" font-size="15">Suite</text>
+      <text x="75" y="116" text-anchor="middle" class="t-muted" font-size="11">capability or</text>
+      <text x="75" y="130" text-anchor="middle" class="t-muted" font-size="11">regression (B9)</text>
+      <line x1="140" y1="106" x2="170" y2="106" class="edge" marker-end="url(#v1)"/>
+      <rect x="172" y="66" width="130" height="80" rx="6" class="box"/>
+      <text x="237" y="96" text-anchor="middle" class="t-head" font-size="15">Task</text>
+      <text x="237" y="116" text-anchor="middle" class="t-muted" font-size="11">inputs + criteria +</text>
+      <text x="237" y="130" text-anchor="middle" class="t-muted" font-size="11">reference solution</text>
+      <line x1="302" y1="106" x2="332" y2="106" class="edge" marker-end="url(#v1)"/>
+      <rect x="346" y="56" width="130" height="80" rx="6" class="box-sunken"/>
+      <rect x="340" y="62" width="130" height="80" rx="6" class="box-sunken"/>
+      <rect x="334" y="68" width="130" height="80" rx="6" class="box"/>
+      <text x="399" y="98" text-anchor="middle" class="t-head" font-size="15">Trial × k</text>
+      <text x="399" y="118" text-anchor="middle" class="t-muted" font-size="11">clean state each,</text>
+      <text x="399" y="132" text-anchor="middle" class="t-muted" font-size="11">own thread_id</text>
+      <path d="M476,90 L520,52" class="edge" marker-end="url(#v1)"/>
+      <path d="M476,124 L520,162" class="edge" marker-end="url(#v1)"/>
+      <rect x="522" y="18" width="170" height="64" rx="6" class="box"/>
+      <text x="607" y="44" text-anchor="middle" class="t-head" font-size="14">Transcript</text>
+      <text x="607" y="64" text-anchor="middle" class="t-muted" font-size="11">messages · tool calls · state</text>
+      <rect x="522" y="132" width="170" height="64" rx="6" class="box-pass"/>
+      <text x="607" y="158" text-anchor="middle" class="t-head" font-size="14">Outcome</text>
+      <text x="607" y="178" text-anchor="middle" class="t-muted" font-size="11">final environment state</text>
+      <path d="M692,50 L728,92" class="edge" marker-end="url(#v1)"/>
+      <path d="M692,164 L728,122" class="edge" marker-end="url(#v1)"/>
+      <rect x="730" y="66" width="110" height="80" rx="6" class="box-warn"/>
+      <text x="785" y="96" text-anchor="middle" class="t-head" font-size="15">Graders</text>
+      <text x="785" y="116" text-anchor="middle" class="t-muted" font-size="11">each = several</text>
+      <text x="785" y="130" text-anchor="middle" class="t-muted" font-size="11">assertions</text>
+      <line x1="840" y1="106" x2="866" y2="106" class="edge" marker-end="url(#v1)"/>
+      <rect x="868" y="66" width="86" height="80" rx="6" class="box-accent"/>
+      <text x="911" y="100" text-anchor="middle" class="t-head" font-size="14">Scores</text>
+      <text x="911" y="120" text-anchor="middle" class="t-muted" font-size="10">rates, pass^k,</text>
+      <text x="911" y="133" text-anchor="middle" class="t-muted" font-size="10">intervals</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 00.</b> How the terms fit together. The eval harness (Part B) runs this whole chain. The agent harness is what's being tested.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>In our stack</th></tr></thead>
+    <tbody>
+      <tr><td><b>Suite</b></td><td>A set of tasks that measures one capability. It's either a capability suite or a regression suite (B9).</td><td>A dataset version plus a <code>suite:</code> tag on each row</td></tr>
+      <tr><td><b>Task</b></td><td>One test case: inputs, starting environment, success criteria and a reference solution.</td><td>One dataset row (B3)</td></tr>
+      <tr><td><b>Trial</b></td><td>One attempt at a task. Run several, because outputs vary.</td><td>One runner invocation with its own <code>thread_id</code> and clean state (Rule B2.5)</td></tr>
+      <tr><td><b>Transcript</b> (trace, trajectory)</td><td>The full record of a trial: messages, reasoning, tool calls and results, and intermediate state.</td><td>The Langfuse trace plus the checkpointed LangGraph state</td></tr>
+      <tr><td><b>Outcome</b></td><td>The final state of the environment after the trial. It's what actually happened, not what the agent says happened.</td><td>Mock ITSM, CMDB or IAM state, or the structured verdict in state</td></tr>
+      <tr><td><b>Grader</b></td><td>Logic that scores one aspect of a trial. A task usually has several.</td><td>One eval module (B3)</td></tr>
+      <tr><td><b>Assertion</b></td><td>A single check inside a grader.</td><td>One <code>Verdict</code></td></tr>
+      <tr><td><b>Unit</b></td><td>The smallest thing a grader scores: a claim, a citation, a step, a turn.</td><td><code>unit_id</code> on a <code>Verdict</code></td></tr>
+      <tr><td><b>Eval harness</b></td><td>The infrastructure that runs tasks, records transcripts, grades and aggregates.</td><td>Part B of this guide</td></tr>
+      <tr><td><b>Agent harness</b></td><td>The system that lets a model act as an agent. Evaluating “an agent” always means evaluating the model and its agent harness together.</td><td>The LangGraph graph, tools, memory and guardrails</td></tr>
+    </tbody>
+  </table></div>
+  <div class="rule"><strong>Rule 00.1. Check the outcome, not the claim.</strong> An agent's final message is a claim about what happened. The outcome is what the environment shows. For example, the triage agent replies “routed to payments-oncall”, but the mock ITSM shows the ticket still in the triage queue because the routing call returned an error the agent glossed over. An outcome grader reads the mock ITSM state and fails the trial. For L0/L1 agents that only propose, the outcome is the structured proposal written to state, not the prose around it.</div>
 </section>
 
 <section id="loop">
@@ -548,6 +619,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
         <li>Output has exactly the fields the schema requires</li>
         <li>No document's <code>tenant_id</code> differs from the caller's</li>
         <li>Red-flag phrases (“typically”, “in most cases”) in a root cause</li>
+        <li>Tool arguments valid: types, required fields, values that exist</li>
+        <li>Transcript metrics within budget: turns, tool calls, tokens</li>
       </ul>
     </div>
     <div class="card">
@@ -685,12 +758,13 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
   <p>The usual objection is: “if I can't trust the first model, why trust the second?” You trust a judge because it was designed and checked to be trusted. Four rules, then the operational details.</p>
   <div class="grid-4">
     <div class="card"><div class="kicker">Rule 1</div><h4>Make the task small</h4><p class="small">Give the judge a much narrower job than the model under test. Don't ask “is this RCA good?”. Ask “is <em>this one claim</em> supported by <em>this evidence</em>?”.</p></div>
-    <div class="card"><div class="kicker">Rule 2</div><h4>Binary criteria</h4><p class="small">Ask for yes/no or pass/fail, never a 1–5 score. Binary verdicts from domain experts track real quality better, and models give binary answers more consistently than calibrated scales.</p></div>
+    <div class="card"><div class="kicker">Rule 2</div><h4>Binary criteria</h4><p class="small">Ask for yes/no or pass/fail, never a 1–5 score. Binary verdicts from domain experts track real quality better, and models give binary answers more consistently than calibrated scales. Give the judge one exit besides pass and fail: <em>cannot determine</em> (A5.1).</p></div>
     <div class="card"><div class="kicker">Rule 3</div><h4>Align with humans</h4><p class="small">Compare the judge's verdicts against human labels on the same items. Adjust the prompt until they agree. Measure the agreement (TPR/TNR) and record it.</p></div>
     <div class="card"><div class="kicker">Rule 4</div><h4>Expect judge error</h4><p class="small">No judge is perfect. Report its error alongside the metric, and correct the reported rate for it (A9).</p></div>
   </div>
   <p><strong>Several simple judges beat one complex judge.</strong> For the security alert triage agent, run three separate binary judges: “does the rationale cite the identity change it queried?”, “does severity match the asset criticality returned?”, “does the response stay within the agent's autonomy level?”. Don't run one judge that scores “triage quality”. When a separate judge fails, you know exactly which dimension broke.</p>
   <p><strong>Why binary, concretely.</strong> Score the same SRE postmortem draft twice against “root cause is evidence-cited”. A 1–5 judge can return 3 one run and 4 the next. The draft didn't change. Only the judge's arbitrary line between “mostly cited” and “cited” moved. Pass/fail removes that line: either the draft names a root cause backed by a log or metric the agent queried, or it doesn't. Binary verdicts also match the critic in <code>05-agent-skills.md</code> §4, which returns <code>APPROVE</code>/<code>REVISE</code> on the same rubric.</p>
+  <div class="rule"><strong>Rule A5.1. Let the judge say “cannot determine”.</strong> A judge returns <code>PASS</code>, <code>FAIL</code> or <code>CANNOT_DETERMINE</code>. The third option is for when the evidence it was given doesn't settle the question, for example a claim cites a log line that was truncated in the transcript. Forcing a verdict there just makes the judge guess. Cannot-determine units are left out of the pass rate's denominator, sent to the human review queue, and counted: report the cannot-determine rate next to the metric. A rate above about 10% means the rubric or the judge's input is unclear, so fix that before touching the agent. Calibration (rules 3 and 4) tracks these units separately from agreement. Every verdict that counts is still binary.</div>
   <p><strong>Known judge biases and mitigations.</strong> LLM judges favour certain positions, longer answers, and their own model family. Mitigate with a tight rubric, <code>temperature=0</code>, pairwise comparison instead of absolute scoring where possible, and, for anything that gates a release, a panel drawn from a <b>different model family than the agent under test</b>. A same-family panel doesn't fix self-preference bias, because that bias is specific to the model family. In the multi-agent system from <code>01-orchestration.md</code> §6, the writer runs on Model C, so its critic and judge run on Model B, a different family. That way the judge isn't predisposed to favour the writer's own phrasing.</p>
   <div class="flow" role="list" aria-label="Judge calibration workflow">
     <div class="step" role="listitem"><span class="n">1</span><b>Draft the rubric</b><span>One binary criterion per judge, with pass and fail examples.</span></div>
@@ -781,6 +855,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
       <tr><td>Answer mentions another tenant's runbook</td><td><span class="pill fail">foreign doc</span></td><td>n/a</td><td>Retrieval filter. <b>Severity: blocker.</b> A tenant leak fails the whole run.</td></tr>
     </tbody>
   </table></div>
+  <p><strong>Two more dimensions for RAG and investigation agents.</strong> <b>Coverage</b>: did the answer include every fact a good answer must contain? Each row lists its required facts. Code checks them when they're IDs or values, and a per-fact binary judge checks them otherwise. <b>Source quality</b>: did the answer rely on authoritative sources? That means the current KB article over a superseded one, and telemetry the agent queried over a past incident it half-remembers. For example, an answer to “how do I rotate the VPN client certificate?” can be fully grounded in KB-2210 and still fail coverage because it leaves out “restart the VPN agent”, a required fact for that row.</p>
   <div class="rule"><strong>Rule A6.1. Tenant isolation is a zero-tolerance code assertion.</strong> Every retrieved document must carry the caller's <code>tenant_id</code> (root <code>CLAUDE.md</code> §3, <code>ai-engine/CLAUDE.md</code> §2.1). It isn't a rate you try to improve. Any single failure blocks the merge, whatever the other scores are.</div>
 </section>
 
@@ -792,10 +867,66 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
     <tbody>
       <tr><td><b>Outcome</b></td><td>Is the final answer right?</td><td>code assertion / golden set</td><td>ground truth</td></tr>
       <tr><td><b>Process</b></td><td>Is the reasoning grounded in the evidence it gathered?</td><td>LLM judge, binary</td><td>the explanation + tool results</td></tr>
-      <tr><td><b>Trajectory</b></td><td>Right tools and subagents, right order, bounded steps, no loops or redundant calls</td><td>code over the tool-call log</td><td>the run's trace / LangGraph state</td></tr>
+      <tr><td><b>Trajectory</b></td><td>Required tools and subagents called, forbidden ones not called, within the step budget, no loops or redundant calls, and every call's arguments valid (types, required fields, values that exist). Order is checked only where it's a hard dependency, such as verifying identity before granting access.</td><td>code over the tool-call log and tool schemas</td><td>the run's trace / LangGraph state</td></tr>
       <tr><td><b>Recovery</b></td><td>When a tool failed mid-run, did it retry and still answer, or cascade or fabricate?</td><td>code + golden, on fault-injected rows</td><td>a fault injected into the fixture</td></tr>
     </tbody>
   </table></div>
+  <h4>Reasoning layer vs action layer</h4>
+  <p>An agent can fail in two places that look the same from the final answer. The <b>reasoning layer</b> is the model's planning, decomposition and tool choice. The <b>action layer</b> is the tool calls themselves and what the external systems return. A correct plan with a bad execution fails, and so does a perfect execution of a wrong plan. Evaluate each layer on its own and together. Otherwise “80% task completion” tells you nothing about where the other 20% went wrong.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 430" width="960" role="img" aria-label="Security alert triage run split into reasoning layer, tool call and action layer, with the typical failure at each layer on the left and the eval that catches it on the right">
+      <defs><marker id="rl1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <text x="160" y="20" text-anchor="middle" class="t-mono t-fail" font-size="11">WHAT GOES WRONG</text>
+      <text x="800" y="20" text-anchor="middle" class="t-mono t-pass" font-size="11">WHAT CATCHES IT</text>
+      <rect x="330" y="30" width="300" height="46" rx="6" class="box-sunken"/>
+      <text x="480" y="51" text-anchor="middle" class="t-head" font-size="14">Task</text>
+      <text x="480" y="68" text-anchor="middle" class="t-mono t-muted" font-size="11">ALRT-2291: escalate or close?</text>
+      <line x1="480" y1="76" x2="480" y2="98" class="edge" marker-end="url(#rl1)"/>
+      <rect x="330" y="100" width="300" height="62" rx="6" class="box-violet" style="fill:var(--accent-soft);stroke:var(--accent)"/>
+      <text x="480" y="124" text-anchor="middle" class="t-head" font-size="15">Reasoning layer</text>
+      <text x="480" y="144" text-anchor="middle" class="t-muted" font-size="11">plan · decompose · choose tools</text>
+      <text x="20" y="122" class="t-fail" font-size="12">Wrong plan: skips identity history</text>
+      <text x="20" y="140" class="t-fail" font-size="12">Wrong tool: threat-intel before IAM</text>
+      <line x1="300" y1="131" x2="326" y2="131" class="edge-fail"/>
+      <text x="660" y="122" font-size="12">Step judge on the plan (A7)</text>
+      <text x="660" y="140" font-size="12">Required / forbidden tools (code)</text>
+      <line x1="634" y1="131" x2="654" y2="131" class="edge-pass"/>
+      <line x1="480" y1="162" x2="480" y2="184" class="edge" marker-end="url(#rl1)"/>
+      <rect x="330" y="186" width="300" height="62" rx="6" class="box"/>
+      <text x="480" y="210" text-anchor="middle" class="t-head" font-size="15">Tool call</text>
+      <text x="480" y="230" text-anchor="middle" class="t-mono t-muted" font-size="10">iam.recent_changes("svc-batch-07", "24h")</text>
+      <text x="20" y="208" class="t-fail" font-size="12">Hallucinated argument: principal="admin"</text>
+      <text x="20" y="226" class="t-fail" font-size="12">Bad value: window="24d"</text>
+      <line x1="300" y1="217" x2="326" y2="217" class="edge-fail"/>
+      <text x="660" y="208" font-size="12">Argument validation against the</text>
+      <text x="660" y="226" font-size="12">schema and fixtures (code)</text>
+      <line x1="634" y1="217" x2="654" y2="217" class="edge-pass"/>
+      <line x1="480" y1="248" x2="480" y2="270" class="edge" marker-end="url(#rl1)"/>
+      <rect x="330" y="272" width="300" height="62" rx="6" class="box-warn"/>
+      <text x="480" y="296" text-anchor="middle" class="t-head" font-size="15">Action layer</text>
+      <text x="480" y="316" text-anchor="middle" class="t-muted" font-size="11">MCP tools: SIEM · IAM · CMDB · logs</text>
+      <text x="20" y="294" class="t-fail" font-size="12">503 swallowed silently</text>
+      <text x="20" y="312" class="t-fail" font-size="12">Empty result read as “no changes”</text>
+      <line x1="300" y1="303" x2="326" y2="303" class="edge-fail"/>
+      <text x="660" y="294" font-size="12">Recovery eval on fault rows</text>
+      <text x="660" y="312" font-size="12">Outcome = state check (Rule 00.1)</text>
+      <line x1="634" y1="303" x2="654" y2="303" class="edge-pass"/>
+      <line x1="480" y1="334" x2="480" y2="356" class="edge" marker-end="url(#rl1)"/>
+      <rect x="330" y="358" width="300" height="56" rx="6" class="box-pass"/>
+      <text x="480" y="381" text-anchor="middle" class="t-head" font-size="15">Final response</text>
+      <text x="480" y="400" text-anchor="middle" class="t-mono t-muted" font-size="10">TriageVerdict(escalate, evidence_ids=[…])</text>
+      <text x="20" y="384" class="t-fail" font-size="12">Confidently wrong after an early slip</text>
+      <text x="20" y="402" class="t-muted" font-size="11">errors propagate down the layers</text>
+      <line x1="300" y1="390" x2="326" y2="390" class="edge-fail"/>
+      <text x="660" y="384" font-size="12">Outcome golden + rationale judge</text>
+      <text x="660" y="402" class="t-muted" font-size="11">step-level trace finds the first slip</text>
+      <line x1="634" y1="390" x2="654" y2="390" class="edge-pass"/>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A7.</b> The same security triage run, split by layer. Every layer writes to the trace, so an eval can be pinned to the layer that failed instead of to the final answer.</p>
+  </div>
+  <div class="rule"><strong>Rule A7.2. Grade the outcome, not the exact path.</strong> Don't assert an exact sequence of tool calls. Valid agents find different routes, and a sequence check punishes a better route as harshly as a broken one. Assert what must hold on any acceptable route: required tools present, forbidden tools absent, hard dependencies in order, arguments valid, budget respected, and the outcome correct.</div>
   <h4>Worked example: one task graded four ways, two tracks</h4>
   <div class="table-wrap"><table>
     <thead><tr><th>Layer</th><th>SRE: “root cause of INC-4471?”</th><th>Security: “escalate ALRT-2291?”</th></tr></thead>
@@ -808,6 +939,91 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
       <tr><td><b>What this catches</b></td><td>A right-sounding cause given without ever querying telemetry. Only the trajectory and recovery evals catch it.</td><td>A guessed “escalate” without checking identity history. Only the trajectory and recovery evals catch it.</td></tr>
     </tbody>
   </table></div>
+  <h4>Long trajectories: judge the steps, not only the path</h4>
+  <p>The trajectory check is code over the tool-call log, and it confirms the path has the right shape: required tools called, forbidden ones avoided, within budget. On a 30-step run, the path can have the right shape while one step is still wrong. For example, step 4 misreads a metric, later steps build on that mistake, and the final answer happens to land anyway. For long runs, add a <strong>step-level judge</strong> that asks one binary question per step: “given the state before this step, was this action, and the agent's reading of its result, correct?”</p>
+  <ul>
+    <li><b>Same judge rules as A5:</b> narrow, binary, from a different model family than the agent, and calibrated against human-labelled steps before it gates anything.</li>
+    <li><b>Filter with code first (A4.3).</b> Judge only the steps that code flags: the first step after a tool error, steps whose cited evidence isn't in the tool results, and steps where the working hypothesis changes.</li>
+    <li><b>The unit is a step.</b> Report the share of steps judged sound and, for debugging, the index of the <em>first bad step</em>.</li>
+    <li><b>The input is the checkpointed state at each step.</b> This is the explicit Reflect/Update State write required by <code>CLAUDE.md</code> §2.2.</li>
+  </ul>
+  <div class="example">
+    <div class="tag">Practical example · SRE RCA, row sre-1</div>
+    <h4>A lucky run that outcome and trajectory both pass</h4>
+    <p>The run takes 28 steps. The trajectory check passes, because it delegated to the right analysts within budget. Code flags 5 steps for review, and the step judge fails step 4: “treated a 2% error rate as baseline; the retrieved dashboard shows a 0.1% baseline.” The final answer still named connection pool exhaustion, so the outcome eval passed too. Only the step judge shows that this run got lucky, and the same mistake would give a wrong answer on the next incident.</p>
+  </div>
+  <h4>Multi-turn agents: test with a simulated user</h4>
+  <p>A single-input dataset row can't test a conversation. An agent that asks clarifying questions, such as the ITSM service-desk assistant or a triage agent that goes back to the requester, needs a <strong>simulated user</strong>. That's a second model, or a script, that plays the requester from a persona with a hidden goal. It answers only what it's asked, and the conversation ends when the goal is met or the turn budget runs out.</p>
+  <div class="grid-2">
+    <div class="card"><div class="kicker">What a simulated-user row contains</div><ul>
+      <li>Persona and opening message</li>
+      <li>Hidden facts, revealed only when the agent asks for them</li>
+      <li>Behaviour rules, e.g. corrects the scope at turn 3</li>
+      <li>Success condition on the <b>end state</b>, plus a turn budget</li>
+    </ul></div>
+    <div class="card"><div class="kicker">What to measure</div><ul>
+      <li><b>Task success</b> on the end state (code or golden), e.g. the ticket was routed correctly</li>
+      <li><b>Turns to resolution</b> against the budget</li>
+      <li><b>Redundant questions</b>: asking for information already given (binary judge)</li>
+      <li><b>Safety and tenant rules</b> hold on every turn, not only the first</li>
+    </ul></div>
+  </div>
+<pre><code># datasets/itsm-triage/v2026-10-19/itsm-mt-04.yaml
+id: itsm-mt-04
+mode: multi_turn
+tenant: customer_b
+simulated_user:
+  persona: "Store manager, non-technical, in a hurry"
+  opening: "card machine broken again"
+  hidden_facts:                       # revealed only when the agent asks
+    scope: "all 3 POS terminals, card payments only"
+    since: "about 09:00"
+    error_text: "payment declined"
+  behaviour: [answers_only_what_is_asked, "turn 3: says the kitchen display is fine"]
+  model: { family: different-from-agent, version: pinned, temperature: 0.3 }
+success:
+  end_state: { route_to: payments-oncall, priority: P2 }
+  max_turns: 8
+evals: [end_state_golden, turns_to_resolution, redundant_question_judge, no_cross_tenant]</code></pre>
+  <div class="rule"><strong>Rule A7.1. The simulator is part of the fixture.</strong> Version it with the dataset, and pin its model, version and temperature. Otherwise two runs aren't comparable. Use a different model family from the agent. Run each conversation k times (<code>pass^k</code>, A9), because both sides are non-deterministic. Read a sample of transcripts to confirm the simulator stays in persona and doesn't hand over hidden facts unasked. That's the same check-the-checker rule as B6.1.</div>
+  <h4>Partial credit through binary milestones</h4>
+  <p>A security triage run that queried the identity changes and the asset criticality but then gave the wrong verdict is better than one that guessed without querying anything. A single pass/fail at task level hides that difference. Keep every grader binary, and get partial credit from several <b>milestone graders</b> per task. Then choose how they combine.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Scoring mode</th><th>How it works</th><th>Use for</th></tr></thead>
+    <tbody>
+      <tr><td><b>All must pass</b></td><td>The task passes only if every grader passes</td><td>The pass rate, Wilson interval and <code>pass^k</code>. This is what gates.</td></tr>
+      <tr><td><b>Weighted</b></td><td>Share of milestone weight passed, 0–1</td><td>Diagnosis and capability progress: shows <em>how far</em> runs get</td></tr>
+      <tr><td><b>Hybrid</b> <span class="pill info">default</span></td><td>Zero-tolerance graders must pass, and the rest are reported both ways</td><td>Every suite</td></tr>
+    </tbody>
+  </table></div>
+  <div class="example">
+    <div class="tag">Practical example · Security alert triage milestones</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Milestone</th><th>Grader</th><th class="num">Weight</th><th>Run A</th><th>Run B</th></tr></thead>
+      <tbody>
+        <tr><td>M1 queried recent identity changes</td><td>code, tool log</td><td class="num">0.2</td><td><span class="pill pass">pass</span></td><td><span class="pill fail">fail</span></td></tr>
+        <tr><td>M2 queried asset criticality</td><td>code, tool log</td><td class="num">0.2</td><td><span class="pill pass">pass</span></td><td><span class="pill fail">fail</span></td></tr>
+        <tr><td>M3 verdict matches ground truth</td><td>golden</td><td class="num">0.4</td><td><span class="pill fail">fail</span></td><td><span class="pill fail">fail</span></td></tr>
+        <tr><td>M4 rationale cites queried evidence</td><td>judge</td><td class="num">0.2</td><td><span class="pill pass">pass</span></td><td><span class="pill fail">fail</span></td></tr>
+        <tr><td>M5 no action above autonomy level</td><td>code, zero tolerance</td><td class="num">gate</td><td><span class="pill pass">pass</span></td><td><span class="pill pass">pass</span></td></tr>
+        <tr><td><b>Task result</b></td><td></td><td></td><td>fail · weighted 0.6</td><td>fail · weighted 0.0</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">Both runs fail the task, so the pass rate and the gate treat them the same. The weighted score shows that run A gathered the right evidence and misjudged it, which points to the verdict logic. Run B never investigated, which points to the plan.</p>
+  </div>
+  <h4>Matching eval strategy to agent type</h4>
+  <p>Different agents need different primary graders. Map each of ours to its type before writing graders.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Our agent</th><th>Type</th><th>Primary graders</th><th>Key metrics</th><th>Reliability</th></tr></thead>
+    <tbody>
+      <tr><td>SRE incident RCA</td><td>Investigation (research-style)</td><td>Golden failure domain, code evidence-ID checks, groundedness and coverage judges, step judge</td><td>Right failure domain, groundedness, coverage of required evidence, source quality</td><td><code>pass^k</code></td></tr>
+      <tr><td>ITSM ticket triage</td><td>Classification + tool use</td><td>Golden route and priority, code CI-exists and argument checks</td><td>Routing and priority accuracy, over- vs under-escalation</td><td><code>pass^k</code></td></tr>
+      <tr><td>ITSM KB assistant</td><td>RAG</td><td>Golden recall@k, code citation and tenant checks, groundedness judge</td><td>Recall, groundedness, coverage, current-article source quality, abstention</td><td><code>pass^k</code></td></tr>
+      <tr><td>ITSM service desk</td><td>Conversational, multi-turn</td><td>Simulated user (A7.1), end-state golden, tone and redundant-question judges</td><td>End-state success, turns to resolution, tone, policy held every turn</td><td><code>pass^k</code></td></tr>
+      <tr><td>Security alert triage</td><td>Classification + investigation</td><td>Golden verdict, code autonomy and argument checks, rationale judge</td><td>Verdict accuracy, false escalate vs false close, autonomy safety</td><td><code>pass^k</code>, zero tolerance on autonomy</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Combine graders as needed: deterministic checks for correctness, judges for quality, grounding checks for truth. No single metric fits every agent. Choose by what the agent promises its user and by what a failure costs.</p>
   <p><strong>Failure modes visible in a failed trace:</strong></p>
   <div class="table-wrap"><table>
     <thead><tr><th>Failure</th><th>Symptom in the trace</th><th>Usual fix</th></tr></thead>
@@ -876,6 +1092,43 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
       <p class="small">Across all runs where a fault fired (a flaky <code>incident-insight</code> or <code>threat-intel</code> call), what fraction recovered (retry, then a correct answer) instead of cascading or fabricating? Track it per track like a reliability SLO, not as an anecdote.</p>
     </div>
   </div>
+  <h4><code>pass@k</code> vs <code>pass^k</code>: pick the one your product promises</h4>
+  <p><code>pass@k</code> is the chance that <em>at least one</em> of k trials succeeds: <code>1 − (1 − p)<sup>k</sup></code>. It rises with k. <code>pass^k</code> is the chance that <em>all</em> k trials succeed: <code>p<sup>k</sup></code>. It falls with k. At k = 1 they're equal. By k = 10 one approaches 100% and the other approaches 0%.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 780 320" width="780" role="img" aria-label="Chart of pass@k rising and pass^k falling as k goes from 1 to 10, for a per-trial success rate of 0.75">
+      <g class="edge-dash" style="stroke:var(--line)"><path d="M80,40 L710,40 M80,95 L710,95 M80,150 L710,150 M80,205 L710,205"/></g>
+      <line x1="80" y1="260" x2="716" y2="260" class="edge"/>
+      <line x1="80" y1="34" x2="80" y2="260" class="edge"/>
+      <g font-size="11" class="t-muted">
+        <text x="70" y="44" text-anchor="end" class="t-muted" font-size="11">1.00</text>
+        <text x="70" y="99" text-anchor="end" class="t-muted" font-size="11">0.75</text>
+        <text x="70" y="154" text-anchor="end" class="t-muted" font-size="11">0.50</text>
+        <text x="70" y="209" text-anchor="end" class="t-muted" font-size="11">0.25</text>
+        <text x="70" y="264" text-anchor="end" class="t-muted" font-size="11">0</text>
+        <text x="80" y="278" text-anchor="middle" class="t-muted" font-size="11">1</text><text x="150" y="278" text-anchor="middle" class="t-muted" font-size="11">2</text><text x="220" y="278" text-anchor="middle" class="t-muted" font-size="11">3</text><text x="290" y="278" text-anchor="middle" class="t-muted" font-size="11">4</text><text x="360" y="278" text-anchor="middle" class="t-muted" font-size="11">5</text><text x="430" y="278" text-anchor="middle" class="t-muted" font-size="11">6</text><text x="500" y="278" text-anchor="middle" class="t-muted" font-size="11">7</text><text x="570" y="278" text-anchor="middle" class="t-muted" font-size="11">8</text><text x="640" y="278" text-anchor="middle" class="t-muted" font-size="11">9</text><text x="710" y="278" text-anchor="middle" class="t-muted" font-size="11">10</text>
+      </g>
+      <text x="395" y="304" text-anchor="middle" class="t-muted" font-size="12">k (number of trials) · per-trial success p = 0.75</text>
+      <polyline points="80,95 150,53.8 220,43.4 290,40.9 360,40.2 430,40.1 500,40 570,40 640,40 710,40" class="edge-accent"/>
+      <polyline points="80,95 150,136.3 220,167.2 290,190.4 360,207.8 430,220.8 500,230.6 570,238 640,243.5 710,247.6" class="edge-fail"/>
+      <g><circle cx="80" cy="95" r="4" class="dot-accent"/><circle cx="150" cy="53.8" r="4" class="dot-accent"/><circle cx="220" cy="43.4" r="4" class="dot-accent"/><circle cx="360" cy="40.2" r="4" class="dot-accent"/><circle cx="710" cy="40" r="4" class="dot-accent"/></g>
+      <g><circle cx="150" cy="136.3" r="4" class="dot-fail"/><circle cx="220" cy="167.2" r="5" class="dot-fail"/><circle cx="360" cy="207.8" r="4" class="dot-fail"/><circle cx="710" cy="247.6" r="4" class="dot-fail"/></g>
+      <text x="470" y="68" class="t-accent t-head" font-size="14">pass@k: at least one trial succeeds</text>
+      <text x="470" y="200" class="t-fail t-head" font-size="14" style="fill:var(--fail)">pass^k: every trial succeeds</text>
+      <text x="232" y="184" class="t-muted" font-size="11">k = 3 → 0.42</text>
+      <text x="232" y="34" class="t-muted" font-size="11">k = 3 → 0.98</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure A9.</b> The same agent, measured two ways. At 75% per trial, three trials all succeed only 42% of the time, while at least one succeeds 98% of the time.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Use</th><th>When</th><th>Our cases</th></tr></thead>
+    <tbody>
+      <tr><td><code>pass^k</code> <span class="pill info">default</span></td><td>The user sees one attempt, or the agent acts, and every interaction must be right</td><td>Security triage verdicts, ITSM routing, KB answers, RCA conclusions shown to an SRE</td></tr>
+      <tr><td><code>pass@k</code></td><td>The harness really makes several attempts and a verifier picks one before anything reaches a user</td><td>The RCA writer + critic loop drafting up to 3 postmortems, with the critic approving one (<code>05-agent-skills.md</code> §4). Measure <code>pass@3</code> for the draft step, then <code>pass^k</code> for the critic-approved output.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Record which metric each agent uses in its harness spec. It's a product decision about what you promise, and it belongs to the design rather than the dashboard.</p>
   <div class="calc" aria-label="Eval statistics calculators">
     <h4>Calculators</h4>
     <div class="row">
@@ -890,6 +1143,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
       <label for="k-p">per-run success p<input id="k-p" type="number" min="0" max="1" step="0.01" value="0.90"></label>
       <label for="k-k">k runs<input id="k-k" type="number" min="1" value="5"></label>
       <div><div class="small">expected pass^k</div><output id="k-out">–</output></div>
+      <div><div class="small">expected pass@k</div><output id="k-at">–</output></div>
     </div>
     <hr>
     <div class="row">
@@ -931,7 +1185,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
       <p class="deliv"><b>Deliverable:</b> 50–100 scenario integration suite per subgraph.</p>
     </div></div>
     <div class="phase"><div class="when">Phase 4<b>Pre-merge offline</b></div><div class="body">
-      <p>Run the full supervisor graph with the real model against the full dataset through the harness (Part B), scored at all four layers (A7). A row passes only if outcome holds <b>and</b> the judge passes <b>and</b> the trajectory is clean <b>and</b>, where a fault was injected, recovery holds. The gate fails the build if the Wilson lower bound drops below threshold or any metric regresses (B7).</p>
+      <p>Run the full supervisor graph with the real model against the full dataset through the harness (Part B), scored at all four layers (A7). A row passes only if outcome holds <b>and</b> the judge passes <b>and</b> the trajectory is clean <b>and</b>, where a fault was injected, recovery holds. The gate fails the build if the regression suite's Wilson lower bound drops below its threshold or a regression task newly fails, any metric regresses, a zero-tolerance eval fails, or cost or latency goes over budget (B7).</p>
       <p><strong>How a regression sneaks in, and how the gate catches it.</strong> Someone proposes a cost optimisation: “the multi-agent system is expensive, let the supervisor answer directly instead of delegating.” An outcome-only eval might pass a plausible summary. The trajectory eval sees no delegation, and the outcome and judge evals see a generic answer instead of the deploy/pool-size fact the fixture requires. <b>The gate blocks the merge.</b> The fix is to restore delegation and re-run the same harness. The scorecard proves it's fixed.</p>
       <p><strong>Determinism is a contract.</strong> A PR that changes prompt, model, tool or graph structure must update the affected fixtures in the same PR, or CI fails on drift instead of on a stale baseline.</p>
       <p class="deliv"><b>Deliverable:</b> a Langfuse experiment run linked to the PR, with the gate result and scorecard visible in CI.</p>
@@ -1002,7 +1256,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
       <text x="300" y="142" class="t-muted" font-size="11">graph.invoke(item.input)</text>
       <text x="292" y="164" font-size="12">• k runs, fault injection,</text>
       <text x="300" y="180" class="t-muted" font-size="11">tenant headers, mocks</text>
-      <text x="292" y="202" font-size="12">• concurrency + retry</text>
+      <text x="292" y="202" font-size="12">• clean state · concurrency · retry</text>
       <text x="292" y="222" font-size="12">• output cache by input hash</text>
 
       <line x1="480" y1="136" x2="538" y2="136" class="edge" marker-end="url(#ah7)"/>
@@ -1048,9 +1302,10 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
       <line x1="500" y1="414" x2="452" y2="414" class="edge" marker-end="url(#ah7)"/>
       <rect x="250" y="372" width="200" height="84" rx="6" class="box-pass"/>
       <text x="350" y="398" text-anchor="middle" class="t-head" font-size="14">CI gate</text>
-      <text x="350" y="418" text-anchor="middle" class="t-muted" font-size="11">lower bound ≥ threshold</text>
-      <text x="350" y="433" text-anchor="middle" class="t-muted" font-size="11">no eval regresses &gt; tolerance</text>
-      <text x="350" y="448" text-anchor="middle" class="t-muted" font-size="11">zero-tolerance evals all pass</text>
+      <text x="350" y="414" text-anchor="middle" class="t-muted" font-size="10">zero-tolerance evals all pass</text>
+      <text x="350" y="427" text-anchor="middle" class="t-muted" font-size="10">regression suite holds</text>
+      <text x="350" y="440" text-anchor="middle" class="t-muted" font-size="10">no eval regresses &gt; tolerance</text>
+      <text x="350" y="453" text-anchor="middle" class="t-muted" font-size="10">cost + p95 latency in budget</text>
       <line x1="250" y1="414" x2="200" y2="414" class="edge" marker-end="url(#ah7)"/>
       <rect x="20" y="380" width="178" height="68" rx="34" class="box-sunken"/>
       <text x="109" y="408" text-anchor="middle" class="t-head" font-size="13">PR status</text>
@@ -1063,8 +1318,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
     <div class="rule"><strong>Rule B2.1. Each eval is a self-contained module.</strong> One module per error type, behind one standard interface. The harness passes it outputs and gets verdicts back without knowing its internals. Adding an eval never touches the runner.</div>
     <div class="rule"><strong>Rule B2.2. Separate running from scoring.</strong> Persist raw outputs before scoring. Changing an eval then means re-scoring stored runs, which costs no model tokens for code evals, instead of re-running the agent.</div>
     <div class="rule"><strong>Rule B2.3. One harness, many systems.</strong> Each system under test (RCA graph, triage graph, KB RAG chain) plugs in through a small task adapter. Datasets, evals, reports and the gate are shared.</div>
-    <div class="rule"><strong>Rule B2.4. Langfuse is the system of record.</strong> Every harness run is a Langfuse experiment, and every row carries its trace ID, per <code>CLAUDE.md</code> §3. Local reports are views over the same data.</div>
+    <div class="rule"><strong>Rule B2.4. Langfuse is the system of record.</strong> Every harness run is a Langfuse experiment, and every row carries its trace ID, per <code>CLAUDE.md</code> §3. Local reports are views over the same data. Emit agent traces using the OpenTelemetry GenAI semantic conventions, on the same OTel stack as root <code>CLAUDE.md</code> §5, so the trace data isn't tied to one backend. Verify the current convention names and Langfuse's OTLP ingestion at implementation time.</div>
   </div>
+  <div class="rule"><strong>Rule B2.5. Every trial starts from clean state.</strong> Trials must be independent, or k trials are really one trial counted k times. Leftover state causes correlated failures, and it can also inflate scores when a trial reads what an earlier trial left behind. In our stack that means: a fresh <code>thread_id</code> per trial, so no checkpoint is reused; a per-trial LangGraph <code>Store</code> namespace (<code>eval/&lt;experiment&gt;/&lt;trial&gt;</code>) that's dropped afterwards; read-only, versioned pgvector and context fixtures; and fault injection keyed per trial. The output cache in the runner is for re-scoring a finished trial when only an eval changes. It must never feed one trial's output into another trial. Example: an RCA trial that can see a previous trial's episodic-memory write “INC-4471 root cause: connection pool” will pass without investigating.</div>
 </section>
 
 <section id="b3">
@@ -1090,6 +1346,8 @@ expected:                          # optional: only golden-type evals read this
 fault: null                        # e.g. {tool: change-history, mode: timeout, on_attempt: 1}
 traits: [self_correction, ambiguous_scope]   # why this row exists; used for coverage reports
 difficulty: hard
+suite: regression                  # regression | capability (B9)
+reference_solution: refs/itsm-017.yaml   # known-good output that passes every grader (B4)
 source: production-trace/2026-10-09 # or "synthetic"</code></pre>
   <h4>2. Eval module interface</h4>
 <pre><code>from typing import Protocol, Literal, Iterable
@@ -1098,7 +1356,7 @@ from dataclasses import dataclass
 @dataclass
 class Verdict:
     unit_id: str          # e.g. "itsm-017#run2#claim3"
-    passed: bool          # binary, always
+    passed: bool | None   # binary; None = cannot determine (judges only, Rule A5.1)
     evidence: str         # human-readable reason; goes straight into failures/&lt;eval&gt;.md
     trace_id: str         # Langfuse trace for click-through
 
@@ -1123,7 +1381,10 @@ runs_per_item: 3
 evals: [routing_golden, priority_golden, ci_exists_in_cmdb, citation_retrieved,
         rationale_grounded_judge, no_cross_tenant]
 judge: { family: "different-from-agent", temperature: 0, calibration: judge-calib-itsm-v2 }
-gate:  { metric: wilson_lower, threshold: 0.80, max_regression: 0.02 }</code></pre>
+models: { agent: "&lt;pinned version id&gt;", judge: "&lt;pinned version id&gt;" }   # never a "latest" alias (B7)
+gate:  { regression: { metric: wilson_lower, threshold: 0.95, newly_failing_reruns: 3 },
+         capability: report_only, max_regression: 0.02,
+         max_cost_increase: 0.10, max_p95_latency_increase: 0.10 }</code></pre>
   <p class="small">Document every variant <b>before</b> running it. The config together with the git ref captures the full code and prompt state, so any experiment can be reproduced or rolled back.</p>
   <h4>4. Result record</h4>
 <pre><code>{ "experiment_id": "exp-2026-10-16-itsm-triage-03", "arm": "variant",
@@ -1146,6 +1407,7 @@ gate:  { metric: wilson_lower, threshold: 0.80, max_regression: 0.02 }</code></p
       <li>Unanswerable rows for RAG (no KB article exists).</li>
       <li>Fault-injected rows (tool timeout, 503, empty result) and safety rows (requests above the autonomy level).</li>
       <li>Adversarial signals per <code>synthetic-rca-eval-design-considerations.md</code>.</li>
+      <li>Multi-turn rows with a simulated user (A7) for any agent that holds a conversation.</li>
     </ul></div>
     <div class="card"><div class="kicker">Keep them representative</div><ul>
       <li>Seed from real traces where possible (B8). Mark <code>source:</code> on every row.</li>
@@ -1159,6 +1421,29 @@ gate:  { metric: wilson_lower, threshold: 0.80, max_regression: 0.02 }</code></p
     </ul></div>
   </div>
   <p><strong>Size guide.</strong> Personal or internal helper: 10–20 typical cases. Layer-3 golden paths: 10–20 per agent. A tenant-facing harness set: 50–150 rows that grow weekly from production. Statistical power comes from units, not rows. 40 rows × 3 runs × ~4 claims gives the groundedness eval roughly 480 units.</p>
+  <h4>Is each task fair?</h4>
+  <div class="grid-2">
+    <div class="rule"><strong>Rule B4.1. Two experts, one verdict.</strong> A task is well specified when two domain experts, working independently, reach the same pass/fail verdict on the same output. If an SRE lead and a second SRE disagree, rewrite the task or its criteria before using it.</div>
+    <div class="rule"><strong>Rule B4.2. Every task has a reference solution.</strong> This is a known-good output that passes every grader on the task. It proves the task can be solved, and it proves the graders are wired correctly. Run reference solutions through the harness whenever a grader changes.</div>
+    <div class="rule"><strong>Rule B4.3. Passable by following instructions.</strong> Everything a grader assumes has to be stated in the task. If the grader expects a <code>failure_domain</code> field, the task or schema must ask for one.</div>
+    <div class="rule"><strong>Rule B4.4. 0% means suspect the task first.</strong> A task that fails across many trials is more often broken (ambiguous, unsolvable, or a buggy grader) than impossible. Read its transcripts before you conclude the agent can't do it.</div>
+  </div>
+  <div class="example">
+    <div class="tag">Practical example · ITSM triage, row itsm-031</div>
+    <p>The ticket reads “kitchen display froze during lunch rush” and expects <code>route_to: payments-oncall</code>. Two ITSM leads label it independently: one says payments, the other says store-devices. The row is ambiguous, not hard. It's rewritten to include the error the reporter saw (“KDS lost connection to the order service”), which settles the route as store-devices, and a reference solution is added. The agent's “failure rate” on that row was really a dataset bug.</p>
+  </div>
+  <h4>Balanced sets: test when it should happen and when it shouldn't</h4>
+  <p>A set that only tests when a behaviour <em>should</em> happen trains the agent to do it all the time. Every triggered behaviour needs rows on both sides. Track missed triggers and false triggers as separate rates, not one combined accuracy.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Behaviour</th><th>Should happen</th><th>Should not happen</th></tr></thead>
+    <tbody>
+      <tr><td>KB assistant retrieves</td><td>“How do I reset VPN MFA?”</td><td>“Thanks, that worked!”</td></tr>
+      <tr><td>Security triage escalates</td><td>Unexplained admin-role grant on <code>prod-db-03</code></td><td>Break-glass grant with an approved change ticket and expiry</td></tr>
+      <tr><td>Service desk asks a clarifying question</td><td>“card machine broken again”</td><td>A ticket that already states the scope, start time and error text</td></tr>
+      <tr><td>Agent pauses for approval with <code>interrupt()</code></td><td>Any write, such as revoke, reassign or roll back</td><td>Read-only lookups</td></tr>
+      <tr><td>RCA agent consults episodic memory</td><td>Same service with a similar error signature</td><td>A brand-new service with no history, where it must not force-fit an old incident</td></tr>
+    </tbody>
+  </table></div>
 </section>
 
 <section id="b5">
@@ -1247,12 +1532,24 @@ calib:     judge-calib-itsm-v2 · TPR 0.91 · TNR 0.88</code></pre>
     <p class="cap"><b>Figure B6.</b> Traceability. Every number on the scorecard can be followed back to the output and verdict that produced it.</p>
   </div>
   <div class="rule"><strong>Rule B6.1. Verify every eval module before trusting it, especially generated ones.</strong> If an AI assistant writes an eval module, read the code and run it on several real outputs, including at least one known pass and one known fail, before its numbers count. A buggy eval reports a confident error rate for the wrong thing.</div>
+  <div class="rule"><strong>Rule B6.2. Graders must be fair and hard to game.</strong> A failure should mean the agent did something wrong, not that it did something right in an unexpected way. A pass should require solving the task, not finding a loophole. Read the transcripts of failing units on every experiment and sort each into <em>agent error</em> or <em>grader error</em>. Fix grader errors before the number is reported. Don't grade formatting: normalise case, whitespace and number precision, and grade the content.</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Grader problem</th><th>Example</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>Too rigid</td><td>Substring “connection pool exhaustion” fails the correct answer “the DB pool ran out of connections”</td><td>Have the agent emit a structured <code>failure_domain</code> and grade that against the golden label, or use a narrow judge</td></tr>
+      <tr><td>Grades formatting</td><td>Severity <code>"High"</code> fails against expected <code>"high"</code>. A latency of 96.12 ms fails against 96.124991 ms.</td><td>Normalise before comparing and set tolerances</td></tr>
+      <tr><td>Gameable</td><td>“Cited KB IDs were retrieved” passes an answer that cites every retrieved ID</td><td>Pair it with the per-claim support judge, so each citation has to back a claim</td></tr>
+      <tr><td>Constrains valid work</td><td>The trajectory check fails a run that used the CMDB instead of the deploy log to find the same change</td><td>Required and forbidden tools, not exact sequences (Rule A7.2)</td></tr>
+    </tbody>
+  </table></div>
 </section>
 
 <section id="b7">
   <div class="sec-head"><div class="sec-num">B7</div><h2>CI gate, cadence and cost</h2></div>
   <h4>The gate</h4>
-  <p>A PR merges only if all three hold: (1) every zero-tolerance eval (tenant isolation, autonomy-level safety rows) passes with 0 failures; (2) the Wilson lower bound of the overall pass rate is at or above the threshold (e.g. 0.80); (3) no eval regresses beyond tolerance versus the main-branch baseline, even if the overall number goes up.</p>
+  <p>A PR merges only if all four hold: (1) every zero-tolerance eval (tenant isolation, autonomy-level safety rows) passes with 0 failures; (2) the <b>regression suite</b> holds: its Wilson lower bound is at or above a high threshold (e.g. 0.95), and no task that passed on the baseline now fails on all three of k = 3 re-runs (one failure in three counts as flakiness and goes to the nightly <code>pass^k</code> run). The capability suite is reported on the PR but doesn't gate (B9); (3) no eval regresses beyond tolerance versus the main-branch baseline, even if the overall number goes up; (4) median cost per task and p95 latency stay within budget versus the baseline (e.g. no more than +10%), unless the experiment config explicitly accepts the trade-off and records why.</p>
+  <h4>Pinned model versions, and upgrades go through the gate</h4>
+  <p>Every model the agent uses is pinned to an exact version ID in config, for every role, including judges and simulated users. Never use a “latest” alias, because the provider can change what it points to without warning. That makes a model upgrade an explicit event. It runs as a variant (B5) through the same gate, then the nightly <code>pass^k</code> and recovery pass, before promotion. Changing a judge's model also means re-calibrating it (A5) before it can gate anything.</p>
   <h4>Cadence by cost</h4>
   <div class="table-wrap"><table>
     <thead><tr><th>When</th><th>What runs</th><th>Why</th></tr></thead>
@@ -1276,6 +1573,7 @@ def task(*, item, **kwargs):
     return {"answer": result["messages"][-1].content, "tools_called": extract_tool_calls(result)}
 
 def rule_evaluator(*, input, output, expected_output, **kwargs):
+    # substring match kept short for illustration; prefer a structured field (Rule B6.2)
     ok = expected_output["expect_outcome"].lower() in output["answer"].lower()
     return Evaluation(name="outcome_correct", value=1.0 if ok else 0.0)
 
@@ -1293,14 +1591,16 @@ result = dataset.run_experiment(
     task=task,
     evaluators=[rule_evaluator, trajectory_evaluator, judge_evaluator],
 )
-# CI gate: zero-tolerance evals == 0 failures AND wilson_lower(pass_rate) &gt;= 0.80 AND no eval regresses &gt; 0.02</code></pre>
+# CI gate: zero-tolerance evals == 0 failures AND wilson_lower(regression_pass_rate) &gt;= 0.95
+#          AND no regression task newly failing on 3/3 re-runs AND no eval regresses &gt; 0.02
+#          AND median cost/task and p95 latency within +10% of baseline (unless accepted in the experiment config)</code></pre>
   <h4>Keeping cost under control</h4>
   <ul>
     <li><b>Cache outputs</b> by (input hash, git ref, prompt version). Re-scoring after an eval change costs no agent tokens.</li>
     <li><b>Filter with code before judging</b> (Figure A4b). Judges see only the units code couldn't decide.</li>
     <li><b>Use small judge models</b> on narrow binary tasks, but only once calibrated.</li>
     <li><b>Tier by difficulty</b>: cheap rows per PR, expensive multi-step rows nightly (<code>synthetic-rca-eval-design-considerations.md</code> #10).</li>
-    <li><b>Record cost and latency per run</b> in the result record. A variant that's 3× the cost for +1 point is a product decision, not an automatic win.</li>
+    <li><b>Record cost and latency per run</b> in the result record. A variant that's 3× the cost for +1 point is a product decision, not an automatic win. That's why cost and latency are the gate's fourth condition: the trade-off has to be accepted explicitly.</li>
   </ul>
 </section>
 
@@ -1350,10 +1650,118 @@ with langfuse.start_as_current_observation(as_type="span", name="itsm.ai.sre.inc
     <p>A new SIEM rule starts emitting OAuth consent-grant alerts that no offline row covers. The online “severity matches evidence” judge drops from 96% to 78% within two days, and the Langfuse alert fires. Error analysis on 40 of those traces shows the agent treats consent grants as low-criticality because the asset lookup returns no host. Six of those traces become rows <code>sec-21</code>…<code>sec-26</code>. The fix (an identity-scoped criticality lookup) has to pass them, along with every older row, before it merges.</p>
   </div>
   <p class="small">Track the offline/online gap. A large gap means the offline set no longer represents production, and the next dataset refresh should target it.</p>
+  <p><strong>Watch cost online too.</strong> Track cost per task or conversation, per tenant, in Langfuse. Alert on any run above a set multiple of the median (e.g. 3×), which usually means a loop or an oversized context. Treat sustained cost drift the same way as quality drift: the expensive traces go through error analysis and become dataset rows, and the fix goes through the gate.</p>
+  <h4>Layers of defence</h4>
+  <p>No single method catches everything. Think of the methods as slices of Swiss cheese: each has holes, and a failure only reaches users when the holes in every slice line up. Use all six slices, each at the stage where it works best.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 300" width="960" role="img" aria-label="Six slices of defence with holes; one failure passes offline evals and is caught by online judges; another passes three slices and is caught by user feedback">
+      <defs><marker id="sc1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <g>
+        <rect x="150" y="40" width="34" height="200" rx="5" class="box-accent"/><circle cx="167" cy="100" r="15" class="hole"/><circle cx="167" cy="190" r="15" class="hole"/>
+        <rect x="280" y="40" width="34" height="200" rx="5" class="box-accent"/><circle cx="297" cy="190" r="15" class="hole"/><circle cx="297" cy="140" r="10" class="hole"/>
+        <rect x="410" y="40" width="34" height="200" rx="5" class="box-accent"/><circle cx="427" cy="190" r="15" class="hole"/><circle cx="427" cy="75" r="11" class="hole"/>
+        <rect x="540" y="40" width="34" height="200" rx="5" class="box-accent"/><circle cx="557" cy="110" r="12" class="hole"/><circle cx="557" cy="150" r="10" class="hole"/>
+        <rect x="670" y="40" width="34" height="200" rx="5" class="box-accent"/><circle cx="687" cy="80" r="12" class="hole"/><circle cx="687" cy="170" r="11" class="hole"/>
+        <rect x="800" y="40" width="34" height="200" rx="5" class="box-accent"/><circle cx="817" cy="130" r="12" class="hole"/><circle cx="817" cy="215" r="10" class="hole"/>
+      </g>
+      <path d="M20,100 L278,100" class="edge-fail" marker-end="url(#sc1)"/>
+      <text x="290" y="96" class="t-fail t-head" font-size="16" style="fill:var(--fail)">✕</text>
+      <text x="20" y="74" class="t-muted" font-size="11">new alert type,</text><text x="20" y="88" class="t-muted" font-size="11">no offline row</text>
+      <path d="M20,190 L538,190" class="edge-fail" marker-end="url(#sc1)"/>
+      <text x="550" y="186" class="t-fail t-head" font-size="16" style="fill:var(--fail)">✕</text>
+      <text x="20" y="164" class="t-muted" font-size="11">grounded answers</text><text x="20" y="178" class="t-muted" font-size="11">that don't help</text>
+      <g font-size="11">
+        <text x="167" y="260" text-anchor="middle" font-size="11">Offline evals</text><text x="167" y="274" text-anchor="middle" class="t-muted" font-size="10">CI, every PR</text>
+        <text x="297" y="260" text-anchor="middle" font-size="11">Online judges</text><text x="297" y="274" text-anchor="middle" class="t-muted" font-size="10">+ monitoring</text>
+        <text x="427" y="260" text-anchor="middle" font-size="11">Transcript</text><text x="427" y="274" text-anchor="middle" class="t-muted" font-size="10">review</text>
+        <text x="557" y="260" text-anchor="middle" font-size="11">User &amp; operator</text><text x="557" y="274" text-anchor="middle" class="t-muted" font-size="10">feedback</text>
+        <text x="687" y="260" text-anchor="middle" font-size="11">A/B tests</text><text x="687" y="274" text-anchor="middle" class="t-muted" font-size="10">with enough traffic</text>
+        <text x="817" y="260" text-anchor="middle" font-size="11">Human studies</text><text x="817" y="274" text-anchor="middle" class="t-muted" font-size="10">periodic, blind</text>
+      </g>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure B8b.</b> A new alert type gets past offline evals and is caught by online judges. Grounded but unhelpful KB answers get past three slices and are caught by a rise in re-asks.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Method</th><th>Catches</th><th>Misses or costs</th><th>When</th></tr></thead>
+    <tbody>
+      <tr><td><b>Automated offline evals</b></td><td>Known failure modes, on every change, with no user impact</td><td>Upfront work. False confidence if the dataset drifts from real usage.</td><td>Before launch and on every PR (B7)</td></tr>
+      <tr><td><b>Online judges + monitoring</b></td><td>Real behaviour at scale: drift, cost, latency, tool errors</td><td>Reactive (users are already affected). No ground truth.</td><td>Continuously after launch (B8)</td></tr>
+      <tr><td><b>Transcript review</b></td><td>Subtle issues, grader errors, and a shared sense of what “good” means</td><td>Slow, doesn't scale, reviewers tire</td><td>Weekly error analysis (A3) and every experiment's failures (B6)</td></tr>
+      <tr><td><b>User &amp; operator feedback</b></td><td>Problems nobody anticipated</td><td>Sparse, self-selected, rarely says why</td><td>Always on. Relying on it alone means users find your bugs.</td></tr>
+      <tr><td><b>A/B tests</b></td><td>Real outcomes: deflection rate, re-ask rate, time to resolve</td><td>Days to weeks; needs traffic; weak on “why” without transcripts</td><td>Tenant-facing changes with enough sessions. Split by session within each tenant, never mix tenants' data.</td></tr>
+      <tr><td><b>Systematic human studies</b></td><td>Gold-standard judgments on subjective quality</td><td>Expensive, slow, raters disagree</td><td>Quarterly: SMEs blind-grade about 50 sampled outputs, which recalibrates judges and refreshes the definition of good (A2)</td></tr>
+    </tbody>
+  </table></div>
 </section>
 
 <section id="b9">
-  <div class="sec-head"><div class="sec-num">B9</div><h2>Pitfalls</h2></div>
+  <div class="sec-head"><div class="sec-num">B9</div><h2>Capability vs regression suites</h2></div>
+  <p>Suites do two different jobs, and mixing them under one threshold weakens both. A <b>capability suite</b> asks what the agent can't do well yet. It should start with a low pass rate, which gives you something to improve against. A <b>regression suite</b> asks whether the agent still does everything it could do before. It should sit near 100%, so any drop is a break. A capability score of 40% is healthy, and a regression score of 95% is an incident.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 290" width="960" role="img" aria-label="Capability suite starts low and climbs; tasks graduate to the regression suite which sits near 100 percent and gates CI; saturation triggers new harder capability tasks">
+      <defs><marker id="cr1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker>
+      <marker id="cr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead-accent"/></marker></defs>
+      <text x="170" y="22" text-anchor="middle" class="t-muted" font-size="11">production misses (new kinds) · planned features</text>
+      <line x1="170" y1="28" x2="170" y2="50" class="edge" marker-end="url(#cr1)"/>
+      <rect x="20" y="52" width="300" height="170" rx="6" class="box-warn"/>
+      <text x="170" y="78" text-anchor="middle" class="t-head" font-size="16">Capability suite</text>
+      <text x="170" y="96" text-anchor="middle" class="t-muted" font-size="11">starts low · something to improve against</text>
+      <text x="170" y="110" text-anchor="middle" class="t-muted" font-size="11">reported, not gating</text>
+      <line x1="50" y1="200" x2="300" y2="200" class="edge"/>
+      <line x1="50" y1="110" x2="50" y2="200" class="edge"/>
+      <polyline points="60,188 100,180 140,168 180,150 220,140 260,124 290,118" class="edge-accent"/>
+      <text x="58" y="215" class="t-muted" font-size="10">35%</text><text x="270" y="112" class="t-accent" font-size="10">82%</text>
+      <text x="175" y="214" text-anchor="middle" class="t-muted" font-size="10">experiments over time</text>
+      <path d="M320,120 L630,120" class="edge-accent" marker-end="url(#cr2)"/>
+      <text x="475" y="104" text-anchor="middle" class="t-accent t-head" font-size="13">graduate a task when</text>
+      <text x="475" y="140" text-anchor="middle" font-size="11">pass^3 holds on 2 consecutive nightly runs</text>
+      <text x="475" y="156" text-anchor="middle" font-size="11">and its reference solution still passes</text>
+      <rect x="632" y="52" width="310" height="170" rx="6" class="box-pass"/>
+      <text x="787" y="78" text-anchor="middle" class="t-head" font-size="16">Regression suite</text>
+      <text x="787" y="96" text-anchor="middle" class="t-muted" font-size="11">near 100% · gates every PR · any drop = a break</text>
+      <rect x="662" y="116" width="250" height="20" rx="4" class="box"/>
+      <rect x="662" y="116" width="245" height="20" rx="4" class="box-pass" style="stroke-width:0"/>
+      <text x="787" y="131" text-anchor="middle" class="t-pass t-mono" font-size="11">98–100%</text>
+      <text x="787" y="166" text-anchor="middle" font-size="11">fixed bugs enter here directly,</text>
+      <text x="787" y="182" text-anchor="middle" font-size="11">once the fix passes</text>
+      <path d="M787,222 L787,262 L170,262 L170,226" class="edge-dash" marker-end="url(#cr1)"/>
+      <text x="478" y="282" text-anchor="middle" class="t-muted" font-size="11">saturation: when the capability suite passes above ~85%, write harder tasks for it</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure B9.</b> The suite lifecycle. Capability work climbs, graduated tasks protect what's been gained, and saturation keeps the capability suite worth running.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th></th><th>Capability suite</th><th>Regression suite</th></tr></thead>
+    <tbody>
+      <tr><td><b>Question</b></td><td>What can't it do well yet?</td><td>Does it still do what it did?</td></tr>
+      <tr><td><b>Healthy pass rate</b></td><td>Low to medium, rising</td><td>98–100%, flat</td></tr>
+      <tr><td><b>In CI</b></td><td>Reported on the PR, never blocks</td><td>Gates the merge (B7 condition 2)</td></tr>
+      <tr><td><b>Fed by</b></td><td>New kinds of production failure, planned features</td><td>Graduated tasks, fixed bugs</td></tr>
+      <tr><td><b>Warning sign</b></td><td>Saturation above ~85%: it stops showing progress</td><td>Any newly failing task</td></tr>
+    </tbody>
+  </table></div>
+  <div class="example">
+    <div class="tag">Practical example · Security alert triage, OAuth consent-grant alerts</div>
+    <p>After the drift in B8, the six new rows <code>sec-21</code>…<code>sec-26</code> go into the <b>capability</b> suite. The baseline passes 2 of 6. Three experiments later the identity-scoped criticality lookup passes 5 of 6, and after two clean nightly <code>pass^3</code> runs those five graduate into the <b>regression</b> suite. From then on, a PR that breaks any of them is blocked. The sixth row stays in capability until it graduates too.</p>
+  </div>
+  <h4>Ownership and eval-driven development</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Who</th><th>Owns</th></tr></thead>
+    <tbody>
+      <tr><td><b>AI platform engineers</b></td><td>The harness, the shared grader library, the CI gate, Langfuse wiring</td></tr>
+      <tr><td><b>Domain experts</b> (SRE lead, SOC analyst, ITSM lead)</td><td>Most tasks, reference solutions, human labels, judge calibration, quarterly blind grading</td></tr>
+      <tr><td><b>Product managers</b></td><td>Capability tasks for planned features, written <em>before</em> the feature is built</td></tr>
+      <tr><td><b>Anyone on call</b></td><td>A production miss becomes a task PR, reviewed like code</td></tr>
+    </tbody>
+  </table></div>
+  <div class="rule"><strong>Rule B9.1. Eval-driven development.</strong> Define a planned capability as a capability suite first, then build until it climbs. Writing the task also tests whether the requirement is concrete. If two experts can't agree on pass/fail for it (Rule B4.1), the requirement isn't ready to build. Low-scoring capability suites also show which bets pay off as soon as a new model version lands (B7, pinned versions).</div>
+</section>
+
+<section id="b10">
+  <div class="sec-head"><div class="sec-num">B10</div><h2>Pitfalls</h2></div>
   <div class="table-wrap"><table>
     <thead><tr><th>Pitfall</th><th>What goes wrong</th><th>Countermeasure</th></tr></thead>
     <tbody>
@@ -1369,6 +1777,15 @@ with langfuse.start_as_current_observation(as_type="span", name="itsm.ai.sre.inc
       <tr><td>Point-estimate gates</td><td>One flaky row flips the verdict</td><td>Wilson lower bound, <code>pass^k</code> (A9)</td></tr>
       <tr><td>Unrepresentative or stale inputs</td><td>A baseline production contradicts</td><td>Seed from production, version, refresh weekly (B4, B8)</td></tr>
       <tr><td>Undocumented experiments</td><td>No rollback, repeated dead ends</td><td>Config + git ref per variant, losers kept (B5.4)</td></tr>
+      <tr><td>Unpinned or “latest” model versions</td><td>Behaviour changes with no PR, and the baseline silently stops meaning anything</td><td>Pin every model; upgrades go through the gate (B7)</td></tr>
+      <tr><td>Single-turn tests for a conversational agent</td><td>Clarifying-question and multi-turn failures never show up offline</td><td>Simulated-user rows (A7.1)</td></tr>
+      <tr><td>Judging only the final answer of a long run</td><td>A lucky run with a bad intermediate step passes</td><td>Step-level judge on flagged steps (A7)</td></tr>
+      <tr><td>Quality-only gate</td><td>A variant gets 3× more expensive or slower and merges unnoticed</td><td>Cost and latency budget as the fourth gate condition (B7)</td></tr>
+      <tr><td>One threshold for every suite</td><td>Real regressions hide inside a “passing” 80%, and capability work looks like failure</td><td>Separate capability and regression suites (B9)</td></tr>
+      <tr><td>One-sided datasets</td><td>The agent learns to always escalate, always retrieve, always ask</td><td>Should and should-not rows for every behaviour (B4)</td></tr>
+      <tr><td>State leaking between trials</td><td>Correlated failures, or trials passing by reading earlier trials' memory</td><td>Clean state per trial (Rule B2.5)</td></tr>
+      <tr><td>Brittle or gameable graders</td><td>Correct answers fail on wording, and wrong ones pass through loopholes</td><td>Rule B6.2, and read failing transcripts every run</td></tr>
+      <tr><td>Untested tasks</td><td>“Agent failures” that are really ambiguous rows</td><td>Two-expert agreement and a reference solution per task (B4.1, B4.2)</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -1387,9 +1804,20 @@ with langfuse.start_as_current_observation(as_type="span", name="itsm.ai.sre.inc
     <li><input type="checkbox" id="c8"><label for="c8">Judges are narrow and binary, from a different model family than the agent, at <code>temperature=0</code>, and calibrated (TPR/TNR) against human labels before gating</label></li>
     <li><input type="checkbox" id="c9"><label for="c9">Harness: eval modules behind one interface; runs stored before scoring; summary, failures file and trace link for every number</label></li>
     <li><input type="checkbox" id="c10"><label for="c10">Baseline collected before any change; each variant has a written hypothesis, config and git ref; every eval compared</label></li>
-    <li><input type="checkbox" id="c11"><label for="c11">CI gate: zero-tolerance evals pass, Wilson lower bound ≥ threshold, no eval regresses</label></li>
+    <li><input type="checkbox" id="c11"><label for="c11">CI gate: zero-tolerance evals pass, Wilson lower bound ≥ threshold, no eval regresses, cost and p95 latency within budget</label></li>
+    <li><input type="checkbox" id="c14"><label for="c14">Every model version pinned (agent, judges, simulated users); each model upgrade runs as a variant through the gate before promotion</label></li>
+    <li><input type="checkbox" id="c15"><label for="c15">Long trajectories: a calibrated step-level judge on code-flagged steps, reporting the first bad step</label></li>
+    <li><input type="checkbox" id="c16"><label for="c16">Conversational agents: multi-turn rows with a versioned, pinned simulated user, scored on the end state, turns and redundant questions</label></li>
     <li><input type="checkbox" id="c12"><label for="c12"><code>pass^k</code> + recovery rate run nightly/weekly on a disclosed sample, with confidence intervals, before promotion</label></li>
     <li><input type="checkbox" id="c13"><label for="c13">Production traces in Langfuse; sampled online judging; drift alert; production misses and human feedback looped back into the dataset weekly</label></li>
+    <li><input type="checkbox" id="c17"><label for="c17">Traces emitted in OpenTelemetry GenAI conventions; online cost per task tracked per tenant, with an alert on outlier runs</label></li>
+    <li><input type="checkbox" id="c18"><label for="c18">Capability and regression suites are separate; only the regression suite gates; graduation and saturation rules applied</label></li>
+    <li><input type="checkbox" id="c19"><label for="c19">Every task passes two-expert agreement and has a reference solution that passes all its graders</label></li>
+    <li><input type="checkbox" id="c20"><label for="c20">Every triggered behaviour has should and should-not rows; missed and false triggers tracked separately</label></li>
+    <li><input type="checkbox" id="c21"><label for="c21">Clean state per trial: fresh <code>thread_id</code>, per-trial <code>Store</code> namespace, read-only fixtures</label></li>
+    <li><input type="checkbox" id="c22"><label for="c22">Graders grade outcomes, not exact paths; failing transcripts sorted into agent vs grader errors every run</label></li>
+    <li><input type="checkbox" id="c23"><label for="c23"><code>pass^k</code> or <code>pass@k</code> chosen per agent and recorded; judges allow “cannot determine”, with the rate reported</label></li>
+    <li><input type="checkbox" id="c24"><label for="c24">All six defence layers in place, including A/B tests where traffic allows and quarterly blind human grading</label></li>
   </ul>
 </section>
 
@@ -1404,7 +1832,7 @@ with langfuse.start_as_current_observation(as_type="span", name="itsm.ai.sre.inc
     <li><code>design/05-agent-skills.md</code> §4: the per-agent rubric and critic that share the binary scoring shape.</li>
   </ul>
   <h4>External industry sources</h4>
-  <p class="small">The sources behind the binary-scoring, judge-calibration and confidence-interval rules, kept so future changes can be checked against the same bar.</p>
+  <p class="small">The sources behind this guide's rules, kept so future changes can be checked against the same bar.</p>
   <ul class="prose small">
     <li>Hamel Husain, <a href="https://hamel.dev/blog/posts/evals-faq/why-do-you-recommend-binary-passfail-evaluations-instead-of-1-5-ratings-likert-scales.html">“Why binary pass/fail instead of 1–5 Likert scales?”</a>: binary judge scoring.</li>
     <li>Hamel Husain, <a href="https://hamel.dev/blog/posts/evals-faq/">Evals FAQ</a>: judge-human calibration.</li>
@@ -1412,6 +1840,8 @@ with langfuse.start_as_current_observation(as_type="span", name="itsm.ai.sre.inc
     <li>arXiv 2604.22891, “Quantifying and Mitigating Self-Preference Bias of LLM Judges”: cross-family judge panel.</li>
     <li>agentreliability.dev, <a href="https://www.agentreliability.dev/k/choosing-k-for-pass-hat-k">“Choosing k and the threshold for pass^k”</a>: interval gating.</li>
     <li>arXiv 2510.04265, “Don't Pass@k: A Bayesian Framework for LLM Evaluation”: the same.</li>
+    <li>Anthropic, <a href="https://www.anthropic.com/research/demystifying-evals-for-ai-agents">“Demystifying evals for AI agents”</a> (Jan 2026): vocabulary, outcome-based grading, capability vs regression suites, task quality, trial isolation, grader design, partial credit, layers of defence.</li>
+    <li>Machine Learning Mastery, <a href="https://machinelearningmastery.com/the-roadmap-to-mastering-ai-agent-evaluation/">“The Roadmap to Mastering AI Agent Evaluation”</a>: reasoning vs action layers, eval strategy by agent type, <code>pass@k</code> vs <code>pass^k</code>.</li>
   </ul>
 </section>
 
@@ -1438,6 +1868,7 @@ with langfuse.start_as_current_observation(as_type="span", name="itsm.ai.sre.inc
   function passk() {
     var p = Math.min(Math.max(0, num('k-p')), 1), k = Math.max(1, Math.round(num('k-k')));
     document.getElementById('k-out').textContent = pct(Math.pow(p, k));
+    document.getElementById('k-at').textContent = pct(1 - Math.pow(1 - p, k));
   }
   function judge() {
     var o = num('j-obs'), tpr = num('j-tpr'), tnr = num('j-tnr'), den = tpr + tnr - 1;

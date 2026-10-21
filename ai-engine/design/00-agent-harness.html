@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agent Harness Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: same lab-manual system as 04-evaluation.html — sticky contents rail, one reading column, full-width diagrams. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --sunken: #eceff4; --fg: #18202c; --muted: #566176; --line: #d3d9e3;
+  --accent: #2b55c7; --accent-soft: #e2e9fb;
+  --pass: #1d7a4c; --pass-soft: #def2e7; --fail: #b4322a; --fail-soft: #f8e1df; --warn: #9a6400; --warn-soft: #f8ecd2;
+  --violet: #6b46c1; --violet-soft: #ece6fa;
+  --code-bg: #eef1f6;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --step--1: 0.84rem; --step-0: 1rem; --step-1: 1.2rem; --step-2: 1.5rem; --step-3: 2.1rem; --step-4: 2.8rem;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --surface: #181d26; --sunken: #1f2531; --fg: #e3e8f0; --muted: #9aa5b8; --line: #2f3747;
+    --accent: #86a5f5; --accent-soft: #23304f;
+    --pass: #5cc98f; --pass-soft: #173327; --fail: #f08a80; --fail-soft: #3a1d1b; --warn: #e2b04f; --warn-soft: #362a12;
+    --violet: #b59cf5; --violet-soft: #2c2347; --code-bg: #1c222d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #181d26; --sunken: #1f2531; --fg: #e3e8f0; --muted: #9aa5b8; --line: #2f3747;
+  --accent: #86a5f5; --accent-soft: #23304f;
+  --pass: #5cc98f; --pass-soft: #173327; --fail: #f08a80; --fail-soft: #3a1d1b; --warn: #e2b04f; --warn-soft: #362a12;
+  --violet: #b59cf5; --violet-soft: #2c2347; --code-bg: #1c222d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.6; padding-inline: 16px; padding-block: 0 4rem; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 3px; }
+pre { font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; overflow-x: auto; margin: 0; }
+pre code { background: none; padding: 0; font-size: inherit; }
+h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h2 { font-size: var(--step-3); font-weight: 700; }
+h3 { font-size: var(--step-2); font-weight: 600; }
+h4 { font-size: var(--step-1); font-weight: 600; }
+p { margin: 0; }
+ul, ol { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.35rem; }
+
+.shell { max-width: 1240px; margin-inline: auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 3rem; }
+@media (max-width: 960px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 0; } .toc { display: none; } }
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); align-self: start; max-height: 100vh; overflow-y: auto; padding-block: 2rem; font-size: var(--step--1); }
+.toc .toc-label { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-size: 0.72rem; margin-bottom: 0.6rem; }
+.toc ol { list-style: none; padding: 0; gap: 0.15rem; }
+.toc a { color: var(--muted); text-decoration: none; display: block; padding: 0.2rem 0.5rem; border-left: 2px solid transparent; }
+.toc a:hover { color: var(--fg); border-left-color: var(--line); }
+
+main { min-width: 0; display: grid; gap: 4rem; padding-block: 2.5rem 0; }
+.doc-head { display: grid; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 2rem; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); }
+.doc-head h1 { font-size: var(--step-4); font-weight: 700; letter-spacing: -0.01em; }
+.lede { font-size: var(--step-1); color: var(--muted); max-width: 68ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip { font-family: var(--font-mono); font-size: 0.74rem; padding: 0.2rem 0.55rem; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); background: var(--surface); }
+.formula { font-family: var(--font-display); font-size: var(--step-2); font-weight: 600; padding: 1rem 1.25rem; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); max-width: 40rem; }
+.formula span { color: var(--accent); }
+
+section { display: grid; gap: 1.25rem; scroll-margin-top: 1.5rem; }
+section > p, section > ul, section > ol, .prose { max-width: 70ch; }
+.sec-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 0.05em; }
+.sec-head { display: grid; gap: 0.35rem; }
+
+.rule { border: 1px solid var(--line); border-left: 4px solid var(--accent); background: var(--surface); padding: 0.9rem 1.1rem; border-radius: 0 var(--radius) var(--radius) 0; max-width: 78ch; }
+.rule strong:first-child { font-family: var(--font-display); }
+.example { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: grid; gap: 0.6rem; max-width: 86ch; }
+.example .tag { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--warn); }
+.example h4 { font-size: 1.05rem; }
+
+.figure { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1.25rem; display: grid; gap: 0.75rem; }
+.figure .cap { font-size: var(--step--1); color: var(--muted); }
+.figure .cap b { color: var(--fg); font-family: var(--font-display); font-weight: 600; }
+.scroll-x { overflow-x: auto; }
+svg { display: block; max-width: 100%; height: auto; margin-inline: auto; }
+svg text { font-family: var(--font-body); fill: var(--fg); }
+svg .t-muted { fill: var(--muted); }
+svg .t-mono { font-family: var(--font-mono); }
+svg .t-head { font-family: var(--font-display); font-weight: 600; }
+svg .t-accent { fill: var(--accent); }
+svg .t-pass { fill: var(--pass); }
+svg .t-fail { fill: var(--fail); }
+svg .t-warn { fill: var(--warn); }
+svg .t-violet { fill: var(--violet); }
+svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+svg .box-sunken { fill: var(--sunken); stroke: var(--line); stroke-width: 1.2; }
+svg .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+svg .box-pass { fill: var(--pass-soft); stroke: var(--pass); stroke-width: 1.5; }
+svg .box-fail { fill: var(--fail-soft); stroke: var(--fail); stroke-width: 1.5; }
+svg .box-warn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+svg .box-violet { fill: var(--violet-soft); stroke: var(--violet); stroke-width: 1.5; }
+svg .ring-outer { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+svg .ring-mid { fill: var(--pass-soft); stroke: var(--pass); stroke-width: 1.5; }
+svg .ring-inner { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+svg .ring-core { fill: var(--violet-soft); stroke: var(--violet); stroke-width: 1.8; }
+svg .edge { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+svg .edge-accent { stroke: var(--accent); stroke-width: 2; fill: none; }
+svg .edge-pass { stroke: var(--pass); stroke-width: 2.4; fill: none; }
+svg .edge-fail { stroke: var(--fail); stroke-width: 1.6; fill: none; }
+svg .edge-dash { stroke: var(--muted); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+svg .pole { stroke: var(--warn); stroke-width: 3; fill: none; stroke-linecap: round; }
+svg .plank { stroke: var(--warn); stroke-width: 5; fill: none; stroke-linecap: round; }
+svg .wall { fill: var(--sunken); stroke: var(--muted); stroke-width: 1.5; }
+svg .window { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; }
+svg .arrowhead { fill: var(--muted); }
+svg .arrowhead-accent { fill: var(--accent); }
+svg .arrowhead-fail { fill: var(--fail); }
+svg .dot-pass { fill: var(--pass); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-display); font-weight: 600; background: var(--sunken); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.ours td { background: var(--accent-soft); }
+.pill { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 99px; white-space: nowrap; }
+.pill.pass { background: var(--pass-soft); color: var(--pass); }
+.pill.fail { background: var(--fail-soft); color: var(--fail); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.info { background: var(--accent-soft); color: var(--accent); }
+.pill.violet { background: var(--violet-soft); color: var(--violet); }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 1rem; }
+.card { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1rem 1.1rem; display: grid; gap: 0.5rem; align-content: start; min-width: 0; }
+.card h4 { font-size: 1.05rem; }
+.card .kicker { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.card ul { font-size: 0.92rem; }
+
+.comp { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); overflow: hidden; }
+.comp .idx { font-family: var(--font-display); font-weight: 700; font-size: 1.4rem; display: grid; place-items: start center; padding-top: 0.9rem; }
+.comp.runtime .idx { background: var(--accent-soft); color: var(--accent); }
+.comp.capab .idx { background: var(--pass-soft); color: var(--pass); }
+.comp.safety .idx { background: var(--warn-soft); color: var(--warn); }
+.comp .body { padding: 0.9rem 1.1rem; display: grid; gap: 0.55rem; min-width: 0; }
+.comp .body h4 { font-size: 1.15rem; }
+.comp .what { color: var(--muted); font-size: 0.95rem; }
+.comp dl { margin: 0; display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 0.35rem 1rem; font-size: 0.9rem; }
+.comp dt { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding-top: 0.15rem; }
+.comp dd { margin: 0; min-width: 0; }
+@media (max-width: 640px) { .comp dl { grid-template-columns: minmax(0, 1fr); } .comp dt { padding-top: 0.4rem; } }
+.group-label { font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; padding-top: 0.5rem; }
+.group-label.runtime { color: var(--accent); } .group-label.capab { color: var(--pass); } .group-label.safety { color: var(--warn); }
+
+.calc { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: grid; gap: 0.8rem; max-width: 46rem; }
+.calc .row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; }
+.calc label { display: grid; gap: 0.2rem; font-size: 0.8rem; color: var(--muted); font-family: var(--font-mono); }
+.calc input { width: 7rem; font: inherit; font-family: var(--font-mono); font-size: 0.95rem; padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); }
+.calc output { font-family: var(--font-mono); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.checklist { list-style: none; padding: 0; display: grid; gap: 0.5rem; max-width: 80ch; }
+.checklist li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: 0.5rem; align-items: start; }
+.checklist input { margin-top: 0.3rem; accent-color: var(--accent); }
+.small { font-size: var(--step--1); color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<nav class="toc" aria-label="Contents">
+  <div class="toc-label">Foundation · Contents</div>
+  <ol>
+    <li><a href="#fit">0 Where this fits</a></li>
+    <li><a href="#why">1 The model is rarely the problem</a></li>
+    <li><a href="#what">2 What a harness is</a></li>
+    <li><a href="#components">3 The 11 components</a></li>
+    <li><a href="#cycle">4 One turn of the loop</a></li>
+    <li><a href="#frameworks">5 How frameworks implement it</a></li>
+    <li><a href="#scaffold">6 Scaffolding: design to shrink</a></li>
+    <li><a href="#thickness">7 Harness thickness</a></li>
+    <li><a href="#decisions">8 The seven design decisions</a></li>
+    <li><a href="#spec">9 Harness spec for a new agent</a></li>
+    <li><a href="#diagnose">10 When an agent fails</a></li>
+    <li><a href="#checklist">11 Checklist</a></li>
+    <li><a href="#refs">Reference index</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="doc-head">
+  <div class="eyebrow">ai-engine / design / foundation</div>
+  <h1>Agent Harness Guide</h1>
+  <p class="lede">The principles and reference design for the infrastructure that wraps the model in every agent we build for SRE, ITSM and Security. It covers the 11 harness components, how one turn of the loop works, and the seven decisions every agent design has to make explicitly.</p>
+  <div class="formula">Agent = <span>Model</span> + <span>Harness</span>. If it isn't the model, it's the harness.</div>
+  <div class="meta">
+    <span class="chip">Applies to every agent in ai-engine/</span>
+    <span class="chip">LangGraph · Langfuse (self-hosted)</span>
+    <span class="chip">Tracks: SRE · ITSM · Security</span>
+    <span class="chip">Frames pillars 01–05</span>
+  </div>
+</header>
+
+<section id="fit">
+  <div class="sec-head"><div class="sec-num">00</div><h2>Where this fits</h2></div>
+  <p>This guide is the frame. The five pillar docs are the depth. <code>00-pillars-overview.md</code> describes an agent's cognitive parts (CoALA: LLM + Code + Memory). This guide describes the engineered system around the model that makes those parts run reliably. Each of the 11 harness components is owned by one pillar doc or one section of <code>ai-engine/CLAUDE.md</code>.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 300" width="960" role="img" aria-label="The agent harness guide frames the five pillar docs and the CLAUDE.md non-negotiables">
+      <defs><marker id="f0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect x="250" y="14" width="460" height="64" rx="6" class="box-accent"/>
+      <text x="480" y="40" text-anchor="middle" class="t-head" font-size="16">00-agent-harness.html (this guide)</text>
+      <text x="480" y="62" text-anchor="middle" class="t-muted" font-size="12">what wraps the model · 11 components · 7 decisions · spec template</text>
+      <path d="M480,78 L480,104 M104,104 L856,104" class="edge"/>
+      <g>
+        <path d="M104,104 L104,126" class="edge" marker-end="url(#f0)"/><path d="M256,104 L256,126" class="edge" marker-end="url(#f0)"/><path d="M408,104 L408,126" class="edge" marker-end="url(#f0)"/><path d="M552,104 L552,126" class="edge" marker-end="url(#f0)"/><path d="M704,104 L704,126" class="edge" marker-end="url(#f0)"/><path d="M856,104 L856,126" class="edge" marker-end="url(#f0)"/>
+        <rect x="34" y="128" width="140" height="92" rx="6" class="box"/>
+        <text x="104" y="152" text-anchor="middle" class="t-mono t-accent" font-size="11">01</text><text x="104" y="172" text-anchor="middle" class="t-head" font-size="14">Orchestration</text>
+        <text x="104" y="192" text-anchor="middle" class="t-muted" font-size="10">loop · errors ·</text><text x="104" y="206" text-anchor="middle" class="t-muted" font-size="10">subagents</text>
+        <rect x="186" y="128" width="140" height="92" rx="6" class="box"/>
+        <text x="256" y="152" text-anchor="middle" class="t-mono t-accent" font-size="11">02</text><text x="256" y="172" text-anchor="middle" class="t-head" font-size="14">Memory</text>
+        <text x="256" y="192" text-anchor="middle" class="t-muted" font-size="10">memory · state ·</text><text x="256" y="206" text-anchor="middle" class="t-muted" font-size="10">context</text>
+        <rect x="338" y="128" width="140" height="92" rx="6" class="box"/>
+        <text x="408" y="152" text-anchor="middle" class="t-mono t-accent" font-size="11">03</text><text x="408" y="172" text-anchor="middle" class="t-head" font-size="14">Tools</text>
+        <text x="408" y="192" text-anchor="middle" class="t-muted" font-size="10">tools · scoping ·</text><text x="408" y="206" text-anchor="middle" class="t-muted" font-size="10">per-call gating</text>
+        <rect x="482" y="128" width="140" height="92" rx="6" class="box"/>
+        <text x="552" y="152" text-anchor="middle" class="t-mono t-accent" font-size="11">04</text><text x="552" y="172" text-anchor="middle" class="t-head" font-size="14">Evaluation</text>
+        <text x="552" y="192" text-anchor="middle" class="t-muted" font-size="10">offline + online ·</text><text x="552" y="206" text-anchor="middle" class="t-muted" font-size="10">verification checks</text>
+        <rect x="634" y="128" width="140" height="92" rx="6" class="box"/>
+        <text x="704" y="152" text-anchor="middle" class="t-mono t-accent" font-size="11">05</text><text x="704" y="172" text-anchor="middle" class="t-head" font-size="14">Agent Skills</text>
+        <text x="704" y="192" text-anchor="middle" class="t-muted" font-size="10">prompt construction ·</text><text x="704" y="206" text-anchor="middle" class="t-muted" font-size="10">rubric · critic</text>
+        <rect x="786" y="128" width="140" height="92" rx="6" class="box-sunken"/>
+        <text x="856" y="152" text-anchor="middle" class="t-mono t-accent" font-size="11">CLAUDE.md §2–3</text><text x="856" y="172" text-anchor="middle" class="t-head" font-size="14">Non-negotiables</text>
+        <text x="856" y="192" text-anchor="middle" class="t-muted" font-size="10">context · loop · graph ·</text><text x="856" y="206" text-anchor="middle" class="t-muted" font-size="10">LangGraph · Langfuse</text>
+      </g>
+      <rect x="250" y="244" width="460" height="44" rx="6" class="box-sunken"/>
+      <text x="480" y="271" text-anchor="middle" font-size="12">Read alongside <tspan class="t-mono">00-pillars-overview.md</tspan> (CoALA model + 6-step build journey)</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 0.</b> This guide sits above the pillar docs. It says <em>what</em> the harness must contain and which design calls to make. The pillar docs say <em>how</em> to build each part.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Harness component</th><th>Owned by</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Orchestration loop</td><td><code>01-orchestration.md</code>, <code>CLAUDE.md</code> §2.2 (loop engineering)</td></tr>
+      <tr><td>2</td><td>Tools</td><td><code>03-tools.md</code></td></tr>
+      <tr><td>3</td><td>Memory</td><td><code>02-memory.md</code>, <code>CLAUDE.md</code> §2.3 (<code>Store</code>)</td></tr>
+      <tr><td>4</td><td>Context management</td><td><code>CLAUDE.md</code> §2.1 (context engineering), <code>02-memory.md</code></td></tr>
+      <tr><td>5</td><td>Prompt construction</td><td><code>05-agent-skills.md</code> (progressive disclosure)</td></tr>
+      <tr><td>6</td><td>Output parsing</td><td><code>CLAUDE.md</code> §2.1 (typed state over free text)</td></tr>
+      <tr><td>7</td><td>State management</td><td><code>CLAUDE.md</code> §2.2 (checkpointing), <code>02-memory.md</code></td></tr>
+      <tr><td>8</td><td>Error handling</td><td><code>01-orchestration.md</code> (failure modes), <code>04-evaluation.html</code> A7 (recovery)</td></tr>
+      <tr><td>9</td><td>Guardrails &amp; safety</td><td><code>design-considerations.md</code> (L0–L4), <code>03-tools.md</code> (risk gating)</td></tr>
+      <tr><td>10</td><td>Verification loops</td><td><code>05-agent-skills.md</code> §4 (critic), <code>04-evaluation.html</code></td></tr>
+      <tr><td>11</td><td>Subagent orchestration</td><td><code>01-orchestration.md</code> (supervisor + workers)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="why">
+  <div class="sec-head"><div class="sec-num">01</div><h2>The model is rarely the problem</h2></div>
+  <p>A ReAct loop, a few tools and a good system prompt work in a demo. Past roughly ten steps, the same setup starts to fail. The model forgets what it already did, tool calls fail silently, and the context window fills with noise. Swapping in a stronger model rarely fixes this. Fixing the infrastructure around the model does.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 330" width="900" role="img" aria-label="A ReAct loop with few tools works on a simple task; with many tools on a long task it tangles and breaks">
+      <defs>
+        <marker id="r1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker>
+        <marker id="r2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead-fail"/></marker>
+      </defs>
+      <text x="215" y="30" text-anchor="middle" class="t-head" font-size="17">3 tools, one alert, 4 steps</text>
+      <circle cx="215" cy="160" r="88" class="edge-pass"/>
+      <rect x="175" y="58" width="80" height="30" rx="6" class="box-pass"/><text x="215" y="78" text-anchor="middle" class="t-head" font-size="13">Think</text>
+      <rect x="262" y="206" width="90" height="30" rx="6" class="box-pass"/><text x="307" y="226" text-anchor="middle" class="t-head" font-size="13">Observe</text>
+      <rect x="82" y="206" width="70" height="30" rx="6" class="box-pass"/><text x="117" y="226" text-anchor="middle" class="t-head" font-size="13">Act</text>
+      <text x="215" y="166" text-anchor="middle" class="t-head" font-size="18">ReAct</text>
+      <g font-size="10" class="t-mono">
+        <rect x="105" y="262" width="66" height="22" rx="11" class="box-sunken"/><text x="138" y="277" text-anchor="middle" class="t-mono" font-size="10">siem.get</text>
+        <rect x="175" y="262" width="66" height="22" rx="11" class="box-sunken"/><text x="208" y="277" text-anchor="middle" class="t-mono" font-size="10">cmdb.ci</text>
+        <rect x="245" y="262" width="76" height="22" rx="11" class="box-sunken"/><text x="283" y="277" text-anchor="middle" class="t-mono" font-size="10">iam.changes</text>
+      </g>
+      <text x="215" y="314" text-anchor="middle" class="t-pass t-head" font-size="15">✓ Works</text>
+
+      <line x1="450" y1="20" x2="450" y2="320" class="edge-dash"/>
+
+      <text x="680" y="30" text-anchor="middle" class="t-head" font-size="17">30 tools, an incident, 40 steps</text>
+      <circle cx="680" cy="160" r="88" class="edge-fail" style="stroke-width:2.4"/>
+      <path d="M620,110 C700,70 760,190 640,200 C560,210 690,250 740,150 C770,95 600,140 690,230" class="edge-fail"/>
+      <path d="M700,90 C610,160 780,170 720,230" class="edge-fail" marker-end="url(#r2)"/>
+      <path d="M760,200 C700,120 600,250 610,140" class="edge-fail" marker-end="url(#r2)"/>
+      <rect x="640" y="58" width="80" height="30" rx="6" class="box-fail"/><text x="680" y="78" text-anchor="middle" class="t-head" font-size="13">Think</text>
+      <rect x="727" y="206" width="90" height="30" rx="6" class="box-fail"/><text x="772" y="226" text-anchor="middle" class="t-head" font-size="13">Observe</text>
+      <rect x="547" y="206" width="70" height="30" rx="6" class="box-fail"/><text x="582" y="226" text-anchor="middle" class="t-head" font-size="13">Act</text>
+      <rect x="770" y="44" width="122" height="52" rx="18" class="box"/>
+      <text x="831" y="66" text-anchor="middle" font-size="12">“Did I already</text><text x="831" y="82" text-anchor="middle" font-size="12">query the logs?”</text>
+      <g>
+        <rect x="520" y="258" width="320" height="32" rx="6" class="box-sunken"/>
+        <text x="680" y="279" text-anchor="middle" class="t-mono t-muted" font-size="10">logs · metrics · traces · cmdb · deploys · kb · iam · …</text>
+      </g>
+      <text x="680" y="314" text-anchor="middle" class="t-fail t-head" font-size="15">✕ Breaks</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 1.</b> The same bare loop. A short task with three scoped tools stays clean. A long incident with an unscoped tool pile loses track of its own actions.</p>
+  </div>
+  <p>Published results back this up. One team changed only the infrastructure around an unchanged model and moved from outside the top 30 to 5th on TerminalBench 2.0. Across that benchmark, harness changes alone have moved agents more than 20 ranking places. <strong>The harness is the product.</strong></p>
+  <div class="rule"><strong>Principle 1.</strong> When an agent fails, look at the harness before blaming the model. Check context, tool scope, state, error handling and verification first (see §10).</div>
+</section>
+
+<section id="what">
+  <div class="sec-head"><div class="sec-num">02</div><h2>What a harness is</h2></div>
+  <p><strong>Definition.</strong> The agent harness is the complete software infrastructure that wraps a model: the orchestration loop, tools, memory, context management, state persistence, error handling and guardrails. The <em>agent</em> is the goal-directed, tool-using, self-correcting behaviour users see. The <em>harness</em> is the machinery that produces it. “We built an incident agent” really means “we built a harness and pointed it at a model”.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 430" width="900" role="img" aria-label="Computer analogy: CPU is the LLM, RAM is the context window, disk is long-term storage, device drivers are tool integrations, the operating system is the agent harness, the application is the agent">
+      <text x="230" y="30" text-anchor="middle" class="t-head" font-size="18">Computer</text>
+      <text x="670" y="30" text-anchor="middle" class="t-head" font-size="18">LLM agent</text>
+      <line x1="450" y1="44" x2="450" y2="380" class="edge-dash"/>
+      <g font-size="13">
+        <rect x="110" y="50" width="240" height="40" rx="6" class="box"/><text x="230" y="75" text-anchor="middle">CPU</text>
+        <rect x="550" y="50" width="240" height="40" rx="6" class="box"/><text x="670" y="75" text-anchor="middle">LLM (model weights)</text>
+        <line x1="350" y1="70" x2="550" y2="70" class="edge-dash"/>
+        <rect x="110" y="104" width="240" height="40" rx="6" class="box"/><text x="230" y="129" text-anchor="middle">RAM · fast, limited</text>
+        <rect x="550" y="104" width="240" height="40" rx="6" class="box"/><text x="670" y="129" text-anchor="middle">Context window</text>
+        <line x1="350" y1="124" x2="550" y2="124" class="edge-dash"/>
+        <rect x="110" y="158" width="240" height="40" rx="6" class="box"/><text x="230" y="183" text-anchor="middle">Disk · large, slow</text>
+        <rect x="550" y="158" width="240" height="40" rx="6" class="box"/><text x="670" y="183" text-anchor="middle">pgvector / LangGraph Store</text>
+        <line x1="350" y1="178" x2="550" y2="178" class="edge-dash"/>
+        <rect x="110" y="212" width="240" height="40" rx="6" class="box"/><text x="230" y="237" text-anchor="middle">Device drivers</text>
+        <rect x="550" y="212" width="240" height="40" rx="6" class="box"/><text x="670" y="237" text-anchor="middle">Tool integrations (MCP)</text>
+        <line x1="350" y1="232" x2="550" y2="232" class="edge-dash"/>
+        <rect x="110" y="266" width="240" height="44" rx="6" class="box-accent"/><text x="230" y="293" text-anchor="middle" class="t-head" font-size="14">Operating system</text>
+        <rect x="550" y="266" width="240" height="44" rx="6" class="box-accent"/><text x="670" y="293" text-anchor="middle" class="t-head" font-size="14">Agent harness</text>
+        <line x1="350" y1="288" x2="550" y2="288" class="edge-accent"/>
+        <text x="450" y="280" text-anchor="middle" class="t-accent t-mono" font-size="11">the key layer</text>
+        <rect x="110" y="324" width="240" height="40" rx="6" class="box"/><text x="230" y="349" text-anchor="middle">Application</text>
+        <rect x="550" y="324" width="240" height="40" rx="6" class="box"/><text x="670" y="349" text-anchor="middle">Agent (emergent behaviour)</text>
+        <line x1="350" y1="344" x2="550" y2="344" class="edge-dash"/>
+      </g>
+      <text x="450" y="410" text-anchor="middle" class="t-muted" font-size="13">A raw model is a CPU with no operating system. The harness is the OS that makes it useful.</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 2.</b> The computer analogy, mapped to our stack. The context window is scarce RAM, so the harness decides what loads into it and when.</p>
+  </div>
+  <h4>Three levels of engineering</h4>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 270" width="900" role="img" aria-label="Nested levels: prompt engineering inside context engineering inside harness engineering">
+      <rect x="20" y="14" width="860" height="242" rx="10" class="box-warn"/>
+      <text x="40" y="42" class="t-head" font-size="16">Harness engineering</text>
+      <text x="40" y="62" class="t-muted" font-size="12">+ tool orchestration · state persistence · error recovery · verification loops · safety enforcement · lifecycle</text>
+      <rect x="40" y="80" width="560" height="160" rx="8" class="box-pass"/>
+      <text x="60" y="106" class="t-head" font-size="15">Context engineering</text>
+      <text x="60" y="126" class="t-muted" font-size="12">what the model sees, and when · retrieval · compaction · masking</text>
+      <rect x="60" y="144" width="320" height="80" rx="8" class="box-accent"/>
+      <text x="80" y="172" class="t-head" font-size="14">Prompt engineering</text>
+      <text x="80" y="192" class="t-muted" font-size="12">the instructions themselves</text>
+      <text x="740" y="150" text-anchor="middle" class="t-muted" font-size="12">Each level contains</text>
+      <text x="740" y="168" text-anchor="middle" class="t-muted" font-size="12">the one inside it.</text>
+      <text x="740" y="196" text-anchor="middle" class="t-mono t-accent" font-size="11">CLAUDE.md §2 = all three</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 3.</b> A harness isn't a wrapper around a prompt. Prompt work and context work are both inside it, together with everything that keeps a long-running autonomous loop safe and recoverable.</p>
+  </div>
+</section>
+
+<section id="components">
+  <div class="sec-head"><div class="sec-num">03</div><h2>The 11 components of a production harness</h2></div>
+  <p>The components fall into three rings around a stateless model. The <b>runtime</b> runs each turn. The <b>capabilities</b> give the loop hands, memory and focus. <b>Safety &amp; scale</b> keeps the loop correct and bounded as tasks get longer and riskier.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 900 640" width="900" role="img" aria-label="Concentric rings: LLM core; runtime ring with orchestration loop, output parsing, prompt construction, error handling; capabilities ring with tools, memory, context management, state management; safety and scale ring with guardrails, verification loops, subagent orchestration">
+      <defs>
+        <marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker>
+      </defs>
+      <circle cx="450" cy="320" r="300" class="ring-outer"/>
+      <circle cx="450" cy="320" r="222" class="ring-mid"/>
+      <circle cx="450" cy="320" r="146" class="ring-inner"/>
+      <circle cx="450" cy="320" r="66" class="ring-core"/>
+      <text x="450" y="314" text-anchor="middle" class="t-head" font-size="20">LLM</text>
+      <text x="450" y="336" text-anchor="middle" class="t-violet t-mono" font-size="11">stateless model</text>
+
+      <text x="450" y="200" text-anchor="middle" class="t-mono t-accent" font-size="12">RUNTIME</text>
+      <text x="370" y="250" text-anchor="middle" class="t-head" font-size="13">① Orchestration</text><text x="370" y="266" text-anchor="middle" class="t-head" font-size="13">loop</text>
+      <text x="530" y="250" text-anchor="middle" class="t-head" font-size="13">⑥ Output</text><text x="530" y="266" text-anchor="middle" class="t-head" font-size="13">parsing</text>
+      <text x="370" y="392" text-anchor="middle" class="t-head" font-size="13">⑧ Error</text><text x="370" y="408" text-anchor="middle" class="t-head" font-size="13">handling</text>
+      <text x="530" y="392" text-anchor="middle" class="t-head" font-size="13">⑤ Prompt</text><text x="530" y="408" text-anchor="middle" class="t-head" font-size="13">construction</text>
+
+      <text x="450" y="124" text-anchor="middle" class="t-mono t-pass" font-size="12">CAPABILITIES</text>
+      <text x="306" y="204" text-anchor="middle" class="t-head" font-size="13">② Tools</text>
+      <text x="594" y="204" text-anchor="middle" class="t-head" font-size="13">③ Memory</text>
+      <text x="306" y="446" text-anchor="middle" class="t-head" font-size="13">⑦ State</text><text x="306" y="462" text-anchor="middle" class="t-head" font-size="13">management</text>
+      <text x="594" y="446" text-anchor="middle" class="t-head" font-size="13">④ Context</text><text x="594" y="462" text-anchor="middle" class="t-head" font-size="13">management</text>
+      <text x="450" y="526" text-anchor="middle" class="t-mono t-pass" font-size="12">CAPABILITIES</text>
+
+      <text x="450" y="48" text-anchor="middle" class="t-mono t-warn" font-size="12">SAFETY &amp; SCALE</text>
+      <text x="270" y="134" text-anchor="middle" class="t-head" font-size="13">⑨ Guardrails</text><text x="270" y="150" text-anchor="middle" class="t-head" font-size="13">&amp; safety</text>
+      <text x="630" y="134" text-anchor="middle" class="t-head" font-size="13">⑩ Verification</text><text x="630" y="150" text-anchor="middle" class="t-head" font-size="13">loops</text>
+      <text x="450" y="584" text-anchor="middle" class="t-head" font-size="13">⑪ Subagent orchestration</text>
+      <text x="450" y="602" text-anchor="middle" class="t-muted" font-size="11">+ tool scoping</text>
+
+      <path d="M14,250 L150,250" class="edge" marker-end="url(#c1)"/>
+      <text x="14" y="238" font-size="12">Request enters</text>
+      <text x="14" y="270" class="t-muted" font-size="11">input guardrails first</text>
+      <path d="M750,360 L886,360" class="edge" marker-end="url(#c1)"/>
+      <text x="886" y="348" text-anchor="end" font-size="12">Tool calls go out</text>
+      <text x="886" y="380" text-anchor="end" class="t-muted" font-size="11">permission-checked</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 4.</b> The harness has layers. It isn't one wrapper. Requests pass inward through guardrails, the runtime turns them into model calls, and every action leaves through the capability and safety rings.</p>
+  </div>
+
+  <div class="group-label runtime">Runtime ring</div>
+
+  <div class="comp runtime"><div class="idx">1</div><div class="body">
+    <h4>Orchestration loop</h4>
+    <p class="what">The heartbeat. Each turn of the Thought → Action → Observation (ReAct) cycle assembles the prompt, calls the model, parses the output, runs any tool calls, feeds the results back, and repeats until done. Mechanically it's often just a while loop. The complexity is in what the loop manages.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Keep the loop simple and let the model reason. Every loop has an explicit goal-achieved check <b>and</b> a hard ceiling (turns, tokens, wall-clock time).</dd>
+      <dt>In our stack</dt><dd>A LangGraph graph: an <code>llm_call</code> node ↔ a <code>tool_node</code> through a conditional edge, with <code>recursion_limit</code> set on every invoke. Every node emits a Langfuse span named <code>itsm.ai.&lt;track&gt;.&lt;op&gt;</code>.</dd>
+      <dt>Example</dt><dd>The SRE RCA supervisor loops at most 25 steps. If it hits the ceiling, it returns “inconclusive, evidence so far: …” instead of guessing.</dd>
+      <dt>Depth</dt><dd><code>01-orchestration.md</code>, <code>CLAUDE.md</code> §2.2</dd>
+    </dl>
+  </div></div>
+
+  <div class="comp runtime"><div class="idx">5</div><div class="body">
+    <h4>Prompt construction</h4>
+    <p class="what">Builds what the model sees at each step: system prompt, tool definitions, skill/rubric text, memory, conversation history and the current input, in a deliberate priority order.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Use a fixed priority stack, highest first: <b>(1)</b> platform policy (tenant scope, autonomy level, safety rules) · <b>(2)</b> tool definitions for this step only · <b>(3)</b> agent skill and rubric · <b>(4)</b> task input · <b>(5)</b> retrieved evidence · <b>(6)</b> compacted history. Put critical instructions at the start <b>and</b> repeat the task at the end, because content in the middle of a long context gets lost.</dd>
+      <dt>In our stack</dt><dd>Prompts are versioned in Langfuse. Skills load by progressive disclosure: a short index is always present, and the full skill text loads only when it's used.</dd>
+      <dt>Example</dt><dd>The ITSM triage prompt always starts with “tenant: customer_b, role: agent, autonomy L1: propose routing, never reassign”.</dd>
+      <dt>Depth</dt><dd><code>05-agent-skills.md</code></dd>
+    </dl>
+  </div></div>
+
+  <div class="comp runtime"><div class="idx">6</div><div class="body">
+    <h4>Output parsing</h4>
+    <p class="what">Turns model output into a decision. Use native tool calling: the model returns structured <code>tool_calls</code>, not free text to scrape. If there are tool calls, run them and loop. If there are none, that's the final answer.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Final answers are schema-constrained (Pydantic). On a schema failure, retry once with the original prompt, the failed output and the parse error, then fail loudly.</dd>
+      <dt>In our stack</dt><dd>Structured output goes into the typed LangGraph <code>State</code>, never as a raw string between nodes (<code>CLAUDE.md</code> §2.1).</dd>
+      <dt>Example</dt><dd>The security triage agent's final output is <code>TriageVerdict(verdict: Literal["escalate","close"], severity, evidence_ids: list[str], rationale)</code>. The evals in <code>04-evaluation.html</code> read these fields directly.</dd>
+    </dl>
+  </div></div>
+
+  <div class="comp runtime"><div class="idx">8</div><div class="body">
+    <h4>Error handling</h4>
+    <p class="what">Errors compound. A 10-step task at 99% per-step success finishes cleanly only about 90% of the time. The harness decides what happens to each kind of failure so one bad call doesn't sink the run.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Classify every failure: <b>transient</b> → retry with backoff, at most 2 retries · <b>model-recoverable</b> → return the error to the model as a tool result so it can adjust · <b>user-fixable</b> → pause for a human · <b>unexpected</b> → raise, record and debug. Catch errors inside tool handlers so the loop keeps running.</dd>
+      <dt>In our stack</dt><dd>Tool wrappers return <code>ToolMessage(status="error", …)</code>. User-fixable failures call LangGraph <code>interrupt()</code>. Unexpected ones become Langfuse error spans. Recovery is measured by the recovery eval (<code>04-evaluation.html</code> A7).</dd>
+      <dt>Example</dt><dd><code>threat-intel</code> returns 503 → backoff retry succeeds. A CMDB lookup returns “CI not found” → the model receives that and searches by hostname instead of inventing a CI.</dd>
+    </dl>
+  </div></div>
+
+  <div class="group-label capab">Capabilities ring</div>
+
+  <div class="comp capab"><div class="idx">2</div><div class="body">
+    <h4>Tools</h4>
+    <p class="what">The agent's hands. Each tool is a schema (name, description, typed parameters) injected into context. The tool layer handles registration, argument validation, sandboxed execution, result capture, and formatting results as readable observations.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Give each step the smallest tool set it needs. More tools usually means worse tool choice. Descriptions say <em>when</em> to use the tool, not only what it does. Return compact observations, not raw payload dumps.</dd>
+      <dt>In our stack</dt><dd>Tools are exposed through MCP. Each specialist subagent has its own scoped set, roughly 10 or fewer. Every call is risk-gated per <code>03-tools.md</code>.</dd>
+      <dt>Example</dt><dd>The <code>identity-access</code> subagent sees only <code>iam.recent_changes</code>, <code>iam.role_grants</code> and <code>iam.user_profile</code>, not the 30 tools the whole platform offers.</dd>
+      <dt>Depth</dt><dd><code>03-tools.md</code></dd>
+    </dl>
+  </div></div>
+
+  <div class="comp capab"><div class="idx">3</div><div class="body">
+    <h4>Memory</h4>
+    <p class="what">Works at several timescales. Short-term memory is the current session. Long-term memory persists across sessions and is loaded in tiers.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Use three tiers: <b>(1)</b> a small index that is always loaded (one short line per entry) · <b>(2)</b> detailed topic records loaded on demand · <b>(3)</b> raw history reachable only through search. Writes go through an explicit write policy, so memory doesn't fill with unverified claims.</dd>
+      <dt>In our stack</dt><dd>LangGraph <code>Store</code> with tenant-namespaced keys for cross-thread memory. Episodic incident memory lives in pgvector, per <code>02-memory.md</code>. Never read across tenants.</dd>
+      <dt>Example</dt><dd>The SRE agent's always-loaded index names “checkout-service: 3 past pool-exhaustion incidents”. Full postmortems load only when the hypothesis matches.</dd>
+      <dt>Depth</dt><dd><code>02-memory.md</code></dd>
+    </dl>
+  </div></div>
+
+  <div class="comp capab"><div class="idx">4</div><div class="body">
+    <h4>Context management</h4>
+    <p class="what">This is where many agents fail without any visible error. Performance drops noticeably when key content sits in the middle of a long window, and instruction-following degrades as context grows, even in very large windows.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Aim for the smallest set of high-signal tokens. Four techniques: <b>compaction</b> (summarise near the limit; keep decisions and open questions, drop redundant tool output) · <b>observation masking</b> (hide old tool outputs, keep the calls visible) · <b>just-in-time retrieval</b> (carry IDs, load content only when needed) · <b>subagent delegation</b> (a subagent explores widely and returns a 1–2k-token summary).</dd>
+      <dt>In our stack</dt><dd>Retrieve, rank and trim before injecting (<code>CLAUDE.md</code> §2.1). Evidence goes into state as IDs plus short excerpts.</dd>
+      <dt>Example</dt><dd>The <code>logs_analyst</code> greps 2 GB of logs but hands the supervisor 12 cited lines and a 300-token summary.</dd>
+    </dl>
+  </div></div>
+
+  <div class="comp capab"><div class="idx">7</div><div class="body">
+    <h4>State management</h4>
+    <p class="what">What the run knows right now, held so the run can resume, be inspected and be replayed.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Use typed state with explicit merge rules, checkpointed at every step boundary. For work that spans sessions, keep a structured progress record (what's done, what's next, open questions) instead of relying on chat history.</dd>
+      <dt>In our stack</dt><dd>A LangGraph <code>State</code> TypedDict with reducers and a Postgres checkpointer. <code>thread_id</code> is the incident, ticket or alert ID. Time-travel replay is used for debugging failed runs.</dd>
+      <dt>Example</dt><dd>An INC-4471 investigation pauses for SRE approval overnight and resumes the next morning from the same checkpoint, with every hypothesis already ruled out still in state.</dd>
+    </dl>
+  </div></div>
+
+  <div class="group-label safety">Safety &amp; scale ring</div>
+
+  <div class="comp safety"><div class="idx">9</div><div class="body">
+    <h4>Guardrails &amp; safety</h4>
+    <p class="what">Checks at three points: <b>input</b> (before the first step), <b>output</b> (on the final answer) and <b>tool</b> (every call). A tripwire stops the run immediately.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Keep permission enforcement separate from reasoning. The model decides what to <em>attempt</em>. The tool layer decides what is <em>allowed</em>. Use three stages: <b>(1)</b> trust set at session start (tenant, role, autonomy level) · <b>(2)</b> a permission check before every tool call · <b>(3)</b> explicit human confirmation for high-risk actions.</dd>
+      <dt>In our stack</dt><dd>Tenant and role come from <code>X-Tenant-ID</code> / <code>X-User-Role</code>, never from the model. Autonomy levels L0–L4 come from <code>design-considerations.md</code>, with L0/L1 as the default. High-risk steps call <code>interrupt()</code>.</dd>
+      <dt>Example</dt><dd>“Auto-revoke the flagged user” trips the tool guardrail at L1. The agent proposes the revocation and pauses for a SOC analyst.</dd>
+    </dl>
+  </div></div>
+
+  <div class="comp safety"><div class="idx">10</div><div class="body">
+    <h4>Verification loops</h4>
+    <p class="what">This is the main difference between demo and production agents. Giving a model a way to check its own work is reported to improve quality 2–3×.</p>
+    <dl>
+      <dt>Guidance</dt><dd>Use <b>computational</b> checks first (schema validation, “does every cited ID exist in the tool results?”, tests). Use <b>inferential</b> checks (a separate critic or judge) for semantic qualities. Think of them as <em>guides</em>, which steer before acting (rubric in the prompt), and <em>sensors</em>, which observe after acting (checks on the output).</dd>
+      <dt>In our stack</dt><dd>The writer + critic pattern with a per-agent rubric (<code>05-agent-skills.md</code> §4). The same check modules run in the offline harness and online scoring (<code>04-evaluation.html</code>).</dd>
+      <dt>Example</dt><dd>Before the RCA draft returns, a code check confirms every cited log line exists. Then the critic (from a different model family) approves or sends it back for revision against the rubric.</dd>
+    </dl>
+  </div></div>
+
+  <div class="comp safety"><div class="idx">11</div><div class="body">
+    <h4>Subagent orchestration</h4>
+    <p class="what">Spawning specialists, either as <b>agents-as-tools</b> (the specialist handles a bounded subtask and returns) or through <b>handoffs</b> (the specialist takes over control).</p>
+    <dl>
+      <dt>Guidance</dt><dd>Prefer agents-as-tools: the parent keeps control and gets a condensed result back. Each subagent has an isolated context and its own tool scope. Split into subagents only for a clear reason (see decision 1 in §8).</dd>
+      <dt>In our stack</dt><dd>A supervisor graph calls specialist subgraphs. Specialists never call each other. Independent evidence gathering fans out in parallel with <code>Send</code>.</dd>
+      <dt>Example</dt><dd>The security triage supervisor fans out to <code>identity-access</code> and <code>asset-criticality</code> in parallel and merges two short summaries.</dd>
+      <dt>Depth</dt><dd><code>01-orchestration.md</code></dd>
+    </dl>
+  </div></div>
+</section>
+
+<section id="cycle">
+  <div class="sec-head"><div class="sec-num">04</div><h2>One turn of the loop</h2></div>
+  <p>The loop is simple mechanically. Each step in it carries real infrastructure.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 470" width="960" role="img" aria-label="Seven-step cycle: prompt assembly, LLM inference, classify output, tool execution, result packaging, context update, loop back; final answer when there are no tool calls; exit conditions">
+      <defs>
+        <marker id="l1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker>
+        <marker id="l2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead-accent"/></marker>
+      </defs>
+      <rect x="330" y="14" width="230" height="140" rx="6" class="box-accent"/>
+      <text x="445" y="38" text-anchor="middle" class="t-head" font-size="15">1 · Prompt assembly</text>
+      <g font-size="11" class="t-mono">
+        <rect x="360" y="48" width="170" height="18" rx="3" class="box"/><text x="445" y="61" text-anchor="middle" class="t-mono" font-size="10">policy · tenant · autonomy</text>
+        <rect x="360" y="68" width="170" height="18" rx="3" class="box"/><text x="445" y="81" text-anchor="middle" class="t-mono" font-size="10">scoped tool schemas</text>
+        <rect x="360" y="88" width="170" height="18" rx="3" class="box"/><text x="445" y="101" text-anchor="middle" class="t-mono" font-size="10">skill + rubric · memory</text>
+        <rect x="360" y="108" width="170" height="18" rx="3" class="box"/><text x="445" y="121" text-anchor="middle" class="t-mono" font-size="10">compacted history</text>
+        <rect x="360" y="128" width="170" height="18" rx="3" class="box"/><text x="445" y="141" text-anchor="middle" class="t-mono" font-size="10">task (repeated at end)</text>
+      </g>
+      <path d="M560,70 L660,70 L660,92" class="edge" marker-end="url(#l1)"/>
+      <rect x="600" y="94" width="200" height="60" rx="6" class="box-violet"/>
+      <text x="700" y="118" text-anchor="middle" class="t-head" font-size="15">2 · LLM inference</text>
+      <text x="700" y="138" text-anchor="middle" class="t-muted" font-size="11">text, tool calls, or both</text>
+      <path d="M700,154 L700,184" class="edge" marker-end="url(#l1)"/>
+      <polygon points="700,186 770,226 700,266 630,226" class="box"/>
+      <text x="700" y="222" text-anchor="middle" class="t-head" font-size="13">3 · Classify</text>
+      <text x="700" y="238" text-anchor="middle" class="t-head" font-size="13">output</text>
+      <path d="M770,226 L836,226" class="edge" marker-end="url(#l1)"/>
+      <text x="803" y="216" text-anchor="middle" class="t-muted" font-size="10">no tool calls</text>
+      <rect x="838" y="204" width="112" height="44" rx="22" class="box-pass"/>
+      <text x="894" y="231" text-anchor="middle" class="t-pass t-head" font-size="13">Final answer</text>
+      <path d="M700,266 L700,300" class="edge" marker-end="url(#l1)"/>
+      <text x="712" y="288" class="t-muted" font-size="10">tool calls</text>
+      <rect x="590" y="302" width="220" height="64" rx="6" class="box-warn"/>
+      <text x="700" y="326" text-anchor="middle" class="t-head" font-size="15">4 · Tool execution</text>
+      <text x="700" y="346" text-anchor="middle" class="t-muted" font-size="11">validate · permission check · run</text>
+      <text x="700" y="360" text-anchor="middle" class="t-muted" font-size="10">reads in parallel, writes in sequence</text>
+      <path d="M590,334 L510,334 L510,372" class="edge" marker-end="url(#l1)"/>
+      <rect x="370" y="374" width="220" height="60" rx="6" class="box"/>
+      <text x="480" y="398" text-anchor="middle" class="t-head" font-size="15">5 · Result packaging</text>
+      <text x="480" y="418" text-anchor="middle" class="t-muted" font-size="11">observations · errors returned as results</text>
+      <path d="M370,404 L270,404 L270,350" class="edge" marker-end="url(#l1)"/>
+      <rect x="150" y="286" width="230" height="62" rx="6" class="box"/>
+      <text x="265" y="310" text-anchor="middle" class="t-head" font-size="15">6 · Context update</text>
+      <text x="265" y="330" text-anchor="middle" class="t-muted" font-size="11">append · compact or mask near limit</text>
+      <path d="M220,286 L220,180" class="edge" marker-end="url(#l1)"/>
+      <rect x="150" y="128" width="140" height="50" rx="6" class="box"/>
+      <text x="220" y="158" text-anchor="middle" class="t-head" font-size="15">7 · Loop</text>
+      <path d="M220,128 L220,84 L326,84" class="edge-accent" marker-end="url(#l2)"/>
+      <text x="228" y="104" class="t-accent" font-size="11">until an exit fires</text>
+      <rect x="640" y="380" width="300" height="84" rx="6" class="box-sunken" style="stroke-dasharray:5 4"/>
+      <text x="656" y="402" class="t-head" font-size="13">Exit conditions (layered)</text>
+      <text x="656" y="420" font-size="11">• no tool calls · max turns · token budget</text>
+      <text x="656" y="437" font-size="11">• guardrail tripwire · human interrupt</text>
+      <text x="656" y="454" font-size="11">• safety refusal · wall-clock budget</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 5.</b> One cycle. The permission check happens in step 4, errors come back as results in step 5, and compaction triggers in step 6.</p>
+  </div>
+  <div class="example">
+    <div class="tag">Walkthrough · Security alert triage, ALRT-2291, turn 2 of 5</div>
+    <h4>What each step actually does</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Step</th><th>What happens</th><th>Harness component</th></tr></thead>
+      <tbody>
+        <tr><td>1 Assemble</td><td>Policy (tenant <code>customer_a</code>, L1), 3 identity tools, triage rubric, alert payload, turn-1 summary, task restated at the end</td><td>⑤ ④ ③</td></tr>
+        <tr><td>2 Infer</td><td>Model asks for <code>iam.recent_changes(principal="svc-batch-07", window="24h")</code></td><td>①</td></tr>
+        <tr><td>3 Classify</td><td>A tool call is present, so execute</td><td>⑥</td></tr>
+        <tr><td>4 Execute</td><td>Arguments validated. The read-only call is allowed at L1. Runs through MCP with tenant headers.</td><td>② ⑨</td></tr>
+        <tr><td>5 Package</td><td>“1 grant: role db_admin on prod-db-03 at 02:14 by user j.doe (no change ticket)”. About 40 tokens instead of the raw 6 KB JSON.</td><td>② ④</td></tr>
+        <tr><td>6 Update</td><td>Appended to state. The turn-1 raw SIEM payload is masked and its ID kept.</td><td>④ ⑦</td></tr>
+        <tr><td>7 Loop</td><td>Turn 3 checks asset criticality. Turn 5 emits <code>TriageVerdict</code>, which then goes through the verification loop.</td><td>① ⑩</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <p><strong>Why every step matters: errors compound.</strong> End-to-end success is roughly per-step success raised to the number of steps.</p>
+  <div class="calc" aria-label="Compounding error calculator">
+    <div class="row">
+      <label for="cp">per-step success<input id="cp" type="number" min="0" max="1" step="0.005" value="0.99"></label>
+      <label for="cn">steps<input id="cn" type="number" min="1" value="10"></label>
+      <div><div class="small">end-to-end success</div><output id="cout">–</output></div>
+    </div>
+    <p class="small" id="cnote"></p>
+  </div>
+  <h4>Long-running work across many context windows</h4>
+  <p>Some work outlasts one context window: a multi-hour incident, or a postmortem built over several sessions. Use a two-phase pattern. Continuity comes from durable records, not chat history.</p>
+  <div class="grid-2">
+    <div class="card"><div class="kicker">Session 1 · initializer</div><h4>Set up the work</h4><ul><li>Create a progress record in <code>Store</code> keyed by the incident ID</li><li>Write the task list: hypotheses to test, evidence to gather</li><li>Create the first checkpoint</li></ul></div>
+    <div class="card"><div class="kicker">Every later session · worker</div><h4>Pick up, advance, record</h4><ul><li>Read the progress record and checkpoint, not the old transcript</li><li>Take the highest-priority open item and work it</li><li>Write the result and a short summary, then checkpoint</li></ul></div>
+  </div>
+</section>
+
+<section id="frameworks">
+  <div class="sec-head"><div class="sec-num">05</div><h2>How frameworks implement the pattern</h2></div>
+  <p>The major frameworks have converged on the same core loop. They differ in where they think control should live. <b>We use LangGraph only</b> (<code>ai-engine/CLAUDE.md</code> §3). The comparison shows which ideas we borrow, not a menu of options.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th></th><th>Claude Agent SDK</th><th>OpenAI Agents SDK</th><th>LangGraph <span class="pill info">ours</span></th><th>CrewAI</th><th>AutoGen</th></tr></thead>
+    <tbody>
+      <tr><td><b>Loop</b></td><td>“Dumb” loop, smart model; gather → act → verify</td><td>Runner class (sync, async, streamed)</td><td>Explicit state graph; conditional edge to tools or END</td><td>Sequential / hierarchical process</td><td>Conversation-driven</td></tr>
+      <tr><td><b>State</b></td><td>Git commits + progress files</td><td>4 strategies (app memory, sessions, server-side, response chaining)</td><td>Typed dicts + reducers + checkpoints</td><td>Task results</td><td>Message history</td></tr>
+      <tr><td><b>Multi-agent</b></td><td>Fork · teammate · worktree</td><td>Agents-as-tools + handoffs</td><td>Nested subgraphs</td><td>Agent → task → crew</td><td>Several orchestration patterns</td></tr>
+      <tr><td><b>Philosophy</b></td><td>Thin harness, trust the model</td><td>Code-first, plain Python</td><td>Graph-based explicit control</td><td>Role-based collaboration; Flows add a deterministic backbone</td><td>Conversation as protocol</td></tr>
+    </tbody>
+  </table></div>
+  <p>The minimal LangGraph harness every agent here starts from (verify signatures against the LangGraph docs at implementation time):</p>
+<pre><code>from langgraph.graph import StateGraph, MessagesState, START, END
+from langgraph.prebuilt import ToolNode
+
+def llm_call(state: MessagesState):                       # ① loop body, ⑤ prompt built upstream
+    return {"messages": [model.bind_tools(scoped_tools).invoke(state["messages"])]}
+
+def route(state: MessagesState):                          # ⑥ output classification
+    return "tools" if state["messages"][-1].tool_calls else END
+
+g = StateGraph(MessagesState)
+g.add_node("llm_call", llm_call)
+g.add_node("tools", ToolNode(scoped_tools))               # ② tools, errors returned as ToolMessage (⑧)
+g.add_edge(START, "llm_call")
+g.add_conditional_edges("llm_call", route, ["tools", END])
+g.add_edge("tools", "llm_call")
+agent = g.compile(checkpointer=postgres_checkpointer)     # ⑦ state
+
+agent.invoke(
+    {"messages": [("user", alert_payload)]},
+    config={"recursion_limit": 25,                        # ① hard ceiling
+            "configurable": {"thread_id": "ALRT-2291"},   # ⑦ resumable by alert ID
+            "callbacks": [langfuse_handler]},             # every step traced
+)</code></pre>
+</section>
+
+<section id="scaffold">
+  <div class="sec-head"><div class="sec-num">06</div><h2>Scaffolding: design the harness to shrink</h2></div>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 400" width="960" role="img" aria-label="A building under construction surrounded by scaffolding labelled as the harness, and the finished building with the scaffolding removed as models improve">
+      <defs><marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+      <rect x="180" y="130" width="200" height="220" class="wall"/>
+      <rect x="180" y="96" width="120" height="34" class="wall" style="stroke-dasharray:4 3"/>
+      <g><rect x="200" y="150" width="34" height="40" class="window"/><rect x="263" y="150" width="34" height="40" class="window"/><rect x="326" y="150" width="34" height="40" class="window"/>
+      <rect x="200" y="215" width="34" height="40" class="window"/><rect x="263" y="215" width="34" height="40" class="window"/><rect x="326" y="215" width="34" height="40" class="window"/>
+      <rect x="200" y="280" width="34" height="40" class="window"/><rect x="263" y="280" width="34" height="40" class="window"/><rect x="326" y="280" width="34" height="40" class="window"/></g>
+      <g class="pole"><path d="M160,80 L160,352 M400,80 L400,352 M140,110 L140,352 M420,110 L420,352"/></g>
+      <g class="plank"><path d="M136,140 L424,140 M136,205 L424,205 M136,270 L424,270 M136,335 L424,335"/></g>
+      <g class="pole" style="stroke-width:2"><path d="M140,140 L160,205 M160,205 L140,270 M420,140 L400,205 M400,205 L420,270"/></g>
+      <line x1="120" y1="352" x2="440" y2="352" class="edge"/>
+      <rect x="210" y="40" width="140" height="40" rx="6" class="box-violet"/>
+      <text x="280" y="58" text-anchor="middle" class="t-head" font-size="13">The LLM</text><text x="280" y="73" text-anchor="middle" class="t-muted" font-size="10">does the actual work</text>
+      <path d="M280,80 L280,94" class="edge" marker-end="url(#s1)"/>
+      <rect x="14" y="40" width="130" height="50" rx="6" class="box-accent"/>
+      <text x="79" y="60" text-anchor="middle" class="t-head" font-size="13">The agent</text><text x="79" y="77" text-anchor="middle" class="t-muted" font-size="10">what users see</text>
+      <path d="M144,70 L176,110" class="edge" marker-end="url(#s1)"/>
+      <rect x="440" y="100" width="150" height="58" rx="6" class="box-warn"/>
+      <text x="515" y="122" text-anchor="middle" class="t-head" font-size="13">The harness</text><text x="515" y="138" text-anchor="middle" class="t-muted" font-size="10">temporary structure that</text><text x="515" y="151" text-anchor="middle" class="t-muted" font-size="10">makes the work possible</text>
+      <path d="M440,140 L424,160" class="edge" marker-end="url(#s1)"/>
+      <text x="14" y="180" class="t-muted" font-size="11">tools · memory ·</text><text x="14" y="194" class="t-muted" font-size="11">context management</text>
+      <path d="M110,198 L136,205" class="edge"/>
+      <text x="14" y="300" class="t-muted" font-size="11">guardrails ·</text><text x="14" y="314" class="t-muted" font-size="11">error handling</text>
+      <path d="M90,305 L136,300" class="edge"/>
+      <text x="446" y="270" class="t-muted" font-size="11">orchestration loop</text>
+      <path d="M444,266 L424,270" class="edge"/>
+
+      <path d="M600,210 L680,210" class="edge" marker-end="url(#s1)" style="stroke-width:2.4"/>
+      <text x="640" y="196" text-anchor="middle" class="t-muted" font-size="11">models get</text><text x="640" y="230" text-anchor="middle" class="t-muted" font-size="11">stronger</text>
+
+      <rect x="720" y="70" width="170" height="282" class="wall"/>
+      <g><rect x="738" y="92" width="34" height="40" class="window"/><rect x="788" y="92" width="34" height="40" class="window"/><rect x="838" y="92" width="34" height="40" class="window"/>
+      <rect x="738" y="157" width="34" height="40" class="window"/><rect x="788" y="157" width="34" height="40" class="window"/><rect x="838" y="157" width="34" height="40" class="window"/>
+      <rect x="738" y="222" width="34" height="40" class="window"/><rect x="788" y="222" width="34" height="40" class="window"/><rect x="838" y="222" width="34" height="40" class="window"/>
+      <rect x="785" y="292" width="40" height="60" class="window"/></g>
+      <line x1="700" y1="352" x2="950" y2="352" class="edge"/>
+      <g class="pole" style="stroke-width:2.5"><path d="M900,346 L948,336 M904,340 L944,350 M898,350 L950,344"/></g>
+      <text x="924" y="372" text-anchor="middle" class="t-muted" font-size="10">removed</text>
+      <text x="805" y="56" text-anchor="middle" class="t-muted" font-size="11">less harness, same building</text>
+      <text x="480" y="392" text-anchor="middle" class="t-muted" font-size="13">Scaffolding doesn't build the building, but without it nobody reaches the upper floors.</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 6.</b> The scaffolding metaphor. The harness makes work possible that the model can't do alone today, and parts of it should come down as models improve.</p>
+  </div>
+  <div class="grid-3">
+    <div class="card"><div class="kicker">Implication</div><h4>Harness complexity should fall over time</h4><p class="small">One production agent team rebuilt its harness five times in six months, and each rewrite <em>removed</em> complexity. Elaborate tool definitions became general-purpose ones, and “manager” agents became simple structured handoffs.</p></div>
+    <div class="card"><div class="kicker">Caution</div><h4>Models and harnesses co-evolve</h4><p class="small">Models are trained with particular harnesses in the loop. A model tuned on one tool layout can get worse when you change it. Change tool shapes deliberately, and re-run the eval harness when you do.</p></div>
+    <div class="card"><div class="kicker">Test</div><h4>The future-proofing check</h4><p class="small">If a stronger model makes the agent better <em>without</em> adding harness complexity, the design is sound. If every model upgrade needs new scaffolding, the harness is fighting the model.</p></div>
+  </div>
+  <div class="rule"><strong>Principle 2.</strong> Every planning step, router or helper agent in a harness should have a reason to exist that can be tested. When a model upgrade lands, run the eval harness with that scaffolding removed. If the scores hold, delete it.</div>
+</section>
+
+<section id="thickness">
+  <div class="sec-head"><div class="sec-num">07</div><h2>Harness thickness</h2></div>
+  <p>Thickness is how much logic lives in the harness versus in the model. It's the central architectural bet: how far you trust the model, and how much you encode in code.</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 960 350" width="960" role="img" aria-label="Spectrum from thin harness (model makes decisions) to thick harness (harness encodes logic), with frameworks placed along it and our position marked">
+      <defs><marker id="t1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker>
+      <marker id="t2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead-accent"/></marker></defs>
+      <path d="M440,40 L120,40" class="edge" marker-end="url(#t1)" style="stroke-width:2"/>
+      <text x="280" y="30" text-anchor="middle" font-size="13">bet on model improvement</text>
+      <path d="M520,40 L840,40" class="edge" marker-end="url(#t1)" style="stroke-width:2"/>
+      <text x="680" y="30" text-anchor="middle" font-size="13">bet on explicit control</text>
+      <text x="480" y="44" text-anchor="middle" class="t-muted" font-size="11">hybrid</text>
+      <rect x="110" y="70" width="740" height="24" rx="12" class="box-sunken"/>
+      <rect x="20" y="66" width="80" height="32" rx="6" class="box-accent"/><text x="60" y="87" text-anchor="middle" class="t-head" font-size="15">Thin</text>
+      <rect x="860" y="66" width="80" height="32" rx="6" class="box-violet"/><text x="900" y="87" text-anchor="middle" class="t-head" font-size="15">Thick</text>
+      <g font-size="11">
+        <line x1="250" y1="94" x2="250" y2="118" class="edge"/><rect x="190" y="118" width="120" height="38" rx="6" class="box"/><text x="250" y="134" text-anchor="middle" font-size="11">Claude</text><text x="250" y="148" text-anchor="middle" font-size="11">Agent SDK</text>
+        <line x1="400" y1="94" x2="400" y2="118" class="edge"/><rect x="340" y="118" width="120" height="38" rx="6" class="box"/><text x="400" y="134" text-anchor="middle" font-size="11">OpenAI</text><text x="400" y="148" text-anchor="middle" font-size="11">Agents SDK</text>
+        <line x1="580" y1="94" x2="580" y2="118" class="edge"/><rect x="520" y="118" width="120" height="38" rx="6" class="box"/><text x="580" y="134" text-anchor="middle" font-size="11">CrewAI</text><text x="580" y="148" text-anchor="middle" font-size="11">Flows</text>
+        <line x1="730" y1="94" x2="730" y2="118" class="edge"/><rect x="670" y="118" width="120" height="38" rx="6" class="box-accent"/><text x="730" y="134" text-anchor="middle" class="t-head" font-size="12">LangGraph</text><text x="730" y="148" text-anchor="middle" class="t-accent t-mono" font-size="10">our framework</text>
+      </g>
+      <rect x="20" y="202" width="330" height="96" rx="6" class="box-sunken" style="stroke-dasharray:5 4"/>
+      <text x="36" y="226" class="t-head" font-size="13">Thin: the model makes the decisions</text>
+      <text x="36" y="246" font-size="11">tools + context + permissions, then trust the model</text>
+      <text x="36" y="264" class="t-muted" font-size="11">less code to maintain; behaviour shifts</text>
+      <text x="36" y="280" class="t-muted" font-size="11">with every model change</text>
+      <rect x="610" y="202" width="330" height="96" rx="6" class="box-sunken" style="stroke-dasharray:5 4"/>
+      <text x="626" y="226" class="t-head" font-size="13">Thick: the harness encodes the logic</text>
+      <text x="626" y="246" font-size="11">explicit routing, planning steps, multi-step strategies</text>
+      <text x="626" y="264" class="t-muted" font-size="11">predictable and auditable; more scaffolding</text>
+      <text x="626" y="280" class="t-muted" font-size="11">to delete later</text>
+      <path d="M730,186 L560,186" class="edge-accent" marker-end="url(#t2)"/>
+      <text x="645" y="178" text-anchor="middle" class="t-accent" font-size="11">as models improve, move left</text>
+      <rect x="380" y="212" width="200" height="76" rx="6" class="box-accent"/>
+      <text x="480" y="234" text-anchor="middle" class="t-head" font-size="13">Our position</text>
+      <text x="480" y="252" text-anchor="middle" font-size="11">explicit graph for control flow</text>
+      <text x="480" y="268" text-anchor="middle" font-size="11">and safety; thin nodes that</text>
+      <text x="480" y="282" text-anchor="middle" font-size="11">let the model reason</text>
+      <text x="480" y="336" text-anchor="middle" class="t-muted" font-size="12">Thickness is a bet on how much to trust the model versus how much to encode in code.</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 7.</b> The thickness spectrum. LangGraph sits toward the thick end, which we need for auditable, tenant-scoped, autonomy-gated agents. We keep it honest by making each node thin.</p>
+  </div>
+  <div class="rule"><strong>Principle 3. Thick where it's a contract, thin where it's reasoning.</strong> Encode in the graph whatever must hold no matter what the model thinks: tenant scope, autonomy gates, <code>interrupt()</code> approvals, termination ceilings, verification before output. Leave everything else to the model inside a node: which hypothesis to try next, which query to run, how to phrase the rationale.</div>
+</section>
+
+<section id="decisions">
+  <div class="sec-head"><div class="sec-num">08</div><h2>The seven harness design decisions</h2></div>
+  <p>Every agent design has to make these seven calls explicitly. There's no universal right answer, only trade-offs. The highlighted leaves are our <b>defaults</b>. Deviating from a default is allowed, but write down why in the agent's harness spec (§9).</p>
+  <div class="figure">
+    <div class="scroll-x">
+    <svg viewBox="0 0 980 460" width="980" role="img" aria-label="Seven harness design decisions with two options each; our defaults highlighted">
+      <rect x="380" y="10" width="220" height="44" rx="6" class="box-accent"/>
+      <text x="490" y="38" text-anchor="middle" class="t-head" font-size="16">Designing an agent harness</text>
+      <path d="M490,54 L490,72 M70,72 L910,72 M70,72 L70,90 M330,72 L330,90 M630,72 L630,90 M910,72 L910,90" class="edge"/>
+      <path d="M200,72 L200,240 M490,72 L490,240 M790,72 L790,240" class="edge"/>
+
+      <g>
+        <rect x="10" y="90" width="120" height="30" rx="6" class="box"/><text x="70" y="110" text-anchor="middle" class="t-head" font-size="12">1 · Agent count</text>
+        <path d="M70,120 L70,132 M30,132 L110,132 M30,132 L30,144 M110,132 L110,144" class="edge"/>
+        <rect x="2" y="144" width="62" height="54" rx="6" class="box-pass"/><text x="33" y="164" text-anchor="middle" font-size="11">Single</text><text x="33" y="178" text-anchor="middle" class="t-muted" font-size="9">first, simpler</text><text x="33" y="190" text-anchor="middle" class="t-pass t-mono" font-size="9">default</text>
+        <rect x="76" y="144" width="70" height="54" rx="6" class="box"/><text x="111" y="164" text-anchor="middle" font-size="11">Multi</text><text x="111" y="178" text-anchor="middle" class="t-muted" font-size="9">on 3 triggers</text>
+      </g>
+      <g>
+        <rect x="260" y="90" width="140" height="30" rx="6" class="box"/><text x="330" y="110" text-anchor="middle" class="t-head" font-size="12">2 · Reasoning</text>
+        <path d="M330,120 L330,132 M285,132 L375,132 M285,132 L285,144 M375,132 L375,144" class="edge"/>
+        <rect x="244" y="144" width="82" height="54" rx="6" class="box-pass"/><text x="285" y="164" text-anchor="middle" font-size="11">ReAct</text><text x="285" y="178" text-anchor="middle" class="t-muted" font-size="9">in specialists</text><text x="285" y="190" text-anchor="middle" class="t-pass t-mono" font-size="9">default</text>
+        <rect x="334" y="144" width="82" height="54" rx="6" class="box-pass"/><text x="375" y="164" text-anchor="middle" font-size="11">Plan-execute</text><text x="375" y="178" text-anchor="middle" class="t-muted" font-size="9">in supervisor</text><text x="375" y="190" text-anchor="middle" class="t-pass t-mono" font-size="9">default</text>
+      </g>
+      <g>
+        <rect x="560" y="90" width="140" height="30" rx="6" class="box"/><text x="630" y="110" text-anchor="middle" class="t-head" font-size="12">3 · Context strategy</text>
+        <path d="M630,120 L630,132 M585,132 L675,132 M585,132 L585,144 M675,132 L675,144" class="edge"/>
+        <rect x="544" y="144" width="82" height="54" rx="6" class="box-pass"/><text x="585" y="164" text-anchor="middle" font-size="11">Lean</text><text x="585" y="178" text-anchor="middle" class="t-muted" font-size="9">compact + mask</text><text x="585" y="190" text-anchor="middle" class="t-pass t-mono" font-size="9">default</text>
+        <rect x="634" y="144" width="82" height="54" rx="6" class="box"/><text x="675" y="164" text-anchor="middle" font-size="11">Rich</text><text x="675" y="178" text-anchor="middle" class="t-muted" font-size="9">recall, cost</text>
+      </g>
+      <g>
+        <rect x="840" y="90" width="140" height="30" rx="6" class="box"/><text x="910" y="110" text-anchor="middle" class="t-head" font-size="12">4 · Verification</text>
+        <path d="M910,120 L910,132 M865,132 L955,132 M865,132 L865,144 M955,132 L955,144" class="edge"/>
+        <rect x="822" y="144" width="86" height="54" rx="6" class="box-pass"/><text x="865" y="164" text-anchor="middle" font-size="11">Computational</text><text x="865" y="178" text-anchor="middle" class="t-muted" font-size="9">always, first</text><text x="865" y="190" text-anchor="middle" class="t-pass t-mono" font-size="9">default</text>
+        <rect x="914" y="144" width="64" height="54" rx="6" class="box-pass"/><text x="946" y="164" text-anchor="middle" font-size="11">Inferential</text><text x="946" y="178" text-anchor="middle" class="t-muted" font-size="9">critic, judge</text><text x="946" y="190" text-anchor="middle" class="t-pass t-mono" font-size="9">if needed</text>
+      </g>
+
+      <g>
+        <rect x="130" y="240" width="140" height="30" rx="6" class="box"/><text x="200" y="260" text-anchor="middle" class="t-head" font-size="12">5 · Permissions</text>
+        <path d="M200,270 L200,282 M155,282 L245,282 M155,282 L155,294 M245,282 L245,294" class="edge"/>
+        <rect x="114" y="294" width="82" height="54" rx="6" class="box"/><text x="155" y="314" text-anchor="middle" font-size="11">Permissive</text><text x="155" y="328" text-anchor="middle" class="t-muted" font-size="9">fast, risky</text>
+        <rect x="204" y="294" width="82" height="54" rx="6" class="box-pass"/><text x="245" y="314" text-anchor="middle" font-size="11">Restrictive</text><text x="245" y="328" text-anchor="middle" class="t-muted" font-size="9">L0/L1 start</text><text x="245" y="340" text-anchor="middle" class="t-pass t-mono" font-size="9">default</text>
+      </g>
+      <g>
+        <rect x="420" y="240" width="140" height="30" rx="6" class="box"/><text x="490" y="260" text-anchor="middle" class="t-head" font-size="12">6 · Tool scoping</text>
+        <path d="M490,270 L490,282 M445,282 L535,282 M445,282 L445,294 M535,282 L535,294" class="edge"/>
+        <rect x="404" y="294" width="82" height="54" rx="6" class="box"/><text x="445" y="314" text-anchor="middle" font-size="11">Full toolkit</text><text x="445" y="328" text-anchor="middle" class="t-muted" font-size="9">flexible</text>
+        <rect x="494" y="294" width="82" height="54" rx="6" class="box-pass"/><text x="535" y="314" text-anchor="middle" font-size="11">Minimal/step</text><text x="535" y="328" text-anchor="middle" class="t-muted" font-size="9">better choices</text><text x="535" y="340" text-anchor="middle" class="t-pass t-mono" font-size="9">default</text>
+      </g>
+      <g>
+        <rect x="710" y="240" width="160" height="30" rx="6" class="box"/><text x="790" y="260" text-anchor="middle" class="t-head" font-size="12">7 · Harness thickness</text>
+        <path d="M790,270 L790,282 M745,282 L835,282 M745,282 L745,294 M835,282 L835,294" class="edge"/>
+        <rect x="704" y="294" width="82" height="54" rx="6" class="box"/><text x="745" y="314" text-anchor="middle" font-size="11">Thin</text><text x="745" y="328" text-anchor="middle" class="t-muted" font-size="9">trust model</text>
+        <rect x="794" y="294" width="82" height="54" rx="6" class="box-pass"/><text x="835" y="314" text-anchor="middle" font-size="11">Thick graph</text><text x="835" y="328" text-anchor="middle" class="t-muted" font-size="9">thin nodes</text><text x="835" y="340" text-anchor="middle" class="t-pass t-mono" font-size="9">default</text>
+      </g>
+      <text x="490" y="400" text-anchor="middle" class="t-muted" font-size="13">These seven decisions define the design space for an agent harness. Record each one in the agent's harness spec.</text>
+      <rect x="380" y="418" width="16" height="16" rx="3" class="box-pass"/><text x="402" y="431" font-size="11">our default</text>
+      <rect x="480" y="418" width="16" height="16" rx="3" class="box"/><text x="502" y="431" font-size="11">allowed with a written reason</text>
+    </svg>
+    </div>
+    <p class="cap"><b>Figure 8.</b> The seven decisions, with our defaults highlighted.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Decision</th><th>Trade-off</th><th>Our default</th><th>Deviate when</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Single vs multi-agent</td><td>Multi-agent adds routing calls, context loss at handoffs, and typically 3–10× tokens</td><td>Get the most out of a single agent first</td><td>Any of the three triggers: context protection, parallelisation, specialisation (<code>00-pillars-overview.md</code> §4), or about 10+ overlapping tools</td></tr>
+      <tr><td>2</td><td>ReAct vs plan-and-execute</td><td>ReAct adapts but costs more per step. Plan-and-execute is faster (reported up to 3.6×) but adapts less.</td><td>Supervisor plans and fans out with <code>Send</code>. Specialists run ReAct inside their scope.</td><td>Fully known, fixed procedures can be a deterministic pipeline with no ReAct</td></tr>
+      <tr><td>3</td><td>Context strategy</td><td>Aggressive compaction saves tokens. Rich context improves recall but costs more.</td><td>Lean: compaction, observation masking, IDs + excerpts, 1–2k-token subagent summaries. Keeping reasoning traces over raw tool output keeps accuracy while cutting tokens.</td><td>A short, high-stakes task with a small evidence set can carry it all</td></tr>
+      <tr><td>4</td><td>Verification design</td><td>Computational checks are deterministic and cheap. Inferential checks catch semantic issues but add latency.</td><td>Computational checks always. A critic or judge only where judgment is needed. Same modules as the eval harness.</td><td>Never ship without at least one computational check on the final output</td></tr>
+      <tr><td>5</td><td>Permission architecture</td><td>Permissive is fast and risky. Restrictive is safe and slower.</td><td>Restrictive: start at L0/L1, <code>interrupt()</code> for any write</td><td>Raise autonomy per tool, only after offline and online evals show it's safe (<code>design-considerations.md</code>)</td></tr>
+      <tr><td>6</td><td>Tool scoping</td><td>A full toolkit is flexible. A minimal set per step gives better choices.</td><td>Minimal per step and per subagent, loaded lazily</td><td>Exploratory read-only agents may get a wider read set</td></tr>
+      <tr><td>7</td><td>Harness thickness</td><td>Thin trusts the model. Thick encodes control.</td><td>Thick graph for contracts, thin nodes for reasoning (Principle 3)</td><td>Re-assess at each model upgrade (Principle 2)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="spec">
+  <div class="sec-head"><div class="sec-num">09</div><h2>Harness spec for a new agent</h2></div>
+  <p>Before writing graph code, every new agent gets a harness spec: one page that answers all 11 components and all 7 decisions. Keep it next to the agent's code. It's the design-review artifact and the input to the eval dataset (<code>04-evaluation.html</code> A2, A10 Phase 1).</p>
+  <div class="example">
+    <div class="tag">Worked example · Security alert triage agent</div>
+    <h4>harness-spec.yaml</h4>
+<pre><code>agent: security.alert_triage
+span_prefix: itsm.ai.security.alert_triage
+goal: "Decide escalate | close for one SIEM alert, with cited evidence"
+autonomy: L1                     # proposes; never acts (design-considerations.md)
+
+decisions:                       # the seven decisions (§8)
+  agent_count: multi             # trigger: parallelisation (identity + asset lookups are independent)
+  reasoning: supervisor plan-and-execute; specialists ReAct
+  context: lean                  # raw SIEM payload masked after turn 1; IDs + excerpts in state
+  verification: [computational: evidence_ids_exist, schema; inferential: critic (other model family)]
+  permissions: restrictive       # read-only tools only; any revoke/disable → interrupt()
+  tool_scoping: per-subagent     # identity-access: 3 tools; asset-criticality: 2 tools
+  thickness: thick graph, thin nodes
+
+components:                      # the eleven components (§3)
+  loop:        {recursion_limit: 25, wall_clock: 120s, exit_on: [no_tool_calls, tripwire, budget]}
+  prompt:      {stack: [policy, tools, skill+rubric, alert, evidence, history], task_repeated_at_end: true}
+  parsing:     {final_schema: TriageVerdict, on_schema_error: retry_once_with_error}
+  errors:      {transient: backoff x2, tool_error: return_to_model, missing_permission: interrupt, other: raise}
+  tools:       {via: MCP, scoped: true, risk_gated: true}
+  memory:      {store_namespace: "tenant/{tenant}/security/assets", episodic: pgvector prior detections}
+  context:     {compaction_at: 70%, subagent_summary_max_tokens: 1500}
+  state:       {schema: TriageState, checkpointer: postgres, thread_id: alert_id}
+  guardrails:  {input: tenant+role from headers, tool: per-call allowlist, output: no autonomous action text}
+  verification:{before_return: [evidence_ids_exist, critic_approve]}
+  subagents:   {pattern: agents-as-tools, fan_out: Send, peers_never_call_each_other: true}
+
+evals: see 04-evaluation.html (dataset rows sec-1..sec-6 + fault + safety rows)</code></pre>
+  </div>
+</section>
+
+<section id="diagnose">
+  <div class="sec-head"><div class="sec-num">10</div><h2>When an agent fails, check the harness first</h2></div>
+  <p>Find the symptom in the Langfuse trace, then go to the component.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Symptom in the trace</th><th>Likely component</th><th>First fix to try</th></tr></thead>
+    <tbody>
+      <tr><td>Repeats a tool call it already made</td><td>④ context, ⑦ state</td><td>Keep tool calls visible when masking outputs. Record “done” items in state.</td></tr>
+      <tr><td>Ignores an instruction late in a long run</td><td>④ context, ⑤ prompt</td><td>Compact earlier. Restate the task and constraints at the end of the prompt.</td></tr>
+      <tr><td>Picks the wrong tool, or invents one</td><td>② tools (scope)</td><td>Fewer tools per step. Say in each description when to use the tool.</td></tr>
+      <tr><td>A failed call ends the whole run</td><td>⑧ error handling</td><td>Return the error to the model as a result. Retry transient failures with backoff.</td></tr>
+      <tr><td>States facts no tool returned</td><td>⑩ verification</td><td>Add a computational evidence-ID check before output. Add a critic for groundedness.</td></tr>
+      <tr><td>Runs until it hits the turn limit</td><td>① loop</td><td>Make the goal-achieved check explicit. Return a partial result with the evidence so far.</td></tr>
+      <tr><td>Attempts an action above its autonomy level</td><td>⑨ guardrails</td><td>Enforce at the tool layer, not in the prompt. Add an <code>interrupt()</code> gate.</td></tr>
+      <tr><td>Supervisor loses detail from a specialist</td><td>⑪ subagents</td><td>Use a structured summary schema for subagent returns, with IDs plus findings.</td></tr>
+      <tr><td>Unparseable final answer</td><td>⑥ parsing</td><td>Use native structured output. Retry once with the parse error.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="checklist">
+  <div class="sec-head"><div class="sec-num">11</div><h2>Harness checklist</h2></div>
+  <p class="small">Tick boxes are for your own use during a design review. They are not saved.</p>
+  <ul class="checklist">
+    <li><input type="checkbox" id="h1"><label for="h1">Harness spec written (§9). All 11 components answered, all 7 decisions recorded, and any deviation from a default has a reason</label></li>
+    <li><input type="checkbox" id="h2"><label for="h2">Loop has a goal check and hard ceilings (turns, tokens, wall clock); hitting the ceiling returns a partial result, not a guess</label></li>
+    <li><input type="checkbox" id="h3"><label for="h3">Prompt follows the priority stack; policy first, task repeated at the end; prompts versioned in Langfuse</label></li>
+    <li><input type="checkbox" id="h4"><label for="h4">Final output is schema-constrained and lands in typed state</label></li>
+    <li><input type="checkbox" id="h5"><label for="h5">Every failure type has a defined path: retry, return to the model, <code>interrupt()</code>, or raise</label></li>
+    <li><input type="checkbox" id="h6"><label for="h6">Tools exposed through MCP, scoped per subagent (about 10 or fewer), risk-gated per call</label></li>
+    <li><input type="checkbox" id="h7"><label for="h7">Memory tiered (index / on-demand / search) and tenant-namespaced; writes follow the write policy</label></li>
+    <li><input type="checkbox" id="h8"><label for="h8">Context strategy set: compaction threshold, observation masking, IDs + excerpts, capped subagent summaries</label></li>
+    <li><input type="checkbox" id="h9"><label for="h9">Checkpointer on; <code>thread_id</code> is the business ID; long-running work keeps a progress record</label></li>
+    <li><input type="checkbox" id="h10"><label for="h10">Guardrails at input, tool and output; permissions enforced in the tool layer; autonomy L0/L1 by default</label></li>
+    <li><input type="checkbox" id="h11"><label for="h11">Verification before output: at least one computational check, plus a critic where judgment is needed</label></li>
+    <li><input type="checkbox" id="h12"><label for="h12">Every node, tool call and model call traced in Langfuse with <code>tenant.id</code> and <code>user.role</code></label></li>
+    <li><input type="checkbox" id="h13"><label for="h13">Scaffolding review scheduled for the next model upgrade (Principle 2)</label></li>
+  </ul>
+</section>
+
+<section id="refs">
+  <div class="sec-head"><div class="sec-num">REF</div><h2>Reference index</h2></div>
+  <ul class="prose">
+    <li><code>design/00-pillars-overview.md</code>: CoALA model (Agent = LLM + Code + Memory) and the 6-step build journey. Read it with this guide.</li>
+    <li><code>design/01-orchestration.md</code> · <code>02-memory.md</code> · <code>03-tools.md</code> · <code>04-evaluation.html</code> · <code>05-agent-skills.md</code>: the depth behind each harness component (see the §0 table).</li>
+    <li><code>ai-engine/CLAUDE.md</code> §2 (context, loop and graph engineering) and §3 (LangGraph and Langfuse only): the non-negotiables this guide operationalises.</li>
+    <li><code>design/design-considerations.md</code>: autonomy levels L0–L4 and human-in-the-loop policy behind components ⑨ and decision 5.</li>
+  </ul>
+  <p class="small">Source: adapted from Avi Chawla, <a href="https://www.dailydoseofds.com/p/the-anatomy-of-an-agent-harness/">“The Anatomy of an Agent Harness”</a>, Daily Dose of Data Science (Apr 2026). All diagrams here are redrawn for this repo, and all examples come from our SRE, ITSM and Security tracks.</p>
+</section>
+
+</main>
+</div>
+
+<script>
+(function () {
+  function calc() {
+    var p = parseFloat(document.getElementById('cp').value), n = parseInt(document.getElementById('cn').value, 10);
+    if (isNaN(p) || isNaN(n) || n < 1) return;
+    p = Math.min(Math.max(p, 0), 1);
+    var e = Math.pow(p, n);
+    document.getElementById('cout').textContent = (e * 100).toFixed(1) + '%';
+    document.getElementById('cnote').textContent = 'At ' + (p * 100).toFixed(1) + '% per step, ' + n + ' steps leave a ' + ((1 - e) * 100).toFixed(1) + '% chance that at least one step fails. Error handling and verification exist to absorb that.';
+  }
+  document.getElementById('cp').addEventListener('input', calc);
+  document.getElementById('cn').addEventListener('input', calc);
+  calc();
+})();
+</script>
+</body>
+</html>
