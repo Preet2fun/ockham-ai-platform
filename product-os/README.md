@@ -78,9 +78,9 @@ Both `ai-product-strategy/` and `ai-design/` fold into a `lifecycle/` phase once
 Root docs: [`ai-pmf-strategy.md`](ai-pmf-strategy.md) ·
 [`ai-launch-strategy.md`](ai-launch-strategy.md) — cross-cutting frameworks;
 [`messaging.md`](messaging.md) — the homepage & product message (5-second test);
-[`HOW-TO-BUILD-A-FEATURE.md`](HOW-TO-BUILD-A-FEATURE.md) — one worked feature,
-every slash command in order, every always-stop checkpoint marked — start here
-if this is your first time running the cycle end to end.
+[`HOW-TO-BUILD-A-FEATURE.md`](HOW-TO-BUILD-A-FEATURE.md) — **the Feature SOP**:
+the step-by-step procedure every feature follows from idea to delivery and
+growth, with owners, commands, gates and outputs. Start here.
 The BUILT standalone folders (`ai-discovery/`, `ai-prd/`, `ai-feedback/`, `ai-gtm/`,
 `operations/`) also fold into `lifecycle/` — see "Standalone folders" below.
 

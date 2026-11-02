@@ -35,6 +35,17 @@ Slug used across Product OS, spec, and plan: **`business-insights`**.
 - [ ] Customer evidence is pre-launch → `[Assumed]` in Discovery/PRD; log as PRD risk
 - [ ] `ai-gtm/pricing-and-packaging.md` is thin → blocks PRD stage 10 ROI (TODO.md item 2)
 
+## Parked gaps (for app roadmaps — Feature SOP §11)
+
+- [ ] **customer-app:** Hearth H1 screens (Orders, Menu, Deliveries, Payments) not built — Copilot follow-throughs ("View affected orders") have nowhere to land
+- [ ] **customer-app:** data model may lack "why" fields (per-item prep time, delivery ETA vs actual, payment failure reasons) — confirm in Discovery 03
+
+## SOP / Product OS gaps (fix in Product OS)
+
+- [ ] Step 3 (Design) has no agent — bridged by brainstorming
+- [ ] Hearth has no GTM pack (`ai-gtm/` is Ockham-only) — needed by Step 7
+- [ ] **End of run:** Product OS scaffolding cleanup — remove unnecessary files/folders, apply consistent naming; exact list approved before any delete/rename (root CLAUDE.md §13)
+
 ## Phases
 
 ### 0. Portfolio setup — Hearth as a second product in Product OS
